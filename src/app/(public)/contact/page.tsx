@@ -1,3 +1,6 @@
+"use client";
+
+import { useState, type FormEvent } from "react";
 import { PageHero } from "@/components/shared/page-hero";
 import { Container } from "@/components/ui/container";
 import { Heading } from "@/components/ui/heading";
@@ -6,8 +9,41 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { MailIcon, PhoneIcon, MapPinIcon, SendIcon } from "@/components/ui/icons";
+import { useToast } from "@/components/ui/toast";
+import { contactService } from "@/services/contact.service";
 
 export default function ContactPage() {
+  const { toast } = useToast();
+
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [subject, setSubject] = useState("");
+  const [message, setMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      const name = `${firstName} ${lastName}`.trim();
+      await contactService.send({ name, email, subject, message });
+      toast("Message sent! We'll get back to you soon.", "success");
+      setFirstName("");
+      setLastName("");
+      setEmail("");
+      setSubject("");
+      setMessage("");
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : "Something went wrong. Please try again.";
+      toast(errorMessage, "error");
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
   return (
     <>
       <PageHero
@@ -25,21 +61,49 @@ export default function ContactPage() {
                 Send us a message
               </Heading>
 
-              <form className="space-y-8">
+              <form className="space-y-8" onSubmit={handleSubmit}>
                 <div className="grid gap-6 sm:grid-cols-2">
-                  <Input label="First Name" placeholder="John" />
-                  <Input label="Last Name" placeholder="Doe" />
+                  <Input
+                    label="First Name"
+                    placeholder="John"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                  />
+                  <Input
+                    label="Last Name"
+                    placeholder="Doe"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                  />
                 </div>
-                <Input label="Email Address" type="email" placeholder="john@example.com" />
-                <Textarea label="Message" placeholder="How can we help you?" />
+                <Input
+                  label="Email Address"
+                  type="email"
+                  placeholder="john@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+                <Input
+                  label="Subject"
+                  placeholder="E.g., Donation Query"
+                  value={subject}
+                  onChange={(e) => setSubject(e.target.value)}
+                />
+                <Textarea
+                  label="Message"
+                  placeholder="How can we help you?"
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                />
                 <Button
                   variant="secondary"
                   size="lg"
                   type="submit"
+                  disabled={isSubmitting}
                   className="gap-2 rounded-[14px] text-[16px] font-black"
                 >
-                  Send Message
-                  <SendIcon className="size-4" />
+                  {isSubmitting ? "Sending..." : "Send Message"}
+                  {!isSubmitting && <SendIcon className="size-4" />}
                 </Button>
               </form>
             </div>

@@ -9,48 +9,45 @@ import { Text } from "@/components/ui/text";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { CalendarIcon, CheckCircleIcon, ClockIcon, HeartIcon } from "@/components/ui/icons";
-
-type DonationStatus = "succeeded" | "pending" | "failed";
-
-interface DonationItem {
-  id: string;
-  campaignSlug: string;
-  campaignTitle: string;
-  amount: number;
-  createdAt: string;
-  status: DonationStatus;
-  receiptNumber: string | null;
-}
-
-const DONATIONS: DonationItem[] = [
-  { id: "don-001", campaignSlug: "pallavi-mane", campaignTitle: "Pallavi Mane — Cancer Treatment", amount: 15000, createdAt: "2026-03-12", status: "succeeded", receiptNumber: "REC-2026-001" },
-  { id: "don-002", campaignSlug: "samarth-verma", campaignTitle: "Samarth Verma — Brain Tumor Surgery", amount: 10000, createdAt: "2026-03-10", status: "succeeded", receiptNumber: "REC-2026-002" },
-  { id: "don-003", campaignSlug: "aloke-dubey", campaignTitle: "Aloke Dubey — Kidney Transplant", amount: 15000, createdAt: "2026-03-08", status: "succeeded", receiptNumber: "REC-2026-003" },
-  { id: "don-004", campaignSlug: "gagubai-kate", campaignTitle: "Gagubai Kate — Heart Blockage", amount: 5000, createdAt: "2026-03-05", status: "pending", receiptNumber: null },
-  { id: "don-005", campaignSlug: "dinesh-joshi", campaignTitle: "Dinesh Joshi — Cancer Treatment", amount: 2000, createdAt: "2026-02-28", status: "failed", receiptNumber: null },
-  { id: "don-006", campaignSlug: "asha-khandekar", campaignTitle: "Asha Khandekar — Breast Cancer", amount: 8000, createdAt: "2026-02-20", status: "succeeded", receiptNumber: "REC-2026-004" },
-];
+import { useApi } from "@/hooks/use-api";
+import { userService } from "@/services/user.service";
+import type { PaginatedData } from "@/types/api";
+import type { Donation } from "@/types/donation";
 
 const FILTERS = ["All", "Succeeded", "Pending", "Failed"] as const;
 
-const STATUS_CONFIG: Record<DonationStatus, { label: string; variant: "success" | "outline" | "default" }> = {
+const STATUS_CONFIG: Record<string, { label: string; variant: "success" | "outline" | "default" }> = {
   succeeded: { label: "Succeeded", variant: "success" },
   pending: { label: "Pending", variant: "outline" },
   failed: { label: "Failed", variant: "default" },
+  initiated: { label: "Initiated", variant: "outline" },
+  cancelled: { label: "Cancelled", variant: "default" },
+  refunded: { label: "Refunded", variant: "outline" },
 };
 
 export default function DonationHistoryPage() {
   const [activeFilter, setActiveFilter] = useState<string>("All");
 
-  const filtered = activeFilter === "All"
-    ? DONATIONS
-    : DONATIONS.filter((d) => d.status === activeFilter.toLowerCase());
+  const params: Record<string, string | number | boolean | undefined> =
+    activeFilter === "All" ? {} : { status: activeFilter.toLowerCase() };
 
-  const totalDonated = DONATIONS
+  const { data, isLoading } = useApi<PaginatedData<Donation>>(
+    () => userService.getDonations(params),
+    [activeFilter],
+  );
+
+  const donations = data?.items ?? [];
+
+  const totalDonated = donations
     .filter((d) => d.status === "succeeded")
     .reduce((sum, d) => sum + d.amount, 0);
 
-  const totalCount = DONATIONS.filter((d) => d.status === "succeeded").length;
+  const totalCount = donations.filter((d) => d.status === "succeeded").length;
+
+  const lastDonationDate =
+    donations.length > 0
+      ? new Date(donations[0].createdAt).toLocaleDateString()
+      : "\u2014";
 
   return (
     <div>
@@ -64,21 +61,23 @@ export default function DonationHistoryPage() {
             <HeartIcon className="size-5" />
           </div>
           <Text variant="muted" size="label" className="mb-1">Total Donated</Text>
-          <p className="text-h4 text-primary">&#8377; {formatINR(totalDonated)}</p>
+          <p className="text-h4 text-primary">
+            {isLoading ? "\u2014" : <>&#8377; {formatINR(totalDonated)}</>}
+          </p>
         </div>
         <div className="rounded-2xl border border-surface-border bg-white p-5 shadow-card">
           <div className="mb-2 inline-flex size-10 items-center justify-center rounded-xl bg-accent/10 text-accent">
             <CheckCircleIcon className="size-5" />
           </div>
           <Text variant="muted" size="label" className="mb-1">Successful Donations</Text>
-          <p className="text-h4 text-primary">{totalCount}</p>
+          <p className="text-h4 text-primary">{isLoading ? "\u2014" : totalCount}</p>
         </div>
         <div className="rounded-2xl border border-surface-border bg-white p-5 shadow-card">
           <div className="mb-2 inline-flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
             <CalendarIcon className="size-5" />
           </div>
           <Text variant="muted" size="label" className="mb-1">Last Donation</Text>
-          <p className="text-h4 text-primary">{new Date(DONATIONS[0].createdAt).toLocaleDateString()}</p>
+          <p className="text-h4 text-primary">{isLoading ? "\u2014" : lastDonationDate}</p>
         </div>
       </div>
 
@@ -106,34 +105,38 @@ export default function DonationHistoryPage() {
         <div className="border-b border-surface-border px-6 py-4">
           <Heading level="h4" as="h2">
             {activeFilter === "All" ? "All Donations" : `${activeFilter} Donations`}
-            <span className="ml-2 text-body text-slate-light font-normal">({filtered.length})</span>
+            <span className="ml-2 text-body text-slate-light font-normal">({donations.length})</span>
           </Heading>
         </div>
 
-        {filtered.length === 0 ? (
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center py-16">
+            <Text variant="secondary">Loading donations...</Text>
+          </div>
+        ) : donations.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16">
             <span className="mb-4 flex size-14 items-center justify-center rounded-full bg-surface-page">
               <ClockIcon className="size-7 text-slate-light" />
             </span>
             <Text variant="secondary" className="text-center">
-              No {activeFilter.toLowerCase()} donations found.
+              No {activeFilter === "All" ? "" : activeFilter.toLowerCase() + " "}donations found.
             </Text>
           </div>
         ) : (
           <div className="divide-y divide-surface-border">
-            {filtered.map((donation) => {
-              const cfg = STATUS_CONFIG[donation.status];
+            {donations.map((donation) => {
+              const cfg = STATUS_CONFIG[donation.status] ?? { label: donation.status, variant: "outline" as const };
               return (
                 <div key={donation.id} className="flex flex-col gap-4 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
                   {/* Left: campaign info */}
                   <div className="flex items-center gap-4">
-                    <Avatar initials={donation.campaignTitle.slice(0, 2).toUpperCase()} size="md" />
+                    <Avatar initials={donation.campaign.title.slice(0, 2).toUpperCase()} size="md" />
                     <div>
                       <Link
-                        href={`/causes/${donation.campaignSlug}`}
+                        href={`/causes/${donation.campaign.slug}`}
                         className="text-btn font-black text-primary hover:text-accent transition-colors"
                       >
-                        {donation.campaignTitle}
+                        {donation.campaign.title}
                       </Link>
                       <Text variant="muted" size="label" className="normal-case tracking-normal">
                         {new Date(donation.createdAt).toLocaleDateString()}
@@ -148,7 +151,7 @@ export default function DonationHistoryPage() {
                     </Badge>
                     <div className="text-right">
                       <p className="text-btn font-black text-accent">&#8377; {formatINR(donation.amount)}</p>
-                      {donation.receiptNumber ? (
+                      {donation.receipt?.receiptNumber ? (
                         <button
                           type="button"
                           className="text-label text-primary hover:text-accent transition-colors font-bold"

@@ -1,9 +1,22 @@
+"use client";
+
 import { Container } from "@/components/ui/container";
 import { Heading } from "@/components/ui/heading";
 import { Text } from "@/components/ui/text";
 import { ProgressBar } from "@/components/ui/progress-bar";
+import { useApi } from "@/hooks/use-api";
+import { publicService } from "@/services/public.service";
+import { formatINR } from "@/lib/format";
+
+const FUNDRAISING_GOAL = 950000;
 
 export function ImpactStats() {
+  const { data: stats, isLoading } = useApi(() => publicService.getStats(), []);
+
+  const totalRaised = stats?.totalRaised ?? 0;
+  const raisedDisplay = isLoading ? "\u2014" : `\u20B9 ${formatINR(totalRaised)}`;
+  const goalDisplay = `\u20B9 ${formatINR(FUNDRAISING_GOAL)}`;
+
   return (
     <section className="relative -mt-16 z-10 pb-8">
       <Container>
@@ -20,7 +33,7 @@ export function ImpactStats() {
             <div className="mb-1 flex items-end justify-between">
               <div>
                 <p className="text-[30px] font-black leading-[30px] tracking-tight text-primary">
-                  &#8377; 750,000
+                  {raisedDisplay}
                 </p>
                 <Text as="span" variant="muted" size="label" className="mt-1 uppercase tracking-[1.2px]">
                   Raised
@@ -28,7 +41,7 @@ export function ImpactStats() {
               </div>
               <div className="text-right">
                 <p className="text-h4 font-black text-accent">
-                  &#8377; 950,000
+                  {goalDisplay}
                 </p>
                 <Text as="span" variant="muted" size="label" className="mt-1 uppercase tracking-[1.2px]">
                   Goal
@@ -36,7 +49,29 @@ export function ImpactStats() {
               </div>
             </div>
 
-            <ProgressBar value={750000} max={950000} className="mt-4" />
+            <ProgressBar
+              value={isLoading ? 0 : totalRaised}
+              max={FUNDRAISING_GOAL}
+              className="mt-4"
+            />
+
+            {/* Secondary stats */}
+            {!isLoading && stats && (
+              <div className="mt-6 flex gap-8">
+                <div>
+                  <p className="text-lg font-black text-primary">{stats.totalDonors.toLocaleString("en-IN")}</p>
+                  <Text as="span" variant="muted" size="label" className="uppercase tracking-[1.2px]">
+                    Donors
+                  </Text>
+                </div>
+                <div>
+                  <p className="text-lg font-black text-primary">{stats.totalCampaigns}</p>
+                  <Text as="span" variant="muted" size="label" className="uppercase tracking-[1.2px]">
+                    Campaigns
+                  </Text>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Right — How Your Support Helps */}

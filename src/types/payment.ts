@@ -1,10 +1,25 @@
-export interface CreatePaymentIntentRequest {
+export interface CreateDonationRequest {
   campaignId: string;
   amount: number;
-  firstName: string;
-  lastName: string;
-  email: string;
+  currency?: string;
   isAnonymous?: boolean;
+  message?: string;
+  donorName?: string;
+  donorEmail?: string;
+}
+
+export interface CreatedDonation {
+  id: string;
+  campaignId: string;
+  amount: number;
+  currency: string;
+  status: string;
+}
+
+export interface CreatePaymentIntentRequest {
+  donationId: string;
+  amount: number;
+  currency?: string;
 }
 
 export interface PaymentIntent {

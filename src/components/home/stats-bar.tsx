@@ -1,23 +1,34 @@
+"use client";
+
 import { Container } from "@/components/ui/container";
-
-interface StatItem {
-  value: string;
-  label: string;
-}
-
-const STATS: StatItem[] = [
-  { value: "400+", label: "Volunteers" },
-  { value: "19 L+", label: "Raised" },
-  { value: "100K+", label: "Donations" },
-  { value: "20+", label: "Active Causes" },
-];
+import { useApi } from "@/hooks/use-api";
+import { publicService } from "@/services/public.service";
+import { formatINR } from "@/lib/format";
 
 export function StatsBar() {
+  const { data: stats, isLoading } = useApi(() => publicService.getStats(), []);
+
+  const items = [
+    { value: "400+", label: "Volunteers" },
+    {
+      value: isLoading ? "\u2014" : `\u20B9 ${formatINR(stats!.totalRaised)}`,
+      label: "Raised",
+    },
+    {
+      value: isLoading ? "\u2014" : stats!.totalDonors.toLocaleString("en-IN"),
+      label: "Donations",
+    },
+    {
+      value: isLoading ? "\u2014" : String(stats!.totalCampaigns),
+      label: "Active Causes",
+    },
+  ];
+
   return (
     <section className="border-y border-surface-border bg-white py-12 md:py-16">
       <Container>
         <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
-          {STATS.map((stat) => (
+          {items.map((stat) => (
             <div key={stat.label} className="text-center">
               <p className="mb-1 text-[40px] font-black leading-tight text-primary md:text-[48px]">
                 {stat.value}

@@ -2,23 +2,87 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { formatINR } from "@/lib/format";
+import { useApi } from "@/hooks/use-api";
+import { useToast } from "@/components/ui/toast";
+import { campaignService } from "@/services/campaign.service";
+import { paymentService } from "@/services/payment.service";
 import { Container } from "@/components/ui/container";
 import { Heading } from "@/components/ui/heading";
 import { Text } from "@/components/ui/text";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Avatar } from "@/components/ui/avatar";
 import { LockIcon } from "@/components/ui/icons";
 
 const AMOUNTS = [1000, 5000, 10000] as const;
 
 export default function CheckoutPage({ params }: { params: { id: string } }) {
+  const router = useRouter();
+  const { toast } = useToast();
+
+  const {
+    data: campaign,
+    isLoading: campaignLoading,
+  } = useApi(() => campaignService.getBySlug(params.id), [params.id]);
+
   const [selectedAmount, setSelectedAmount] = useState<number>(5000);
   const [customAmount, setCustomAmount] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [isAnonymous, setIsAnonymous] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const donationAmount = customAmount ? parseInt(customAmount, 10) || 0 : selectedAmount;
+
+  async function handleSubmit() {
+    if (!firstName.trim()) {
+      toast("First name is required.", "error");
+      return;
+    }
+    if (!email.trim()) {
+      toast("Email address is required.", "error");
+      return;
+    }
+    if (donationAmount <= 0) {
+      toast("Please select or enter a donation amount.", "error");
+      return;
+    }
+    if (!campaign) {
+      toast("Campaign details are not loaded yet.", "error");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const donation = await paymentService.createDonation({
+        campaignId: campaign.id,
+        amount: donationAmount,
+        donorName: `${firstName.trim()} ${lastName.trim()}`.trim(),
+        donorEmail: email.trim(),
+        isAnonymous,
+      });
+
+      await paymentService.createIntent({
+        donationId: donation.id,
+        amount: donationAmount,
+      });
+
+      router.push(
+        `/causes/${params.id}/thank-you?donationId=${donation.id}&amount=${donationAmount}`
+      );
+    } catch (err) {
+      toast(
+        err instanceof Error ? err.message : "Something went wrong. Please try again.",
+        "error"
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
 
   return (
     <section className="py-8 md:py-12">
@@ -68,41 +132,54 @@ export default function CheckoutPage({ params }: { params: { id: string } }) {
               <Heading level="h4" as="h2" className="mb-4">Personal Details</Heading>
               <div className="mb-6 space-y-4">
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <Input placeholder="First Name" />
-                  <Input placeholder="Last Name" />
+                  <Input
+                    placeholder="First Name"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                  />
+                  <Input
+                    placeholder="Last Name"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                  />
                 </div>
-                <Input type="email" placeholder="Email Address" />
+                <Input
+                  type="email"
+                  placeholder="Email Address"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={isAnonymous}
+                    onChange={(e) => setIsAnonymous(e.target.checked)}
+                    className="size-4 rounded border-surface-border accent-accent"
+                  />
+                  <Text variant="secondary" as="span">
+                    Make my donation anonymous
+                  </Text>
+                </label>
               </div>
 
-              {/* Payment */}
-              <Heading level="h4" as="h2" className="mb-4">Payment Method</Heading>
-              <div className="mb-4 flex gap-3" role="group" aria-label="Payment method">
-                <button
-                  type="button"
-                  className="flex-1 rounded-full border border-accent bg-accent/10 py-3 text-btn font-bold text-accent"
-                >
-                  Card
-                </button>
-                <button
-                  type="button"
-                  className="flex-1 rounded-full border border-surface-border py-3 text-btn font-bold text-slate-medium"
-                >
-                  &middot;&middot;&middot;
-                </button>
-              </div>
-              <div className="mb-6 space-y-4">
-                <Input placeholder="0000 0000 0000 0000" />
-                <div className="grid grid-cols-2 gap-4">
-                  <Input placeholder="MM/YY" />
-                  <Input placeholder="CVC" />
-                </div>
+              {/* Payment note */}
+              <div className="mb-6 rounded-xl bg-surface-page px-6 py-4">
+                <Text variant="secondary" className="text-center">
+                  You will be redirected to complete payment after submitting.
+                </Text>
               </div>
 
-              <Link href={`/causes/${params.id}/thank-you`}>
-                <Button variant="primary" size="lg" className="w-full">
-                  Complete Donation of &#8377;{formatINR(donationAmount)}
-                </Button>
-              </Link>
+              <Button
+                variant="primary"
+                size="lg"
+                className="w-full"
+                onClick={handleSubmit}
+                disabled={isSubmitting}
+              >
+                {isSubmitting
+                  ? "Processing..."
+                  : `Complete Donation of \u20B9${formatINR(donationAmount)}`}
+              </Button>
 
               <div className="mt-4 flex items-center justify-center gap-2 text-slate-light">
                 <LockIcon className="size-4" />
@@ -119,16 +196,44 @@ export default function CheckoutPage({ params }: { params: { id: string } }) {
               <Heading level="h4" as="h2" className="mb-4">Donation Summary</Heading>
 
               <div className="mb-6 flex items-center gap-3 border-b border-surface-border pb-6">
-                <Avatar initials="SV" size="lg" />
-                <div>
-                  <Text variant="muted" size="label" className="normal-case tracking-normal">
-                    Supporting
-                  </Text>
-                  <p className="text-btn font-black text-primary">Samarth Verma</p>
-                  <Text variant="muted" size="label" className="normal-case tracking-normal">
-                    Brain Tumor
-                  </Text>
-                </div>
+                {campaignLoading ? (
+                  <div className="flex-1 space-y-2 animate-pulse">
+                    <div className="h-3 w-16 rounded bg-surface-border" />
+                    <div className="h-4 w-32 rounded bg-surface-border" />
+                    <div className="h-3 w-20 rounded bg-surface-border" />
+                  </div>
+                ) : campaign ? (
+                  <>
+                    {campaign.coverImageUrl ? (
+                      <div className="relative size-20 shrink-0 overflow-hidden rounded-xl">
+                        <Image
+                          src={campaign.coverImageUrl}
+                          alt={campaign.title}
+                          fill
+                          className="object-cover"
+                          sizes="80px"
+                        />
+                      </div>
+                    ) : (
+                      <div className="flex size-20 shrink-0 items-center justify-center rounded-xl bg-surface-page">
+                        <Text variant="muted" className="text-h4 font-black">
+                          {campaign.title.charAt(0)}
+                        </Text>
+                      </div>
+                    )}
+                    <div>
+                      <Text variant="muted" size="label" className="normal-case tracking-normal">
+                        Supporting
+                      </Text>
+                      <p className="text-btn font-black text-primary">{campaign.title}</p>
+                      <Text variant="muted" size="label" className="normal-case tracking-normal">
+                        {campaign.category}
+                      </Text>
+                    </div>
+                  </>
+                ) : (
+                  <Text variant="secondary">Campaign not found</Text>
+                )}
               </div>
 
               <div className="space-y-3">

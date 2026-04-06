@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
 import { Container } from "@/components/ui/container";
@@ -8,75 +10,21 @@ import { Badge } from "@/components/ui/badge";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { buttonVariants } from "@/components/ui/button";
 import { formatINR } from "@/lib/format";
+import { useApi } from "@/hooks/use-api";
+import { campaignService } from "@/services/campaign.service";
+import type { Campaign } from "@/types/campaign";
 
-interface Cause {
-  id: string;
-  slug: string;
-  title: string;
-  category: string;
-  summary: string;
-  raisedAmount: number;
-  goalAmount: number;
-  donationCount: number;
-  coverImageUrl: string;
-}
-
-const CAUSES: Cause[] = [
-  {
-    id: "1",
-    slug: "pallavi-mane",
-    title: "Pallavi Mane",
-    category: "Cancer",
-    summary: "Urgent medical support needed. Your donation can save a life today.",
-    raisedAmount: 150000,
-    goalAmount: 300000,
-    donationCount: 319,
-    coverImageUrl: "/images/hero-1.jpg",
-  },
-  {
-    id: "2",
-    slug: "samarth-verma",
-    title: "Samarth Verma",
-    category: "Brain Tumor",
-    summary: "Urgent medical support needed. Your donation can save a life today.",
-    raisedAmount: 250000,
-    goalAmount: 350000,
-    donationCount: 519,
-    coverImageUrl: "/images/hero-2.jpg",
-  },
-  {
-    id: "3",
-    slug: "aloke-dubey",
-    title: "Aloke Dubey",
-    category: "Chronic Kidney",
-    summary: "Urgent medical support needed. Your donation can save a life today.",
-    raisedAmount: 200000,
-    goalAmount: 500000,
-    donationCount: 422,
-    coverImageUrl: "/images/hero-3.jpg",
-  },
-  {
-    id: "4",
-    slug: "gagubai-kate",
-    title: "Gagubai Kate",
-    category: "Heart Blockage",
-    summary: "Urgent medical support needed. Your donation can save a life today.",
-    raisedAmount: 20000,
-    goalAmount: 100000,
-    donationCount: 69,
-    coverImageUrl: "/images/hero-4.jpg",
-  },
-];
-
-function CauseCard({ cause }: { cause: Cause }) {
-  const percentage = Math.round((cause.raisedAmount / cause.goalAmount) * 100);
+function CauseCard({ cause }: { cause: Campaign }) {
+  const percentage = cause.goalAmount > 0
+    ? Math.round((cause.raisedAmount / cause.goalAmount) * 100)
+    : 0;
 
   return (
     <Card>
       {/* Image with overlay */}
       <div className="relative h-56 overflow-hidden">
         <Image
-          src={cause.coverImageUrl}
+          src={cause.coverImageUrl || "/images/placeholder.jpg"}
           alt={cause.title}
           fill
           className="object-cover"
@@ -103,7 +51,7 @@ function CauseCard({ cause }: { cause: Cause }) {
             &#8377; {formatINR(cause.raisedAmount)}
           </p>
           <p className="text-btn font-black text-primary">
-            {cause.donationCount}
+            {cause._count?.donations ?? 0}
           </p>
         </div>
         <div className="mb-3 flex justify-between">
@@ -137,6 +85,13 @@ function CauseCard({ cause }: { cause: Cause }) {
 }
 
 export function CausesPreview() {
+  const { data, isLoading } = useApi(
+    () => campaignService.list({ limit: 4, sort: "createdAt", order: "desc" }),
+    [],
+  );
+
+  const campaigns = data?.items ?? [];
+
   return (
     <section className="bg-surface-page py-16 md:py-24">
       <Container>
@@ -146,11 +101,31 @@ export function CausesPreview() {
           </Heading>
         </div>
 
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {CAUSES.map((cause) => (
-            <CauseCard key={cause.id} cause={cause} />
-          ))}
-        </div>
+        {isLoading ? (
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Card key={i}>
+                <div className="h-56 animate-pulse bg-surface-subtle" />
+                <CardContent>
+                  <div className="mb-4 h-10 animate-pulse rounded bg-surface-subtle" />
+                  <div className="mb-3 h-4 animate-pulse rounded bg-surface-subtle" />
+                  <div className="mb-4 h-2 animate-pulse rounded bg-surface-subtle" />
+                  <div className="h-10 animate-pulse rounded bg-surface-subtle" />
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        ) : campaigns.length === 0 ? (
+          <Text variant="secondary" className="text-center py-12">
+            No active campaigns right now. Check back soon!
+          </Text>
+        ) : (
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {campaigns.map((campaign) => (
+              <CauseCard key={campaign.id} cause={campaign} />
+            ))}
+          </div>
+        )}
       </Container>
     </section>
   );

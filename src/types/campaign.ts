@@ -54,17 +54,37 @@ export interface CampaignMilestone {
   reachedAt?: string;
 }
 
+export interface MedicalDetails {
+  patientName: string;
+  patientAge?: number;
+  patientGender?: "male" | "female" | "other";
+  diagnosis?: string;
+  treatmentType?: string;
+  treatmentCost?: number;
+  doctorName?: string;
+}
+
+export interface HospitalDetails {
+  hospitalName: string;
+  hospitalCity?: string;
+  hospitalState?: string;
+  hospitalPhone?: string;
+  hospitalEmail?: string;
+}
+
 export interface CreateCampaignRequest {
   title: string;
-  summary: string;
+  summary?: string;
   description?: string;
-  category: string;
-  urgencyLevel: UrgencyLevel;
+  category?: string;
+  urgencyLevel?: UrgencyLevel;
   goalAmount: number;
   coverImageUrl?: string;
   videoUrl?: string;
   startDate?: string;
   endDate?: string;
+  medicalDetails?: MedicalDetails;
+  hospitalDetails?: HospitalDetails;
 }
 
 export interface CampaignFilters {

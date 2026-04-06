@@ -4,3 +4,6 @@ export { campaignService } from "./campaign.service";
 export { paymentService } from "./payment.service";
 export { publicService } from "./public.service";
 export { contactService } from "./contact.service";
+export { withdrawalService } from "./withdrawal.service";
+export { notificationService } from "./notification.service";
+export { adminService } from "./admin.service";

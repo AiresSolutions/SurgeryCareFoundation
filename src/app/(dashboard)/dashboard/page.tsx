@@ -1,23 +1,35 @@
+"use client";
+
 import Link from "next/link";
 import { Heading } from "@/components/ui/heading";
 import { Text } from "@/components/ui/text";
 import { Avatar } from "@/components/ui/avatar";
 import { buttonVariants } from "@/components/ui/button";
 import { HeartIcon, GridIcon, BookmarkIcon } from "@/components/ui/icons";
-
-const STATS = [
-  { label: "Total Donated", value: "₹ 45,000", icon: HeartIcon, color: "bg-red-50 text-red-500" },
-  { label: "Causes Supported", value: "4", icon: GridIcon, color: "bg-accent/10 text-accent" },
-  { label: "Saved Causes", value: "2", icon: BookmarkIcon, color: "bg-primary/10 text-primary" },
-] as const;
-
-const DONATIONS = [
-  { campaignTitle: "Pallavi Mane — Cancer Treatment", createdAt: "2026-03-12", amount: "₹ 15,000" },
-  { campaignTitle: "Ryan D'costa — Brain Tumor Surgery", createdAt: "2026-03-12", amount: "₹ 15,000" },
-  { campaignTitle: "Aloke Dubey — Kidney Transplant", createdAt: "2026-03-12", amount: "₹ 15,000" },
-] as const;
+import { useApi } from "@/hooks/use-api";
+import { userService } from "@/services/user.service";
+import { formatINR } from "@/lib/format";
+import type { PaginatedData } from "@/types/api";
+import type { Donation } from "@/types/donation";
 
 export default function DashboardPage() {
+  const { data, isLoading } = useApi<PaginatedData<Donation>>(
+    () => userService.getDonations({ limit: 50, status: "succeeded" }),
+    [],
+  );
+
+  const donations = data?.items ?? [];
+
+  const totalDonated = donations.reduce((sum, d) => sum + d.amount, 0);
+  const causesSupported = new Set(donations.map((d) => d.campaignId)).size;
+  const recentDonations = donations.slice(0, 3);
+
+  const stats = [
+    { label: "Total Donated", value: `\u20B9 ${formatINR(totalDonated)}`, icon: HeartIcon, color: "bg-red-50 text-red-500" },
+    { label: "Causes Supported", value: String(causesSupported), icon: GridIcon, color: "bg-accent/10 text-accent" },
+    { label: "Saved Causes", value: "0", icon: BookmarkIcon, color: "bg-primary/10 text-primary" },
+  ] as const;
+
   return (
     <div>
       {/* Header row */}
@@ -30,13 +42,15 @@ export default function DashboardPage() {
 
       {/* Stats */}
       <div className="mb-8 grid gap-4 sm:grid-cols-3">
-        {STATS.map(({ label, value, icon: Icon, color }) => (
+        {stats.map(({ label, value, icon: Icon, color }) => (
           <div key={label} className="rounded-2xl border border-surface-border bg-white p-6 shadow-card">
             <div className={`mb-3 inline-flex size-10 items-center justify-center rounded-xl ${color}`}>
               <Icon className="size-5" />
             </div>
             <Text variant="muted" size="label" className="mb-1">{label}</Text>
-            <p className="text-h4 text-primary">{value}</p>
+            <p className="text-h4 text-primary">
+              {isLoading ? "\u2014" : value}
+            </p>
           </div>
         ))}
       </div>
@@ -50,27 +64,37 @@ export default function DashboardPage() {
           </Link>
         </div>
 
-        <div className="divide-y divide-surface-border">
-          {DONATIONS.map((d) => (
-            <div key={d.campaignTitle} className="flex items-center justify-between px-6 py-4">
-              <div className="flex items-center gap-4">
-                <Avatar initials={d.campaignTitle.slice(0, 2).toUpperCase()} size="md" />
-                <div>
-                  <p className="text-btn font-black text-primary">{d.campaignTitle}</p>
+        {isLoading ? (
+          <div className="flex items-center justify-center py-16">
+            <Text variant="secondary">Loading donations...</Text>
+          </div>
+        ) : recentDonations.length === 0 ? (
+          <div className="flex items-center justify-center py-16">
+            <Text variant="secondary">No donations yet</Text>
+          </div>
+        ) : (
+          <div className="divide-y divide-surface-border">
+            {recentDonations.map((donation) => (
+              <div key={donation.id} className="flex items-center justify-between px-6 py-4">
+                <div className="flex items-center gap-4">
+                  <Avatar initials={donation.campaign.title.slice(0, 2).toUpperCase()} size="md" />
+                  <div>
+                    <p className="text-btn font-black text-primary">{donation.campaign.title}</p>
+                    <Text variant="muted" size="label" className="normal-case tracking-normal">
+                      Donated on {new Date(donation.createdAt).toLocaleDateString()}
+                    </Text>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-btn font-black text-accent">&#8377; {formatINR(donation.amount)}</p>
                   <Text variant="muted" size="label" className="normal-case tracking-normal">
-                    Donated on {new Date(d.createdAt).toLocaleDateString()}
+                    {donation.receipt ? "Download Receipt" : "No receipt"}
                   </Text>
                 </div>
               </div>
-              <div className="text-right">
-                <p className="text-btn font-black text-accent">{d.amount}</p>
-                <Text variant="muted" size="label" className="normal-case tracking-normal">
-                  Download Receipt
-                </Text>
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -1,4 +1,8 @@
+"use client";
+
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { formatINR } from "@/lib/format";
 import { Container } from "@/components/ui/container";
 import { Heading } from "@/components/ui/heading";
 import { Text } from "@/components/ui/text";
@@ -6,6 +10,10 @@ import { buttonVariants } from "@/components/ui/button";
 import { CheckCircleIcon, GridIcon, ShareIcon } from "@/components/ui/icons";
 
 export default function ThankYouPage() {
+  const searchParams = useSearchParams();
+  const amountParam = searchParams.get("amount");
+  const amount = amountParam ? parseInt(amountParam, 10) : null;
+
   return (
     <section className="bg-surface-page py-20 md:py-32">
       <Container className="flex justify-center">
@@ -21,10 +29,21 @@ export default function ThankYouPage() {
             </Heading>
 
             <Text variant="secondary" className="mb-6">
-              Your generous donation of{" "}
-              <span className="font-bold text-accent">&#8377;5,000</span> has been
-              successfully processed. You have just made a massive difference in
-              someone&apos;s life.
+              {amount && amount > 0 ? (
+                <>
+                  Your generous donation of{" "}
+                  <span className="font-bold text-accent">
+                    &#8377;{formatINR(amount)}
+                  </span>{" "}
+                  has been successfully processed. You have just made a massive
+                  difference in someone&apos;s life.
+                </>
+              ) : (
+                <>
+                  Your generous donation has been successfully processed. You have
+                  just made a massive difference in someone&apos;s life.
+                </>
+              )}
             </Text>
 
             {/* Receipt notice */}

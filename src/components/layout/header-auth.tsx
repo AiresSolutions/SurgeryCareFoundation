@@ -4,12 +4,14 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/context/auth-context";
 import { Container } from "@/components/ui/container";
 import { Logo } from "@/components/ui/logo";
 import { NavLink } from "@/components/ui/nav-link";
 import { Avatar } from "@/components/ui/avatar";
 import { buttonVariants } from "@/components/ui/button";
-import { PhoneIcon, HeartFilledIcon, MenuIcon, CloseIcon } from "@/components/ui/icons";
+import { PhoneIcon, HeartFilledIcon, MenuIcon, CloseIcon, BellIcon } from "@/components/ui/icons";
+import { NotificationBell } from "@/components/layout/notification-bell";
 
 const NAV_ITEMS = [
   { href: "/", label: "Home" },
@@ -20,9 +22,24 @@ const NAV_ITEMS = [
   { href: "/contact", label: "Contact us" },
 ] as const;
 
+function getUserInitials(firstName?: string, lastName?: string): string {
+  const first = firstName?.charAt(0)?.toUpperCase() ?? "";
+  const last = lastName?.charAt(0)?.toUpperCase() ?? "";
+  return first + last || "?";
+}
+
+function getUserDisplayName(firstName?: string, lastName?: string): string {
+  const name = [firstName, lastName].filter(Boolean).join(" ");
+  return name || "Account";
+}
+
 export function HeaderAuth() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { user, isLoading } = useAuth();
+
+  const initials = getUserInitials(user?.firstName, user?.lastName);
+  const displayName = getUserDisplayName(user?.firstName, user?.lastName);
 
   return (
     <header className="sticky top-0 z-50">
@@ -51,11 +68,24 @@ export function HeaderAuth() {
               Donate
             </Link>
 
+            <NotificationBell />
+
             <Link href="/dashboard" className="flex items-center gap-2">
-              <Avatar initials="JD" size="md" />
+              {isLoading ? (
+                <div className="size-10 animate-pulse rounded-full bg-surface-green" />
+              ) : (
+                <Avatar
+                  src={user?.avatarUrl ?? undefined}
+                  alt={displayName}
+                  initials={initials}
+                  size="md"
+                />
+              )}
               <div>
                 <p className="text-caption uppercase text-slate-light">My Account</p>
-                <p className="text-btn font-black text-primary">John Doe</p>
+                <p className="text-btn font-black text-primary">
+                  {isLoading ? "Loading\u2026" : displayName}
+                </p>
               </div>
             </Link>
           </div>
@@ -86,6 +116,16 @@ export function HeaderAuth() {
                   >{label}</Link>
                 </li>
               ))}
+              <li>
+                <Link
+                  href="/dashboard/notifications"
+                  className="flex items-center gap-2 rounded-lg px-4 py-3 text-nav text-slate hover:bg-surface-page"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  <BellIcon className="size-4" />
+                  Notifications
+                </Link>
+              </li>
               <li>
                 <Link href="/dashboard" className="block rounded-lg px-4 py-3 text-nav text-slate hover:bg-surface-page" onClick={() => setMobileOpen(false)}>
                   My Account

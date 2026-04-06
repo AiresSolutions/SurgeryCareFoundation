@@ -16,6 +16,7 @@ export interface User {
   roles: UserRole[];
   permissions: string[];
   accountStatus: string;
+  createdAt: string;
 }
 
 export interface AuthUser {
