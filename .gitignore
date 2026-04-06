@@ -48,3 +48,7 @@ next-env.d.ts
 # figma analysis (temp files)
 FIGMA_ANALYSIS.md
 figma-summary.md
+
+# internal dev files
+claude.md
+tasks/
