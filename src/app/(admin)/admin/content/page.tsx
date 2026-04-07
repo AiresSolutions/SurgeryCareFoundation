@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/auth-context";
@@ -8,22 +8,26 @@ import { Heading } from "@/components/ui/heading";
 import { Text } from "@/components/ui/text";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { buttonVariants } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 import { CloseIcon } from "@/components/ui/icons";
 import { useToast } from "@/components/ui/toast";
 import { useApi } from "@/hooks/use-api";
 import { publicService } from "@/services/public.service";
 import { adminService } from "@/services/admin.service";
-import type { PartnerHospital, BoardMember, AnnualReport } from "@/types/content";
+import type {
+  PartnerHospital,
+  BoardMember,
+  AnnualReport,
+  BlogPost,
+} from "@/types/content";
 
 function RoleGuard({
   allowedRoles,
   children,
 }: {
   allowedRoles: string[];
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   const { user, isLoading } = useAuth();
 
@@ -37,7 +41,7 @@ function RoleGuard({
     );
   }
 
-  if (!user || !user.roles.some((r) => allowedRoles.includes(r))) {
+  if (!user || !user.roles.some((role) => allowedRoles.includes(role))) {
     return (
       <Container className="py-16">
         <div className="flex flex-col items-center justify-center gap-4">
@@ -56,199 +60,189 @@ function RoleGuard({
   return <>{children}</>;
 }
 
-const TABS = ["Partner Hospitals", "Board Members", "Annual Reports"] as const;
+const TABS = [
+  "Partner Hospitals",
+  "Board Members",
+  "Annual Reports",
+  "Blog Posts",
+] as const;
 type Tab = (typeof TABS)[number];
 
 export default function AdminContentPage() {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<Tab>("Partner Hospitals");
 
-  // ── Partner Hospitals ──────────────────────────────────────────
-  const {
-    data: hospitals,
-    isLoading: hospitalsLoading,
-    refetch: refetchHospitals,
-  } = useApi<PartnerHospital[]>(
-    () => publicService.getPartnerHospitals(),
+  const { data: hospitals, isLoading: hospitalsLoading, refetch: refetchHospitals } = useApi<
+    PartnerHospital[]
+  >(() => publicService.getPartnerHospitals(), []);
+  const { data: members, isLoading: membersLoading, refetch: refetchMembers } = useApi<
+    BoardMember[]
+  >(() => publicService.getBoardMembers(), []);
+  const { data: reports, isLoading: reportsLoading, refetch: refetchReports } = useApi<
+    AnnualReport[]
+  >(() => publicService.getAnnualReports(), []);
+  const { data: posts, isLoading: postsLoading, refetch: refetchPosts } = useApi<BlogPost[]>(
+    () => adminService.listBlogPosts(),
     [],
   );
 
-  const [showHospitalForm, setShowHospitalForm] = useState(false);
+  const [hospitalFormOpen, setHospitalFormOpen] = useState(false);
   const [hospitalName, setHospitalName] = useState("");
   const [hospitalCity, setHospitalCity] = useState("");
-  const [hospitalSpecializations, setHospitalSpecializations] = useState("");
-  const [hospitalSubmitting, setHospitalSubmitting] = useState(false);
+  const [hospitalWebsite, setHospitalWebsite] = useState("");
 
-  async function handleCreateHospital(e: React.FormEvent) {
-    e.preventDefault();
-    if (!hospitalName.trim() || !hospitalCity.trim()) {
-      toast("Name and city are required.", "error");
-      return;
-    }
-    setHospitalSubmitting(true);
-    try {
-      const specializations = hospitalSpecializations
-        .split(",")
-        .map((s) => s.trim())
-        .filter(Boolean);
-      await adminService.createPartnerHospital({
-        name: hospitalName.trim(),
-        city: hospitalCity.trim(),
-        specializations,
-      });
-      toast("Partner hospital created successfully!");
-      setHospitalName("");
-      setHospitalCity("");
-      setHospitalSpecializations("");
-      setShowHospitalForm(false);
-      refetchHospitals();
-    } catch (err) {
-      toast(
-        err instanceof Error ? err.message : "Failed to create hospital.",
-        "error",
-      );
-    } finally {
-      setHospitalSubmitting(false);
-    }
-  }
-
-  async function handleDeleteHospital(id: string) {
-    try {
-      await adminService.deletePartnerHospital(id);
-      toast("Hospital deleted successfully!");
-      refetchHospitals();
-    } catch (err) {
-      toast(
-        err instanceof Error ? err.message : "Failed to delete hospital.",
-        "error",
-      );
-    }
-  }
-
-  // ── Board Members ──────────────────────────────────────────────
-  const {
-    data: members,
-    isLoading: membersLoading,
-    refetch: refetchMembers,
-  } = useApi<BoardMember[]>(() => publicService.getBoardMembers(), []);
-
-  const [showMemberForm, setShowMemberForm] = useState(false);
+  const [memberFormOpen, setMemberFormOpen] = useState(false);
   const [memberName, setMemberName] = useState("");
-  const [memberRole, setMemberRole] = useState("");
+  const [memberTitle, setMemberTitle] = useState("");
   const [memberBio, setMemberBio] = useState("");
-  const [memberSubmitting, setMemberSubmitting] = useState(false);
+  const [memberPhotoUrl, setMemberPhotoUrl] = useState("");
 
-  async function handleCreateMember(e: React.FormEvent) {
-    e.preventDefault();
-    if (!memberName.trim() || !memberRole.trim()) {
-      toast("Name and role are required.", "error");
-      return;
-    }
-    setMemberSubmitting(true);
-    try {
-      await adminService.createBoardMember({
-        name: memberName.trim(),
-        role: memberRole.trim(),
-        bio: memberBio.trim(),
-      });
-      toast("Board member created successfully!");
-      setMemberName("");
-      setMemberRole("");
-      setMemberBio("");
-      setShowMemberForm(false);
-      refetchMembers();
-    } catch (err) {
-      toast(
-        err instanceof Error ? err.message : "Failed to create board member.",
-        "error",
-      );
-    } finally {
-      setMemberSubmitting(false);
-    }
-  }
-
-  async function handleDeleteMember(id: string) {
-    try {
-      await adminService.deleteBoardMember(id);
-      toast("Board member deleted successfully!");
-      refetchMembers();
-    } catch (err) {
-      toast(
-        err instanceof Error ? err.message : "Failed to delete board member.",
-        "error",
-      );
-    }
-  }
-
-  // ── Annual Reports ─────────────────────────────────────────────
-  const {
-    data: reports,
-    isLoading: reportsLoading,
-    refetch: refetchReports,
-  } = useApi<AnnualReport[]>(() => publicService.getAnnualReports(), []);
-
-  const [showReportForm, setShowReportForm] = useState(false);
+  const [reportFormOpen, setReportFormOpen] = useState(false);
   const [reportYear, setReportYear] = useState("");
   const [reportTitle, setReportTitle] = useState("");
   const [reportUrl, setReportUrl] = useState("");
-  const [reportSubmitting, setReportSubmitting] = useState(false);
 
-  async function handleCreateReport(e: React.FormEvent) {
-    e.preventDefault();
-    if (!reportYear.trim() || !reportTitle.trim() || !reportUrl.trim()) {
-      toast("Year, title, and download URL are required.", "error");
-      return;
+  const [blogFormOpen, setBlogFormOpen] = useState(false);
+  const [editingPostId, setEditingPostId] = useState<string | null>(null);
+  const [blogTitle, setBlogTitle] = useState("");
+  const [blogSlug, setBlogSlug] = useState("");
+  const [blogCategory, setBlogCategory] = useState("");
+  const [blogAuthorName, setBlogAuthorName] = useState("");
+  const [blogCoverImageUrl, setBlogCoverImageUrl] = useState("");
+  const [blogExcerpt, setBlogExcerpt] = useState("");
+  const [blogContent, setBlogContent] = useState("");
+
+  const blogPosts = useMemo(
+    () => (posts ?? []).slice().sort((a, b) => (b.publishedAt || b.createdAt).localeCompare(a.publishedAt || a.createdAt)),
+    [posts],
+  );
+
+  function resetBlogForm() {
+    setEditingPostId(null);
+    setBlogTitle("");
+    setBlogSlug("");
+    setBlogCategory("");
+    setBlogAuthorName("");
+    setBlogCoverImageUrl("");
+    setBlogExcerpt("");
+    setBlogContent("");
+  }
+
+  async function handleCreateHospital(event: React.FormEvent) {
+    event.preventDefault();
+    try {
+      await adminService.createPartnerHospital({
+        name: hospitalName.trim(),
+        city: hospitalCity.trim() || undefined,
+        website: hospitalWebsite.trim() || undefined,
+      });
+      toast("Partner hospital created successfully.");
+      setHospitalName("");
+      setHospitalCity("");
+      setHospitalWebsite("");
+      setHospitalFormOpen(false);
+      refetchHospitals();
+    } catch (err) {
+      toast(err instanceof Error ? err.message : "Failed to create hospital.", "error");
     }
-    setReportSubmitting(true);
+  }
+
+  async function handleCreateMember(event: React.FormEvent) {
+    event.preventDefault();
+    try {
+      await adminService.createBoardMember({
+        name: memberName.trim(),
+        title: memberTitle.trim() || undefined,
+        bio: memberBio.trim() || undefined,
+        photoUrl: memberPhotoUrl.trim() || undefined,
+      });
+      toast("Board member created successfully.");
+      setMemberName("");
+      setMemberTitle("");
+      setMemberBio("");
+      setMemberPhotoUrl("");
+      setMemberFormOpen(false);
+      refetchMembers();
+    } catch (err) {
+      toast(err instanceof Error ? err.message : "Failed to create board member.", "error");
+    }
+  }
+
+  async function handleCreateReport(event: React.FormEvent) {
+    event.preventDefault();
     try {
       await adminService.createAnnualReport({
         year: Number(reportYear),
         title: reportTitle.trim(),
-        downloadUrl: reportUrl.trim(),
+        fileUrl: reportUrl.trim(),
+        storageKey: reportUrl.trim(),
       });
-      toast("Annual report created successfully!");
+      toast("Annual report created successfully.");
       setReportYear("");
       setReportTitle("");
       setReportUrl("");
-      setShowReportForm(false);
+      setReportFormOpen(false);
       refetchReports();
     } catch (err) {
-      toast(
-        err instanceof Error ? err.message : "Failed to create report.",
-        "error",
-      );
-    } finally {
-      setReportSubmitting(false);
+      toast(err instanceof Error ? err.message : "Failed to create report.", "error");
     }
   }
 
-  async function handleDeleteReport(id: string) {
+  async function handleUpsertBlogPost(event: React.FormEvent) {
+    event.preventDefault();
+    const payload = {
+      title: blogTitle.trim(),
+      slug: blogSlug.trim() || undefined,
+      category: blogCategory.trim() || undefined,
+      authorName: blogAuthorName.trim() || undefined,
+      coverImageUrl: blogCoverImageUrl.trim() || undefined,
+      excerpt: blogExcerpt.trim(),
+      content: blogContent.trim(),
+      isPublished: true,
+    };
+
     try {
-      await adminService.deleteAnnualReport(id);
-      toast("Annual report deleted successfully!");
-      refetchReports();
+      if (editingPostId) {
+        await adminService.updateBlogPost(editingPostId, payload);
+        toast("Blog post updated successfully.");
+      } else {
+        await adminService.createBlogPost(payload);
+        toast("Blog post created successfully.");
+      }
+      resetBlogForm();
+      setBlogFormOpen(false);
+      refetchPosts();
     } catch (err) {
-      toast(
-        err instanceof Error ? err.message : "Failed to delete report.",
-        "error",
-      );
+      toast(err instanceof Error ? err.message : "Failed to save blog post.", "error");
+    }
+  }
+
+  async function handleDelete(
+    action: () => Promise<void>,
+    successMessage: string,
+    refetch: () => void,
+  ) {
+    try {
+      await action();
+      toast(successMessage);
+      refetch();
+    } catch (err) {
+      toast(err instanceof Error ? err.message : "Delete failed.", "error");
     }
   }
 
   return (
     <RoleGuard allowedRoles={["super_admin"]}>
       <div>
-        {/* Header */}
         <div className="mb-8">
           <Heading level="h2" as="h1" className="mb-2">
             Content Management
           </Heading>
           <Text variant="secondary">
-            Manage partner hospitals, board members, and annual reports.
+            Manage trust content, annual reports, and public blog posts.
           </Text>
         </div>
 
-        {/* Tabs */}
         <div className="mb-6 flex flex-wrap gap-2">
           {TABS.map((tab) => (
             <button
@@ -259,7 +253,7 @@ export default function AdminContentPage() {
                 "rounded-full px-4 py-1.5 text-btn font-bold transition-colors",
                 activeTab === tab
                   ? "bg-primary text-white"
-                  : "bg-white text-slate border border-surface-border hover:bg-surface-page",
+                  : "border border-surface-border bg-white text-slate hover:bg-surface-page",
               )}
             >
               {tab}
@@ -267,319 +261,363 @@ export default function AdminContentPage() {
           ))}
         </div>
 
-        {/* ── Partner Hospitals Tab ────────────────────────────── */}
         {activeTab === "Partner Hospitals" && (
           <div className="rounded-2xl border border-surface-border bg-white shadow-card">
-            <div className="flex items-center justify-between border-b border-surface-border px-6 py-4">
-              <Heading level="h4" as="h2">
-                Partner Hospitals
-                <span className="ml-2 text-body text-slate-light font-normal">
-                  ({hospitals?.length ?? 0})
-                </span>
-              </Heading>
-              <Button
-                variant="secondary"
-                onClick={() => setShowHospitalForm(!showHospitalForm)}
-              >
-                {showHospitalForm ? "Cancel" : "Add New"}
-              </Button>
-            </div>
+            <Header
+              title="Partner Hospitals"
+              count={hospitals?.length ?? 0}
+              actionLabel={hospitalFormOpen ? "Cancel" : "Add New"}
+              onAction={() => setHospitalFormOpen((value) => !value)}
+            />
 
-            {/* Add form */}
-            {showHospitalForm && (
-              <div className="border-b border-surface-border bg-surface-bg p-6">
-                <form onSubmit={handleCreateHospital} className="space-y-4">
-                  <Input
-                    label="Hospital Name"
-                    placeholder="Enter hospital name"
-                    value={hospitalName}
-                    onChange={(e) => setHospitalName(e.target.value)}
-                  />
-                  <Input
-                    label="City"
-                    placeholder="Enter city"
-                    value={hospitalCity}
-                    onChange={(e) => setHospitalCity(e.target.value)}
-                  />
-                  <Input
-                    label="Specializations (comma-separated)"
-                    placeholder="Cardiology, Orthopedics, Oncology"
-                    value={hospitalSpecializations}
-                    onChange={(e) =>
-                      setHospitalSpecializations(e.target.value)
+            {hospitalFormOpen && (
+              <FormShell onSubmit={handleCreateHospital}>
+                <Input label="Hospital Name" value={hospitalName} onChange={(event) => setHospitalName(event.target.value)} />
+                <Input label="City" value={hospitalCity} onChange={(event) => setHospitalCity(event.target.value)} />
+                <Input label="Website" type="url" value={hospitalWebsite} onChange={(event) => setHospitalWebsite(event.target.value)} />
+                <Button type="submit" variant="secondary">
+                  Create Hospital
+                </Button>
+              </FormShell>
+            )}
+
+            <ListState
+              isLoading={hospitalsLoading}
+              isEmpty={!hospitals || hospitals.length === 0}
+              loadingText="Loading hospitals..."
+              emptyText="No partner hospitals yet."
+            >
+              <div className="divide-y divide-surface-border">
+                {hospitals?.map((hospital) => (
+                  <ListRow
+                    key={hospital.id}
+                    title={hospital.name}
+                    subtitle={[hospital.city, hospital.website].filter(Boolean).join(" • ")}
+                    description={hospital.description ?? undefined}
+                    onDelete={() =>
+                      handleDelete(
+                        () => adminService.deletePartnerHospital(hospital.id),
+                        "Hospital deleted successfully.",
+                        refetchHospitals,
+                      )
                     }
                   />
-                  <div className="pt-2">
-                    <Button
-                      type="submit"
-                      variant="secondary"
-                      disabled={hospitalSubmitting}
-                    >
-                      {hospitalSubmitting ? "Creating..." : "Create Hospital"}
-                    </Button>
-                  </div>
-                </form>
-              </div>
-            )}
-
-            {/* List */}
-            {hospitalsLoading ? (
-              <div className="flex items-center justify-center py-16">
-                <Text variant="secondary">Loading hospitals...</Text>
-              </div>
-            ) : !hospitals || hospitals.length === 0 ? (
-              <div className="flex items-center justify-center py-16">
-                <Text variant="secondary">No partner hospitals yet.</Text>
-              </div>
-            ) : (
-              <div className="divide-y divide-surface-border">
-                {hospitals.map((hospital) => (
-                  <div
-                    key={hospital.id}
-                    className="flex items-center justify-between px-6 py-4"
-                  >
-                    <div>
-                      <p className="text-btn font-black text-primary">
-                        {hospital.name}
-                      </p>
-                      <Text
-                        variant="muted"
-                        size="label"
-                        className="normal-case tracking-normal"
-                      >
-                        {hospital.city}
-                        {hospital.specializations.length > 0 &&
-                          ` \u2022 ${hospital.specializations.join(", ")}`}
-                      </Text>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteHospital(hospital.id)}
-                      className="ml-4 shrink-0 rounded-lg p-2 text-red-500 transition-colors hover:bg-red-50"
-                      aria-label={`Delete ${hospital.name}`}
-                    >
-                      <CloseIcon className="size-4" />
-                    </button>
-                  </div>
                 ))}
               </div>
-            )}
+            </ListState>
           </div>
         )}
 
-        {/* ── Board Members Tab ───────────────────────────────── */}
         {activeTab === "Board Members" && (
           <div className="rounded-2xl border border-surface-border bg-white shadow-card">
-            <div className="flex items-center justify-between border-b border-surface-border px-6 py-4">
-              <Heading level="h4" as="h2">
-                Board Members
-                <span className="ml-2 text-body text-slate-light font-normal">
-                  ({members?.length ?? 0})
-                </span>
-              </Heading>
-              <Button
-                variant="secondary"
-                onClick={() => setShowMemberForm(!showMemberForm)}
-              >
-                {showMemberForm ? "Cancel" : "Add New"}
-              </Button>
-            </div>
+            <Header
+              title="Board Members"
+              count={members?.length ?? 0}
+              actionLabel={memberFormOpen ? "Cancel" : "Add New"}
+              onAction={() => setMemberFormOpen((value) => !value)}
+            />
 
-            {/* Add form */}
-            {showMemberForm && (
-              <div className="border-b border-surface-border bg-surface-bg p-6">
-                <form onSubmit={handleCreateMember} className="space-y-4">
-                  <Input
-                    label="Name"
-                    placeholder="Enter full name"
-                    value={memberName}
-                    onChange={(e) => setMemberName(e.target.value)}
-                  />
-                  <Input
-                    label="Role"
-                    placeholder="e.g. Chairman, Trustee, Secretary"
-                    value={memberRole}
-                    onChange={(e) => setMemberRole(e.target.value)}
-                  />
-                  <Textarea
-                    label="Bio"
-                    placeholder="Brief biography..."
-                    value={memberBio}
-                    onChange={(e) => setMemberBio(e.target.value)}
-                    className="min-h-[100px]"
-                  />
-                  <div className="pt-2">
-                    <Button
-                      type="submit"
-                      variant="secondary"
-                      disabled={memberSubmitting}
-                    >
-                      {memberSubmitting ? "Creating..." : "Create Member"}
-                    </Button>
-                  </div>
-                </form>
-              </div>
+            {memberFormOpen && (
+              <FormShell onSubmit={handleCreateMember}>
+                <Input label="Name" value={memberName} onChange={(event) => setMemberName(event.target.value)} />
+                <Input label="Title" value={memberTitle} onChange={(event) => setMemberTitle(event.target.value)} />
+                <Input label="Photo URL" type="url" value={memberPhotoUrl} onChange={(event) => setMemberPhotoUrl(event.target.value)} />
+                <Textarea label="Bio" value={memberBio} onChange={(event) => setMemberBio(event.target.value)} className="min-h-[100px]" />
+                <Button type="submit" variant="secondary">
+                  Create Member
+                </Button>
+              </FormShell>
             )}
 
-            {/* List */}
-            {membersLoading ? (
-              <div className="flex items-center justify-center py-16">
-                <Text variant="secondary">Loading board members...</Text>
-              </div>
-            ) : !members || members.length === 0 ? (
-              <div className="flex items-center justify-center py-16">
-                <Text variant="secondary">No board members yet.</Text>
-              </div>
-            ) : (
+            <ListState
+              isLoading={membersLoading}
+              isEmpty={!members || members.length === 0}
+              loadingText="Loading board members..."
+              emptyText="No board members yet."
+            >
               <div className="divide-y divide-surface-border">
-                {members.map((member) => (
-                  <div
+                {members?.map((member) => (
+                  <ListRow
                     key={member.id}
-                    className="flex items-center justify-between px-6 py-4"
-                  >
-                    <div>
-                      <p className="text-btn font-black text-primary">
-                        {member.name}
-                      </p>
-                      <Text
-                        variant="muted"
-                        size="label"
-                        className="normal-case tracking-normal"
-                      >
-                        {member.role}
-                      </Text>
-                      {member.bio && (
-                        <Text variant="secondary" className="mt-1 line-clamp-2">
-                          {member.bio}
-                        </Text>
-                      )}
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteMember(member.id)}
-                      className="ml-4 shrink-0 rounded-lg p-2 text-red-500 transition-colors hover:bg-red-50"
-                      aria-label={`Delete ${member.name}`}
-                    >
-                      <CloseIcon className="size-4" />
-                    </button>
-                  </div>
+                    title={member.name}
+                    subtitle={member.title ?? ""}
+                    description={member.bio ?? undefined}
+                    onDelete={() =>
+                      handleDelete(
+                        () => adminService.deleteBoardMember(member.id),
+                        "Board member deleted successfully.",
+                        refetchMembers,
+                      )
+                    }
+                  />
                 ))}
               </div>
-            )}
+            </ListState>
           </div>
         )}
 
-        {/* ── Annual Reports Tab ──────────────────────────────── */}
         {activeTab === "Annual Reports" && (
           <div className="rounded-2xl border border-surface-border bg-white shadow-card">
-            <div className="flex items-center justify-between border-b border-surface-border px-6 py-4">
-              <Heading level="h4" as="h2">
-                Annual Reports
-                <span className="ml-2 text-body text-slate-light font-normal">
-                  ({reports?.length ?? 0})
-                </span>
-              </Heading>
-              <Button
-                variant="secondary"
-                onClick={() => setShowReportForm(!showReportForm)}
-              >
-                {showReportForm ? "Cancel" : "Add New"}
-              </Button>
-            </div>
+            <Header
+              title="Annual Reports"
+              count={reports?.length ?? 0}
+              actionLabel={reportFormOpen ? "Cancel" : "Add New"}
+              onAction={() => setReportFormOpen((value) => !value)}
+            />
 
-            {/* Add form */}
-            {showReportForm && (
-              <div className="border-b border-surface-border bg-surface-bg p-6">
-                <form onSubmit={handleCreateReport} className="space-y-4">
-                  <Input
-                    label="Year"
-                    type="number"
-                    placeholder="e.g. 2025"
-                    value={reportYear}
-                    onChange={(e) => setReportYear(e.target.value)}
-                  />
-                  <Input
-                    label="Title"
-                    placeholder="Enter report title"
-                    value={reportTitle}
-                    onChange={(e) => setReportTitle(e.target.value)}
-                  />
-                  <Input
-                    label="Download URL"
-                    type="url"
-                    placeholder="https://example.com/report.pdf"
-                    value={reportUrl}
-                    onChange={(e) => setReportUrl(e.target.value)}
-                  />
-                  <div className="pt-2">
-                    <Button
-                      type="submit"
-                      variant="secondary"
-                      disabled={reportSubmitting}
-                    >
-                      {reportSubmitting ? "Creating..." : "Create Report"}
-                    </Button>
-                  </div>
-                </form>
-              </div>
+            {reportFormOpen && (
+              <FormShell onSubmit={handleCreateReport}>
+                <Input label="Year" type="number" value={reportYear} onChange={(event) => setReportYear(event.target.value)} />
+                <Input label="Title" value={reportTitle} onChange={(event) => setReportTitle(event.target.value)} />
+                <Input label="File URL" type="url" value={reportUrl} onChange={(event) => setReportUrl(event.target.value)} />
+                <Button type="submit" variant="secondary">
+                  Create Report
+                </Button>
+              </FormShell>
             )}
 
-            {/* List */}
-            {reportsLoading ? (
-              <div className="flex items-center justify-center py-16">
-                <Text variant="secondary">Loading annual reports...</Text>
-              </div>
-            ) : !reports || reports.length === 0 ? (
-              <div className="flex items-center justify-center py-16">
-                <Text variant="secondary">No annual reports yet.</Text>
-              </div>
-            ) : (
+            <ListState
+              isLoading={reportsLoading}
+              isEmpty={!reports || reports.length === 0}
+              loadingText="Loading annual reports..."
+              emptyText="No annual reports yet."
+            >
               <div className="divide-y divide-surface-border">
-                {reports.map((report, idx) => (
-                  <div
-                    key={`report-${report.year}-${idx}`}
-                    className="flex items-center justify-between px-6 py-4"
-                  >
-                    <div>
-                      <p className="text-btn font-black text-primary">
-                        {report.title}
-                      </p>
-                      <Text
-                        variant="muted"
-                        size="label"
-                        className="normal-case tracking-normal"
-                      >
-                        Year: {report.year}
+                {reports?.map((report) => (
+                  <ListRow
+                    key={report.id}
+                    title={report.title}
+                    subtitle={`Year: ${report.year}`}
+                    description={report.fileUrl}
+                    actionLink={report.fileUrl}
+                    actionLabel="Open Report"
+                    onDelete={() =>
+                      handleDelete(
+                        () => adminService.deleteAnnualReport(report.id),
+                        "Annual report deleted successfully.",
+                        refetchReports,
+                      )
+                    }
+                  />
+                ))}
+              </div>
+            </ListState>
+          </div>
+        )}
+
+        {activeTab === "Blog Posts" && (
+          <div className="rounded-2xl border border-surface-border bg-white shadow-card">
+            <Header
+              title="Blog Posts"
+              count={blogPosts.length}
+              actionLabel={blogFormOpen ? "Cancel" : "Add New"}
+              onAction={() => {
+                if (blogFormOpen) {
+                  resetBlogForm();
+                }
+                setBlogFormOpen((value) => !value);
+              }}
+            />
+
+            {blogFormOpen && (
+              <FormShell onSubmit={handleUpsertBlogPost}>
+                <Input label="Title" value={blogTitle} onChange={(event) => setBlogTitle(event.target.value)} />
+                <Input label="Slug (optional)" value={blogSlug} onChange={(event) => setBlogSlug(event.target.value)} />
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <Input label="Category" value={blogCategory} onChange={(event) => setBlogCategory(event.target.value)} />
+                  <Input label="Author Name" value={blogAuthorName} onChange={(event) => setBlogAuthorName(event.target.value)} />
+                </div>
+                <Input
+                  label="Cover Image URL"
+                  type="url"
+                  value={blogCoverImageUrl}
+                  onChange={(event) => setBlogCoverImageUrl(event.target.value)}
+                />
+                <Textarea label="Excerpt" value={blogExcerpt} onChange={(event) => setBlogExcerpt(event.target.value)} className="min-h-[100px]" />
+                <Textarea label="Content" value={blogContent} onChange={(event) => setBlogContent(event.target.value)} className="min-h-[220px]" />
+                <Button type="submit" variant="secondary">
+                  {editingPostId ? "Update Post" : "Create Post"}
+                </Button>
+              </FormShell>
+            )}
+
+            <ListState
+              isLoading={postsLoading}
+              isEmpty={blogPosts.length === 0}
+              loadingText="Loading blog posts..."
+              emptyText="No blog posts yet."
+            >
+              <div className="divide-y divide-surface-border">
+                {blogPosts.map((post) => (
+                  <div key={post.id} className="flex flex-col gap-4 px-6 py-4 md:flex-row md:items-start md:justify-between">
+                    <div className="min-w-0 flex-1">
+                      <p className="text-btn font-black text-primary">{post.title}</p>
+                      <Text variant="muted" size="label" className="normal-case tracking-normal">
+                        {[post.category, post.authorName].filter(Boolean).join(" • ") || "Published Post"}
                       </Text>
-                      <a
-                        href={report.downloadUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-label font-bold text-accent hover:text-accent-green transition-colors"
-                      >
-                        Download
-                      </a>
+                      <Text variant="secondary" className="mt-1 line-clamp-2">
+                        {post.excerpt}
+                      </Text>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        handleDeleteReport(
-                          (report as AnnualReport & { id?: string }).id ??
-                            `${report.year}`,
-                        )
-                      }
-                      className="ml-4 shrink-0 rounded-lg p-2 text-red-500 transition-colors hover:bg-red-50"
-                      aria-label={`Delete ${report.title}`}
-                    >
-                      <CloseIcon className="size-4" />
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditingPostId(post.id);
+                          setBlogTitle(post.title);
+                          setBlogSlug(post.slug);
+                          setBlogCategory(post.category ?? "");
+                          setBlogAuthorName(post.authorName ?? "");
+                          setBlogCoverImageUrl(post.coverImageUrl ?? "");
+                          setBlogExcerpt(post.excerpt);
+                          setBlogContent(post.content);
+                          setBlogFormOpen(true);
+                        }}
+                        className={buttonVariants({ variant: "outline", className: "h-9 px-4" })}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          handleDelete(
+                            () => adminService.deleteBlogPost(post.id),
+                            "Blog post deleted successfully.",
+                            refetchPosts,
+                          )
+                        }
+                        className="rounded-lg p-2 text-red-500 transition-colors hover:bg-red-50"
+                        aria-label={`Delete ${post.title}`}
+                      >
+                        <CloseIcon className="size-4" />
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
-            )}
+            </ListState>
           </div>
         )}
       </div>
     </RoleGuard>
+  );
+}
+
+function Header({
+  title,
+  count,
+  actionLabel,
+  onAction,
+}: {
+  title: string;
+  count: number;
+  actionLabel: string;
+  onAction: () => void;
+}) {
+  return (
+    <div className="flex items-center justify-between border-b border-surface-border px-6 py-4">
+      <Heading level="h4" as="h2">
+        {title}
+        <span className="ml-2 text-body font-normal text-slate-light">({count})</span>
+      </Heading>
+      <Button variant="secondary" onClick={onAction}>
+        {actionLabel}
+      </Button>
+    </div>
+  );
+}
+
+function FormShell({
+  children,
+  onSubmit,
+}: {
+  children: ReactNode;
+  onSubmit: (event: React.FormEvent) => void;
+}) {
+  return (
+    <div className="border-b border-surface-border bg-surface-bg p-6">
+      <form onSubmit={onSubmit} className="space-y-4">
+        {children}
+      </form>
+    </div>
+  );
+}
+
+function ListState({
+  isLoading,
+  isEmpty,
+  loadingText,
+  emptyText,
+  children,
+}: {
+  isLoading: boolean;
+  isEmpty: boolean;
+  loadingText: string;
+  emptyText: string;
+  children: ReactNode;
+}) {
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-16">
+        <Text variant="secondary">{loadingText}</Text>
+      </div>
+    );
+  }
+
+  if (isEmpty) {
+    return (
+      <div className="flex items-center justify-center py-16">
+        <Text variant="secondary">{emptyText}</Text>
+      </div>
+    );
+  }
+
+  return <>{children}</>;
+}
+
+function ListRow({
+  title,
+  subtitle,
+  description,
+  actionLink,
+  actionLabel,
+  onDelete,
+}: {
+  title: string;
+  subtitle: string;
+  description?: string;
+  actionLink?: string;
+  actionLabel?: string;
+  onDelete: () => void;
+}) {
+  return (
+    <div className="flex items-center justify-between gap-4 px-6 py-4">
+      <div className="min-w-0 flex-1">
+        <p className="text-btn font-black text-primary">{title}</p>
+        {subtitle && (
+          <Text variant="muted" size="label" className="normal-case tracking-normal">
+            {subtitle}
+          </Text>
+        )}
+        {description && <Text variant="secondary" className="mt-1 line-clamp-2">{description}</Text>}
+        {actionLink && actionLabel && (
+          <a
+            href={actionLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-2 inline-flex text-label font-bold text-accent transition-colors hover:text-accent-green"
+          >
+            {actionLabel}
+          </a>
+        )}
+      </div>
+      <button
+        type="button"
+        onClick={onDelete}
+        className="shrink-0 rounded-lg p-2 text-red-500 transition-colors hover:bg-red-50"
+      >
+        <CloseIcon className="size-4" />
+      </button>
+    </div>
   );
 }

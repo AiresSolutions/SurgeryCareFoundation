@@ -14,7 +14,7 @@ import { ArrowRightIcon } from "@/components/ui/icons";
 import { campaignService } from "@/services/campaign.service";
 import { useApi } from "@/hooks/use-api";
 import { useToast } from "@/components/ui/toast";
-import type { Campaign, CreateCampaignRequest, UrgencyLevel } from "@/types/campaign";
+import type { CreateCampaignRequest, UrgencyLevel } from "@/types/campaign";
 
 const URGENCY_OPTIONS = [
   { value: "", label: "Select urgency level" },

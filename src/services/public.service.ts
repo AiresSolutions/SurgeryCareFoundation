@@ -3,6 +3,8 @@ import type {
   PartnerHospital,
   BoardMember,
   AnnualReport,
+  BlogPost,
+  SiteStats,
 } from "@/types/content";
 
 export const publicService = {
@@ -15,14 +17,24 @@ export const publicService = {
   },
 
   getAnnualReports() {
-    return apiClient.get<AnnualReport[]>("/public/reports/annual");
+    return apiClient.get<AnnualReport[]>("/public/trust/reports/annual");
   },
 
   getContent(slug: string) {
-    return apiClient.get<{ content: string }>(`/public/content/${slug}`);
+    return apiClient.get<{ slug: string; title?: string | null; body: string }>(
+      `/public/content/${slug}`,
+    );
   },
 
   getStats() {
-    return apiClient.get<{ totalRaised: number; totalDonors: number; totalCampaigns: number }>("/public/stats");
+    return apiClient.get<SiteStats>("/public/stats");
+  },
+
+  getBlogPosts() {
+    return apiClient.get<BlogPost[]>("/public/blog-posts");
+  },
+
+  getBlogPost(slug: string) {
+    return apiClient.get<BlogPost>(`/public/blog-posts/${slug}`);
   },
 };

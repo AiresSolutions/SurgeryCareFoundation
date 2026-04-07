@@ -16,6 +16,11 @@ export interface CreatedDonation {
   status: string;
 }
 
+export interface DonationInitiation {
+  donation: CreatedDonation;
+  paymentIntent: PaymentIntent;
+}
+
 export interface CreatePaymentIntentRequest {
   donationId: string;
   amount: number;
@@ -24,15 +29,40 @@ export interface CreatePaymentIntentRequest {
 
 export interface PaymentIntent {
   id: string;
-  clientSecret: string;
+  donationId: string;
   amount: number;
   currency: string;
   status: string;
-  gatewayOrderId: string;
+  provider: string;
+  providerOrderId: string | null;
+  providerIntentId: string | null;
+  clientData: {
+    key: string;
+    order_id: string;
+    amount: number;
+    currency: string;
+    name: string;
+    description: string;
+    prefill?: {
+      name?: string;
+      email?: string;
+    };
+  };
 }
 
 export interface PaymentStatus {
   id: string;
   status: string;
-  donationId: string;
+  donation: {
+    id: string;
+    status: string;
+    amount: number;
+    currency: string;
+  };
+}
+
+export interface VerifyPaymentRequest {
+  orderId: string;
+  paymentId: string;
+  signature: string;
 }

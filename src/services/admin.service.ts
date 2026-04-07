@@ -1,7 +1,38 @@
 import { apiClient } from "@/lib/api-client";
 import type { PaginatedData } from "@/types/api";
 import type { Campaign } from "@/types/campaign";
-import type { PartnerHospital, BoardMember, AnnualReport } from "@/types/content";
+import type { PartnerHospital, BoardMember, AnnualReport, BlogPost } from "@/types/content";
+
+interface PartnerHospitalPayload {
+  name: string;
+  city?: string;
+  state?: string;
+  logoUrl?: string;
+  website?: string;
+  description?: string;
+  isActive?: boolean;
+  sortOrder?: number;
+}
+
+interface BoardMemberPayload {
+  name: string;
+  title?: string;
+  bio?: string;
+  photoUrl?: string;
+  isActive?: boolean;
+  sortOrder?: number;
+}
+
+interface BlogPostPayload {
+  slug?: string;
+  title: string;
+  excerpt: string;
+  content: string;
+  category?: string;
+  coverImageUrl?: string;
+  authorName?: string;
+  isPublished?: boolean;
+}
 
 export interface AdminDashboard {
   totalUsers: number;
@@ -105,27 +136,43 @@ export const adminService = {
   },
 
   // Content management
-  createPartnerHospital(data: Omit<PartnerHospital, "id">) {
-    return apiClient.post<PartnerHospital>("/admin/content/partner-hospitals", data);
+  createPartnerHospital(data: PartnerHospitalPayload) {
+    return apiClient.post<PartnerHospital>("/content/partner-hospitals", data);
   },
 
   deletePartnerHospital(id: string) {
-    return apiClient.delete<void>(`/admin/content/partner-hospitals/${id}`);
+    return apiClient.delete<void>(`/content/partner-hospitals/${id}`);
   },
 
-  createBoardMember(data: Omit<BoardMember, "id">) {
-    return apiClient.post<BoardMember>("/admin/content/board-members", data);
+  createBoardMember(data: BoardMemberPayload) {
+    return apiClient.post<BoardMember>("/content/board-members", data);
   },
 
   deleteBoardMember(id: string) {
-    return apiClient.delete<void>(`/admin/content/board-members/${id}`);
+    return apiClient.delete<void>(`/content/board-members/${id}`);
   },
 
-  createAnnualReport(data: AnnualReport) {
-    return apiClient.post<AnnualReport>("/admin/content/annual-reports", data);
+  createAnnualReport(data: Pick<AnnualReport, "year" | "title" | "fileUrl"> & { storageKey?: string }) {
+    return apiClient.post<AnnualReport>("/content/annual-reports", data);
   },
 
   deleteAnnualReport(id: string) {
-    return apiClient.delete<void>(`/admin/content/annual-reports/${id}`);
+    return apiClient.delete<void>(`/content/annual-reports/${id}`);
+  },
+
+  listBlogPosts() {
+    return apiClient.get<BlogPost[]>("/content/blog-posts");
+  },
+
+  createBlogPost(data: BlogPostPayload) {
+    return apiClient.post<BlogPost>("/content/blog-posts", data);
+  },
+
+  updateBlogPost(id: string, data: Partial<BlogPostPayload>) {
+    return apiClient.patch<BlogPost>(`/content/blog-posts/${id}`, data);
+  },
+
+  deleteBlogPost(id: string) {
+    return apiClient.delete<void>(`/content/blog-posts/${id}`);
   },
 };

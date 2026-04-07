@@ -12,6 +12,7 @@ import { CheckCircleIcon, GridIcon, ShareIcon } from "@/components/ui/icons";
 export default function ThankYouPage() {
   const searchParams = useSearchParams();
   const amountParam = searchParams.get("amount");
+  const status = searchParams.get("status");
   const amount = amountParam ? parseInt(amountParam, 10) : null;
 
   return (
@@ -29,7 +30,7 @@ export default function ThankYouPage() {
             </Heading>
 
             <Text variant="secondary" className="mb-6">
-              {amount && amount > 0 ? (
+              {status === "success" && amount && amount > 0 ? (
                 <>
                   Your generous donation of{" "}
                   <span className="font-bold text-accent">
@@ -38,10 +39,23 @@ export default function ThankYouPage() {
                   has been successfully processed. You have just made a massive
                   difference in someone&apos;s life.
                 </>
-              ) : (
+              ) : status === "success" ? (
                 <>
                   Your generous donation has been successfully processed. You have
                   just made a massive difference in someone&apos;s life.
+                </>
+              ) : amount && amount > 0 ? (
+                <>
+                  Your payment window has completed for{" "}
+                  <span className="font-bold text-accent">
+                    &#8377;{formatINR(amount)}
+                  </span>
+                  . We&apos;ll email your receipt as soon as the payment is confirmed.
+                </>
+              ) : (
+                <>
+                  Your payment was submitted. We&apos;ll email your receipt as soon as the
+                  donation is confirmed.
                 </>
               )}
             </Text>
@@ -50,7 +64,9 @@ export default function ThankYouPage() {
             <div className="mb-8 rounded-xl bg-surface-page px-6 py-4">
               <p className="flex items-center justify-center gap-2 text-btn font-bold text-primary">
                 <span className="text-red-500" aria-hidden="true">&#10084;</span>
-                An email receipt has been sent to you.
+                {status === "success"
+                  ? "An email receipt has been sent to you."
+                  : "We will send your email receipt once payment is confirmed."}
               </p>
             </div>
 

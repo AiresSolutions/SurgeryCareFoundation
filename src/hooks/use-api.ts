@@ -16,8 +16,10 @@ export function useApi<T>(
   const [data, setData] = useState<T | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [reloadToken, setReloadToken] = useState(0);
   const fetcherRef = useRef(fetcher);
   fetcherRef.current = fetcher;
+  const depsKey = JSON.stringify(deps);
 
   const execute = useCallback(async () => {
     setIsLoading(true);
@@ -30,11 +32,15 @@ export function useApi<T>(
     } finally {
       setIsLoading(false);
     }
-  }, deps);
+  }, []);
 
   useEffect(() => {
-    execute();
-  }, [execute]);
+    void execute();
+  }, [depsKey, execute, reloadToken]);
 
-  return { data, error, isLoading, refetch: execute };
+  const refetch = useCallback(() => {
+    setReloadToken((current) => current + 1);
+  }, []);
+
+  return { data, error, isLoading, refetch };
 }

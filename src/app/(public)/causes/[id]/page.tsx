@@ -1,7 +1,9 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { Container } from "@/components/ui/container";
 import { Heading } from "@/components/ui/heading";
 import { Text } from "@/components/ui/text";
@@ -11,11 +13,17 @@ import { buttonVariants } from "@/components/ui/button";
 import { CheckCircleIcon, ShareIcon, HeartFilledIcon } from "@/components/ui/icons";
 import { useApi } from "@/hooks/use-api";
 import { campaignService } from "@/services/campaign.service";
+import { userService, type SavedCauseEntry } from "@/services/user.service";
+import { useAuth } from "@/context/auth-context";
+import { useToast } from "@/components/ui/toast";
 import { formatINR } from "@/lib/format";
 import type { CampaignUpdate } from "@/types/campaign";
 
 export default function CauseDetailPage({ params }: { params: { id: string } }) {
   const slug = params.id;
+  const router = useRouter();
+  const { user } = useAuth();
+  const { toast } = useToast();
 
   const {
     data: campaign,
@@ -28,6 +36,16 @@ export default function CauseDetailPage({ params }: { params: { id: string } }) 
     error: updatesError,
     isLoading: updatesLoading,
   } = useApi(() => campaignService.getUpdates(slug), [slug]);
+  const { data: savedCauses, refetch: refetchSavedCauses } = useApi<SavedCauseEntry[]>(
+    () => (user ? userService.getSavedCauses() : Promise.resolve([])),
+    [user?.id],
+  );
+  const [isSaving, setIsSaving] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
+
+  useEffect(() => {
+    setIsSaved(Boolean(campaign && savedCauses?.some((entry) => entry.campaign.id === campaign.id)));
+  }, [campaign, savedCauses]);
 
   if (campaignLoading) {
     return (
@@ -64,6 +82,31 @@ export default function CauseDetailPage({ params }: { params: { id: string } }) 
 
   const updates = updatesData?.items ?? [];
   const backers = campaign._count?.donations || 0;
+
+  async function handleSaveCause() {
+    if (!campaign) return;
+
+    if (!user) {
+      router.push(`/login?redirect=/causes/${slug}`);
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      if (isSaved) {
+        await userService.removeSavedCause(campaign.id);
+        toast("Cause removed from your saved list.");
+      } else {
+        await userService.saveCause(campaign.id);
+        toast("Cause saved for later.");
+      }
+      await refetchSavedCauses();
+    } catch (err) {
+      toast(err instanceof Error ? err.message : "Unable to update saved causes.", "error");
+    } finally {
+      setIsSaving(false);
+    }
+  }
 
   return (
     <section className="py-8 md:py-12">
@@ -163,6 +206,19 @@ export default function CauseDetailPage({ params }: { params: { id: string } }) 
               >
                 <ShareIcon className="size-4" />
                 Share this cause
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveCause}
+                disabled={isSaving}
+                className={buttonVariants({
+                  variant: "outline",
+                  size: "default",
+                  className: "mt-3 w-full gap-2",
+                })}
+              >
+                <HeartFilledIcon className={`size-4 ${isSaved ? "text-red-500" : "text-slate-light"}`} />
+                {isSaving ? "Updating..." : isSaved ? "Saved for Later" : "Save Cause"}
               </button>
 
               <div className="mt-6 space-y-3 border-t border-surface-border pt-6">

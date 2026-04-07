@@ -17,6 +17,10 @@ export default function DashboardPage() {
     () => userService.getDonations({ limit: 50, status: "succeeded" }),
     [],
   );
+  const { data: savedCauses } = useApi(
+    () => userService.getSavedCauses(),
+    [],
+  );
 
   const donations = data?.items ?? [];
 
@@ -27,7 +31,7 @@ export default function DashboardPage() {
   const stats = [
     { label: "Total Donated", value: `\u20B9 ${formatINR(totalDonated)}`, icon: HeartIcon, color: "bg-red-50 text-red-500" },
     { label: "Causes Supported", value: String(causesSupported), icon: GridIcon, color: "bg-accent/10 text-accent" },
-    { label: "Saved Causes", value: "0", icon: BookmarkIcon, color: "bg-primary/10 text-primary" },
+    { label: "Saved Causes", value: String(savedCauses?.length ?? 0), icon: BookmarkIcon, color: "bg-primary/10 text-primary" },
   ] as const;
 
   return (

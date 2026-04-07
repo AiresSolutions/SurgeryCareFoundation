@@ -19,14 +19,28 @@ import { LockIcon } from "@/components/ui/icons";
 
 const AMOUNTS = [1000, 5000, 10000] as const;
 
+async function loadRazorpayScript() {
+  if (typeof window === "undefined") return false;
+  if ((window as Window & { Razorpay?: unknown }).Razorpay) return true;
+
+  return new Promise<boolean>((resolve) => {
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.async = true;
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+}
+
 export default function CheckoutPage({ params }: { params: { id: string } }) {
   const router = useRouter();
   const { toast } = useToast();
 
-  const {
-    data: campaign,
-    isLoading: campaignLoading,
-  } = useApi(() => campaignService.getBySlug(params.id), [params.id]);
+  const { data: campaign, isLoading: campaignLoading } = useApi(
+    () => campaignService.getBySlug(params.id),
+    [params.id],
+  );
 
   const [selectedAmount, setSelectedAmount] = useState<number>(5000);
   const [customAmount, setCustomAmount] = useState("");
@@ -57,8 +71,9 @@ export default function CheckoutPage({ params }: { params: { id: string } }) {
     }
 
     setIsSubmitting(true);
+
     try {
-      const donation = await paymentService.createDonation({
+      const donation = await paymentService.createGuestDonation({
         campaignId: campaign.id,
         amount: donationAmount,
         donorName: `${firstName.trim()} ${lastName.trim()}`.trim(),
@@ -66,20 +81,80 @@ export default function CheckoutPage({ params }: { params: { id: string } }) {
         isAnonymous,
       });
 
-      await paymentService.createIntent({
+      const paymentIntent = await paymentService.createGuestIntent({
         donationId: donation.id,
         amount: donationAmount,
       });
 
-      router.push(
-        `/causes/${params.id}/thank-you?donationId=${donation.id}&amount=${donationAmount}`
-      );
+      if (!paymentIntent.clientData.key || !paymentIntent.clientData.order_id) {
+        throw new Error("Payment gateway is not configured yet. Please try again later.");
+      }
+
+      const razorpayLoaded = await loadRazorpayScript();
+      if (!razorpayLoaded) {
+        throw new Error("Unable to load the payment gateway. Please try again.");
+      }
+
+      const Razorpay = (window as Window & {
+        Razorpay?: new (options: Record<string, unknown>) => { open: () => void };
+      }).Razorpay;
+
+      if (!Razorpay) {
+        throw new Error("Payment gateway is unavailable right now.");
+      }
+
+      const razorpay = new Razorpay({
+        key: paymentIntent.clientData.key,
+        order_id: paymentIntent.clientData.order_id,
+        amount: paymentIntent.clientData.amount,
+        currency: paymentIntent.clientData.currency,
+        name: paymentIntent.clientData.name,
+        description: paymentIntent.clientData.description,
+        prefill: {
+          name: `${firstName.trim()} ${lastName.trim()}`.trim(),
+          email: email.trim(),
+        },
+        handler: async (response: {
+          razorpay_order_id: string;
+          razorpay_payment_id: string;
+          razorpay_signature: string;
+        }) => {
+          try {
+            await paymentService.verifyGuestPayment({
+              orderId: response.razorpay_order_id,
+              paymentId: response.razorpay_payment_id,
+              signature: response.razorpay_signature,
+            });
+            router.push(
+              `/causes/${params.id}/thank-you?donationId=${donation.id}&amount=${donationAmount}&status=success`,
+            );
+          } catch (err) {
+            toast(
+              err instanceof Error
+                ? err.message
+                : "Payment was captured, but confirmation failed. Please contact support.",
+              "error",
+            );
+          } finally {
+            setIsSubmitting(false);
+          }
+        },
+        modal: {
+          ondismiss: () => {
+            setIsSubmitting(false);
+          },
+        },
+        theme: {
+          color: "#014A62",
+        },
+      });
+
+      razorpay.open();
     } catch (err) {
       toast(
         err instanceof Error ? err.message : "Something went wrong. Please try again.",
-        "error"
+        "error",
       );
-    } finally {
       setIsSubmitting(false);
     }
   }
@@ -93,13 +168,13 @@ export default function CheckoutPage({ params }: { params: { id: string } }) {
         >
           <span aria-hidden="true">&larr;</span> Back to Cause
         </Link>
-        <Heading level="h2" as="h1" className="mb-8">Secure Checkout</Heading>
+        <Heading level="h2" as="h1" className="mb-8">
+          Secure Checkout
+        </Heading>
 
         <div className="grid gap-8 lg:grid-cols-5 lg:gap-12">
-          {/* Left — Form */}
           <div className="lg:col-span-3">
             <div className="rounded-2xl bg-white p-6 shadow-card md:p-8">
-              {/* Amount Selection */}
               <fieldset className="mb-8">
                 <legend className="mb-4 text-label uppercase text-slate-light">
                   Select Donation Amount
@@ -109,12 +184,15 @@ export default function CheckoutPage({ params }: { params: { id: string } }) {
                     <button
                       key={amt}
                       type="button"
-                      onClick={() => { setSelectedAmount(amt); setCustomAmount(""); }}
+                      onClick={() => {
+                        setSelectedAmount(amt);
+                        setCustomAmount("");
+                      }}
                       className={cn(
                         "rounded-full border py-3 text-btn font-bold transition-colors",
                         selectedAmount === amt && !customAmount
                           ? "border-accent bg-accent/10 text-accent"
-                          : "border-surface-border text-primary hover:border-accent"
+                          : "border-surface-border text-primary hover:border-accent",
                       )}
                     >
                       &#8377; {formatINR(amt)}
@@ -124,36 +202,37 @@ export default function CheckoutPage({ params }: { params: { id: string } }) {
                 <Input
                   placeholder="&#8377; Other Amount"
                   value={customAmount}
-                  onChange={(e) => setCustomAmount(e.target.value)}
+                  onChange={(event) => setCustomAmount(event.target.value)}
                 />
               </fieldset>
 
-              {/* Personal Details */}
-              <Heading level="h4" as="h2" className="mb-4">Personal Details</Heading>
+              <Heading level="h4" as="h2" className="mb-4">
+                Personal Details
+              </Heading>
               <div className="mb-6 space-y-4">
                 <div className="grid gap-4 sm:grid-cols-2">
                   <Input
                     placeholder="First Name"
                     value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
+                    onChange={(event) => setFirstName(event.target.value)}
                   />
                   <Input
                     placeholder="Last Name"
                     value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
+                    onChange={(event) => setLastName(event.target.value)}
                   />
                 </div>
                 <Input
                   type="email"
                   placeholder="Email Address"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(event) => setEmail(event.target.value)}
                 />
-                <label className="flex items-center gap-2 cursor-pointer">
+                <label className="flex cursor-pointer items-center gap-2">
                   <input
                     type="checkbox"
                     checked={isAnonymous}
-                    onChange={(e) => setIsAnonymous(e.target.checked)}
+                    onChange={(event) => setIsAnonymous(event.target.checked)}
                     className="size-4 rounded border-surface-border accent-accent"
                   />
                   <Text variant="secondary" as="span">
@@ -162,10 +241,9 @@ export default function CheckoutPage({ params }: { params: { id: string } }) {
                 </label>
               </div>
 
-              {/* Payment note */}
               <div className="mb-6 rounded-xl bg-surface-page px-6 py-4">
                 <Text variant="secondary" className="text-center">
-                  You will be redirected to complete payment after submitting.
+                  You&apos;ll be taken to Razorpay to complete your payment securely.
                 </Text>
               </div>
 
@@ -177,7 +255,7 @@ export default function CheckoutPage({ params }: { params: { id: string } }) {
                 disabled={isSubmitting}
               >
                 {isSubmitting
-                  ? "Processing..."
+                  ? "Opening Payment..."
                   : `Complete Donation of \u20B9${formatINR(donationAmount)}`}
               </Button>
 
@@ -190,14 +268,15 @@ export default function CheckoutPage({ params }: { params: { id: string } }) {
             </div>
           </div>
 
-          {/* Right — Summary */}
           <aside className="lg:col-span-2">
             <div className="sticky top-32 rounded-2xl border border-surface-border bg-white p-6 shadow-card">
-              <Heading level="h4" as="h2" className="mb-4">Donation Summary</Heading>
+              <Heading level="h4" as="h2" className="mb-4">
+                Donation Summary
+              </Heading>
 
               <div className="mb-6 flex items-center gap-3 border-b border-surface-border pb-6">
                 {campaignLoading ? (
-                  <div className="flex-1 space-y-2 animate-pulse">
+                  <div className="flex-1 animate-pulse space-y-2">
                     <div className="h-3 w-16 rounded bg-surface-border" />
                     <div className="h-4 w-32 rounded bg-surface-border" />
                     <div className="h-3 w-20 rounded bg-surface-border" />
@@ -239,9 +318,7 @@ export default function CheckoutPage({ params }: { params: { id: string } }) {
               <div className="space-y-3">
                 <div className="flex justify-between">
                   <Text variant="secondary">Donation Amount</Text>
-                  <Text className="font-bold">
-                    &#8377; {formatINR(donationAmount)}
-                  </Text>
+                  <Text className="font-bold">&#8377; {formatINR(donationAmount)}</Text>
                 </div>
                 <div className="flex justify-between">
                   <Text variant="secondary">Platform Fee (0%)</Text>

@@ -1,7 +1,7 @@
 import { ApiError } from "./api-error";
 import type { ApiResponse } from "@/types/api";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "";
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "/api/v1";
 
 let accessToken: string | null = null;
 
@@ -38,7 +38,12 @@ async function refreshAccessToken(): Promise<string | null> {
 }
 
 function buildUrl(path: string, params?: Record<string, string | number | boolean | undefined>) {
-  const url = new URL(`${BASE_URL}${path}`);
+  const url = BASE_URL.startsWith("http")
+    ? new URL(`${BASE_URL}${path}`)
+    : new URL(
+        `${BASE_URL}${path}`,
+        typeof window !== "undefined" ? window.location.origin : "http://localhost:3000",
+      );
   if (params) {
     Object.entries(params).forEach(([key, value]) => {
       if (value !== undefined) {

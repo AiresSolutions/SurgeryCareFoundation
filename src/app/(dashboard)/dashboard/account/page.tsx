@@ -1,119 +1,118 @@
 "use client";
 
-import { useState, useEffect, FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { Heading } from "@/components/ui/heading";
 import { Text } from "@/components/ui/text";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar } from "@/components/ui/avatar";
 import { ProgressBar } from "@/components/ui/progress-bar";
-import { Badge } from "@/components/ui/badge";
 import { FormSection } from "@/components/ui/form-section";
-import { CheckIcon } from "@/components/ui/icons";
 import { useAuth } from "@/context/auth-context";
 import { useToast } from "@/components/ui/toast";
+import { useApi } from "@/hooks/use-api";
 import { userService } from "@/services/user.service";
 import { authService } from "@/services/auth.service";
 
-const VERIFICATION_ITEMS = [
-  { label: "Active", status: true },
-  { label: "Eligible", status: true },
-  { label: "Eligible", status: false },
-  { label: "Today", status: false },
-] as const;
+function calculateCompletion(fields: Array<string | null | undefined>) {
+  const complete = fields.filter((value) => Boolean(value?.trim())).length;
+  return Math.round((complete / fields.length) * 100);
+}
 
 export default function AccountPage() {
   const { user, updateUser } = useAuth();
   const { toast } = useToast();
+  const { data: profile, isLoading } = useApi(() => userService.getProfile(), []);
 
-  // ── Personal fields ──
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [phone, setPhone] = useState("");
-
-  // ── Financial fields (creator profile) ──
+  const [organizationName, setOrganizationName] = useState("");
+  const [bio, setBio] = useState("");
+  const [website, setWebsite] = useState("");
   const [panNumber, setPanNumber] = useState("");
   const [bankAccountName, setBankAccountName] = useState("");
   const [bankAccountNumber, setBankAccountNumber] = useState("");
   const [bankIfsc, setBankIfsc] = useState("");
   const [bankName, setBankName] = useState("");
-
-  // ── Change password fields ──
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
-  const [passwordError, setPasswordError] = useState("");
-
-  // ── Loading states ──
   const [isSaving, setIsSaving] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
 
-  // Populate form from user on mount / user change
   useEffect(() => {
-    if (user) {
-      setFirstName(user.firstName ?? "");
-      setLastName(user.lastName ?? "");
-      setPhone(user.phone ?? "");
-    }
-  }, [user]);
+    if (!profile) return;
 
-  // Derive initials from user name
+    setFirstName(profile.firstName ?? "");
+    setLastName(profile.lastName ?? "");
+    setPhone(profile.phone ?? "");
+    setOrganizationName(profile.creatorProfile?.organizationName ?? "");
+    setBio(profile.creatorProfile?.bio ?? "");
+    setWebsite(profile.creatorProfile?.website ?? "");
+    setPanNumber(profile.creatorProfile?.panNumber ?? "");
+    setBankAccountName(profile.creatorProfile?.bankAccountName ?? "");
+    setBankAccountNumber(profile.creatorProfile?.bankAccountNumber ?? "");
+    setBankIfsc(profile.creatorProfile?.bankIfsc ?? "");
+    setBankName(profile.creatorProfile?.bankName ?? "");
+  }, [profile]);
+
   const initials = user
     ? `${(user.firstName?.[0] ?? "").toUpperCase()}${(user.lastName?.[0] ?? "").toUpperCase()}`
     : "";
+  const completion = calculateCompletion([
+    firstName,
+    lastName,
+    phone,
+    organizationName,
+    panNumber,
+    bankAccountName,
+    bankAccountNumber,
+    bankIfsc,
+    bankName,
+  ]);
 
-  // ── Save All Changes ──
-  async function handleSaveAll(e: FormEvent) {
-    e.preventDefault();
+  async function handleSaveAll(event: FormEvent) {
+    event.preventDefault();
     setIsSaving(true);
 
     try {
-      // 1. Update core profile
       await userService.updateProfile({
         firstName,
         lastName,
         phone: phone || undefined,
       });
 
-      // 2. If any financial field has a value, update creator profile too
-      const hasFinancialData =
-        panNumber || bankAccountName || bankAccountNumber || bankIfsc || bankName;
+      await userService.updateCreatorProfile({
+        organizationName: organizationName || undefined,
+        bio: bio || undefined,
+        website: website || undefined,
+        panNumber: panNumber || undefined,
+        bankAccountName: bankAccountName || undefined,
+        bankAccountNumber: bankAccountNumber || undefined,
+        bankIfsc: bankIfsc || undefined,
+        bankName: bankName || undefined,
+      });
 
-      if (hasFinancialData) {
-        await userService.updateCreatorProfile({
-          panNumber: panNumber || undefined,
-          bankAccountName: bankAccountName || undefined,
-          bankAccountNumber: bankAccountNumber || undefined,
-          bankIfsc: bankIfsc || undefined,
-          bankName: bankName || undefined,
-        });
-      }
-
-      // 3. Sync auth context
       updateUser({ firstName, lastName, phone: phone || null });
-
-      toast("Your changes have been saved successfully.", "success");
-    } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : "Failed to save changes. Please try again.";
-      toast(message, "error");
+      toast("Your profile has been updated.");
+    } catch (err) {
+      toast(err instanceof Error ? err.message : "Failed to save changes.", "error");
     } finally {
       setIsSaving(false);
     }
   }
 
-  // ── Change Password ──
-  async function handleChangePassword(e: FormEvent) {
-    e.preventDefault();
-    setPasswordError("");
+  async function handleChangePassword(event: FormEvent) {
+    event.preventDefault();
 
-    if (newPassword !== confirmNewPassword) {
-      setPasswordError("New password and confirmation do not match.");
+    if (!currentPassword || !newPassword || !confirmNewPassword) {
+      toast("Please fill in all password fields.", "error");
       return;
     }
 
-    if (!currentPassword || !newPassword) {
-      setPasswordError("Please fill in all password fields.");
+    if (newPassword !== confirmNewPassword) {
+      toast("New password and confirmation do not match.", "error");
       return;
     }
 
@@ -121,14 +120,12 @@ export default function AccountPage() {
 
     try {
       await authService.changePassword({ currentPassword, newPassword });
-      toast("Password updated successfully.", "success");
       setCurrentPassword("");
       setNewPassword("");
       setConfirmNewPassword("");
-    } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : "Failed to change password. Please try again.";
-      toast(message, "error");
+      toast("Password updated successfully.");
+    } catch (err) {
+      toast(err instanceof Error ? err.message : "Failed to change password.", "error");
     } finally {
       setIsChangingPassword(false);
     }
@@ -136,198 +133,160 @@ export default function AccountPage() {
 
   return (
     <div>
-      <Heading level="h2" as="h1" className="mb-1">Account &amp; Profile</Heading>
-      <Text variant="secondary" className="mb-8">Manage your personal details, verification, and preferences.</Text>
+      <Heading level="h2" as="h1" className="mb-1">
+        Account &amp; Profile
+      </Heading>
+      <Text variant="secondary" className="mb-8">
+        Manage the profile fields that are currently backed by the live API.
+      </Text>
 
-      {/* Profile Completion */}
       <div className="mb-8 flex items-center gap-6 rounded-2xl border border-surface-border bg-white p-6 shadow-card">
-        <Avatar
-          initials={initials || "??"}
-          src={user?.avatarUrl ?? undefined}
-          size="lg"
-        />
+        <Avatar initials={initials || "??"} src={user?.avatarUrl ?? undefined} size="lg" />
         <div className="flex-1">
           <div className="mb-2 flex items-center justify-between">
-            <Heading level="h4" as="h2">Profile Completion</Heading>
-            <Text className="font-black text-accent">89%</Text>
+            <Heading level="h4" as="h2">
+              Profile Completion
+            </Heading>
+            <Text className="font-black text-accent">{completion}%</Text>
           </div>
-          <ProgressBar value={89} className="mb-2" />
-          <Text variant="muted">Complete your KYC and upload emergency contacts to reach 100%.</Text>
+          <ProgressBar value={completion} className="mb-2" />
+          <Text variant="muted">
+            Personal details and creator banking fields are now connected. Extra KYC and address
+            placeholders have been removed until backend support exists.
+          </Text>
         </div>
       </div>
 
-      {/* Verification badges (visual-only) */}
-      <div className="mb-8 flex flex-wrap gap-3">
-        {VERIFICATION_ITEMS.map(({ label, status }, i) => (
-          <div key={i} className="flex items-center gap-2 rounded-2xl border border-surface-border bg-white px-4 py-3 shadow-card">
-            <span className={`flex size-8 items-center justify-center rounded-full ${status ? "bg-accent/10" : "bg-surface-page"}`}>
-              <CheckIcon className={`size-4 ${status ? "text-accent" : "text-slate-light"}`} />
-            </span>
-            <Badge variant={status ? "success" : "outline"}>{label}</Badge>
-          </div>
-        ))}
-      </div>
-
-      <form onSubmit={handleSaveAll}>
-        {/* Personal Details */}
-        <FormSection icon="👤" title="Personal Details">
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Input
-              label="First Name"
-              placeholder="John"
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
-            />
-            <Input
-              label="Last Name"
-              placeholder="Doe"
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
-            />
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Input
-              label="Email Address"
-              placeholder="johndoe@example.com"
-              value={user?.email ?? ""}
-              disabled
-              readOnly
-            />
-            <Input
-              label="Primary Phone"
-              placeholder="+91 98765 43210"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-            />
-          </div>
-          <div className="grid gap-4 sm:grid-cols-3">
-            <Input label="Alternate Phone (Optional)" placeholder="+91" disabled />
-            <Input label="Date of Birth" placeholder="" disabled />
-            <Input label="Preferred Language" placeholder="" disabled />
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Input label="Gender" placeholder="Male" disabled />
-            <Input label="Blood Group" placeholder="" disabled />
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Input label="Occupation" placeholder="Software Engineer" disabled />
-            <Input label="Organization Name" placeholder="TechCorp India" disabled />
-          </div>
-        </FormSection>
-
-        {/* Address (no backend mapping — read-only placeholders) */}
-        <FormSection icon="📍" title="Address & Location">
-          <Input label="Full Residential Address" placeholder="" disabled />
-          <div className="grid gap-4 sm:grid-cols-3">
-            <Input label="City" placeholder="Mumbai" disabled />
-            <Input label="District" placeholder="Mumbai Suburban" disabled />
-            <Input label="Postal Code" placeholder="400050" disabled />
-          </div>
-          <div className="grid gap-4 sm:grid-cols-3">
-            <Input label="State" placeholder="Maharashtra" disabled />
-            <Input label="Country" placeholder="India" disabled />
-            <Input label="Nationality" placeholder="Indian" disabled />
-          </div>
-        </FormSection>
-
-        {/* Identity & KYC (no backend mapping — read-only placeholders) */}
-        <FormSection icon="🪪" title="Identity & KYC">
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Input label="ID Proof Type" placeholder="" disabled />
-            <Input label="ID Proof Number" placeholder="XXXX-XXXX-XXXX" disabled />
-          </div>
-          <div className="rounded-xl bg-accent/5 border border-accent/20 px-4 py-3">
-            <Text className="text-accent font-bold">
-              ✓ Your identity is verified. To update your ID proof, please contact support.
-            </Text>
-          </div>
-        </FormSection>
-
-        {/* Financial Details */}
-        <FormSection icon="🏦" title="Financial Details">
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Input
-              label="Linked Bank Name"
-              placeholder="HDFC Bank"
-              value={bankName}
-              onChange={(e) => setBankName(e.target.value)}
-            />
-            <Input
-              label="Account Number"
-              placeholder="Enter account number"
-              value={bankAccountNumber}
-              onChange={(e) => setBankAccountNumber(e.target.value)}
-            />
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Input
-              label="PAN Card No."
-              placeholder="ABCDE1234F"
-              value={panNumber}
-              onChange={(e) => setPanNumber(e.target.value)}
-            />
-            <Input
-              label="Account Holder Name"
-              placeholder="Add beneficiary name"
-              value={bankAccountName}
-              onChange={(e) => setBankAccountName(e.target.value)}
-            />
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Input
-              label="IFSC Code"
-              placeholder="HDFC0001234"
-              value={bankIfsc}
-              onChange={(e) => setBankIfsc(e.target.value)}
-            />
-          </div>
-        </FormSection>
-
-        {/* Save */}
-        <div className="mt-8 flex justify-end">
-          <Button variant="primary" size="lg" type="submit" disabled={isSaving}>
-            {isSaving ? "Saving..." : "Save All Changes"}
-          </Button>
+      {isLoading ? (
+        <div className="rounded-2xl border border-surface-border bg-white p-10 shadow-card">
+          <Text variant="secondary">Loading your profile...</Text>
         </div>
-      </form>
+      ) : (
+        <>
+          <form onSubmit={handleSaveAll}>
+            <FormSection icon="👤" title="Personal Details">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Input
+                  label="First Name"
+                  value={firstName}
+                  onChange={(event) => setFirstName(event.target.value)}
+                />
+                <Input
+                  label="Last Name"
+                  value={lastName}
+                  onChange={(event) => setLastName(event.target.value)}
+                />
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Input label="Email Address" value={profile?.email ?? ""} disabled readOnly />
+                <Input
+                  label="Primary Phone"
+                  value={phone}
+                  onChange={(event) => setPhone(event.target.value)}
+                />
+              </div>
+            </FormSection>
 
-      {/* Change Password */}
-      <form onSubmit={handleChangePassword} className="mt-4">
-        <FormSection icon="🔒" title="Change Password">
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Input
-              label="Current Password"
-              type="password"
-              placeholder="Enter current password"
-              value={currentPassword}
-              onChange={(e) => setCurrentPassword(e.target.value)}
-            />
-            <div>{/* spacer for grid alignment */}</div>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Input
-              label="New Password"
-              type="password"
-              placeholder="Enter new password"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-            />
-            <Input
-              label="Confirm New Password"
-              type="password"
-              placeholder="Re-enter new password"
-              value={confirmNewPassword}
-              onChange={(e) => setConfirmNewPassword(e.target.value)}
-              error={passwordError || undefined}
-            />
-          </div>
-          <div className="flex justify-end pt-2">
-            <Button variant="secondary" size="lg" type="submit" disabled={isChangingPassword}>
-              {isChangingPassword ? "Updating..." : "Update Password"}
-            </Button>
-          </div>
-        </FormSection>
-      </form>
+            <FormSection icon="🏢" title="Creator Profile">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Input
+                  label="Organization Name"
+                  value={organizationName}
+                  onChange={(event) => setOrganizationName(event.target.value)}
+                />
+                <Input
+                  label="Website"
+                  type="url"
+                  value={website}
+                  onChange={(event) => setWebsite(event.target.value)}
+                />
+              </div>
+              <Input
+                label="Bio"
+                value={bio}
+                onChange={(event) => setBio(event.target.value)}
+              />
+            </FormSection>
+
+            <FormSection icon="🏦" title="Financial Details">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Input
+                  label="PAN Number"
+                  value={panNumber}
+                  onChange={(event) => setPanNumber(event.target.value)}
+                />
+                <Input
+                  label="Bank Name"
+                  value={bankName}
+                  onChange={(event) => setBankName(event.target.value)}
+                />
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Input
+                  label="Account Holder Name"
+                  value={bankAccountName}
+                  onChange={(event) => setBankAccountName(event.target.value)}
+                />
+                <Input
+                  label="Account Number"
+                  value={bankAccountNumber}
+                  onChange={(event) => setBankAccountNumber(event.target.value)}
+                />
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Input
+                  label="IFSC"
+                  value={bankIfsc}
+                  onChange={(event) => setBankIfsc(event.target.value)}
+                />
+                <Input
+                  label="KYC Status"
+                  value={profile?.creatorProfile?.kycStatus ?? "pending"}
+                  disabled
+                  readOnly
+                />
+              </div>
+            </FormSection>
+
+            <div className="mt-6">
+              <Button type="submit" variant="secondary" disabled={isSaving}>
+                {isSaving ? "Saving..." : "Save Changes"}
+              </Button>
+            </div>
+          </form>
+
+          <form onSubmit={handleChangePassword} className="mt-10">
+            <FormSection icon="🔒" title="Change Password">
+              <div className="grid gap-4 sm:grid-cols-3">
+                <Input
+                  type="password"
+                  label="Current Password"
+                  value={currentPassword}
+                  onChange={(event) => setCurrentPassword(event.target.value)}
+                />
+                <Input
+                  type="password"
+                  label="New Password"
+                  value={newPassword}
+                  onChange={(event) => setNewPassword(event.target.value)}
+                />
+                <Input
+                  type="password"
+                  label="Confirm New Password"
+                  value={confirmNewPassword}
+                  onChange={(event) => setConfirmNewPassword(event.target.value)}
+                />
+              </div>
+            </FormSection>
+
+            <div className="mt-6">
+              <Button type="submit" variant="outline" disabled={isChangingPassword}>
+                {isChangingPassword ? "Updating..." : "Update Password"}
+              </Button>
+            </div>
+          </form>
+        </>
+      )}
     </div>
   );
 }
