@@ -1,56 +1,47 @@
 import { apiClient } from "@/lib/api-client";
 
-type AnalyticsPeriod = "week" | "month" | "year";
+export interface DashboardAnalytics {
+  totalFundsRaised: number;
+  totalPatients: number;
+  activeCampaigns: number;
+  urgentCampaigns: number;
+  totalDonors: number;
+  pendingWithdrawals: number;
+}
 
-interface DashboardAnalytics {
-  overview: {
-    totalRaised: number;
-    totalDonors: number;
-    totalCampaigns: number;
-    avgDonation: number;
-  };
-  trends: {
-    date: string;
-    donations: number;
-    amount: number;
+export interface DonationAnalytics {
+  groupBy: "day" | "week" | "month";
+  data: {
+    period: string;
+    total: number;
+    count: number;
   }[];
-  topCampaigns: {
+}
+
+export interface CampaignAnalytics {
+  data: {
     id: string;
     title: string;
-    raisedAmount: number;
+    slug: string;
+    status: string;
     goalAmount: number;
-    donorCount: number;
+    raisedAmount: number;
+    donationCount: number;
+    completionRate: number;
+    createdAt: string;
   }[];
-}
-
-interface DonationAnalytics {
-  totalAmount: number;
-  totalCount: number;
-  avgAmount: number;
-  byDay: { date: string; amount: number; count: number }[];
-  byMethod: { method: string; amount: number; count: number }[];
-}
-
-interface CampaignAnalytics {
-  totalCampaigns: number;
-  byStatus: { status: string; count: number }[];
-  byCategory: { category: string; count: number }[];
-  completionRate: number;
-  avgFundingPercentage: number;
 }
 
 interface AnalyticsFilters {
-  period?: AnalyticsPeriod;
   startDate?: string;
   endDate?: string;
+  groupBy?: "day" | "week" | "month";
 }
 
 export const analyticsService = {
-  getDashboard(period?: AnalyticsPeriod) {
+  getDashboard(filters?: Pick<AnalyticsFilters, "startDate" | "endDate">) {
     return apiClient.get<DashboardAnalytics>("/analytics/dashboard", {
-      params: period
-        ? ({ period } as Record<string, string | number | boolean | undefined>)
-        : undefined,
+      params: filters as Record<string, string | number | boolean | undefined> | undefined,
     });
   },
 

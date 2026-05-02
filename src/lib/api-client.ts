@@ -18,6 +18,10 @@ interface RequestOptions {
   params?: Record<string, string | number | boolean | undefined>;
 }
 
+function isFormData(body: unknown): body is FormData {
+  return typeof FormData !== "undefined" && body instanceof FormData;
+}
+
 let refreshPromise: Promise<string | null> | null = null;
 
 async function refreshAccessToken(): Promise<string | null> {
@@ -54,10 +58,11 @@ function buildUrl(path: string, params?: Record<string, string | number | boolea
   return url.toString();
 }
 
-function buildHeaders(): HeadersInit {
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-  };
+function buildHeaders(body?: unknown): HeadersInit {
+  const headers: Record<string, string> = {};
+  if (!isFormData(body)) {
+    headers["Content-Type"] = "application/json";
+  }
   if (accessToken) {
     headers["Authorization"] = `Bearer ${accessToken}`;
   }
@@ -71,12 +76,14 @@ async function request<T>(
   opts?: RequestOptions,
 ): Promise<T> {
   const url = buildUrl(path, opts?.params);
+  const requestBody =
+    body === undefined ? undefined : isFormData(body) ? body : JSON.stringify(body);
 
   const res = await fetch(url, {
     method,
-    headers: buildHeaders(),
+    headers: buildHeaders(body),
     credentials: "include",
-    body: body ? JSON.stringify(body) : undefined,
+    body: requestBody,
     signal: opts?.signal,
   });
 
@@ -92,9 +99,9 @@ async function request<T>(
       // Retry the original request with new token
       const retryRes = await fetch(url, {
         method,
-        headers: buildHeaders(),
+        headers: buildHeaders(body),
         credentials: "include",
-        body: body ? JSON.stringify(body) : undefined,
+        body: requestBody,
         signal: opts?.signal,
       });
       const retryJson: ApiResponse<T> = await retryRes.json();

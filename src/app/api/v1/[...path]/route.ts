@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
+const PRODUCTION_BACKEND_PROXY_FALLBACK = "http://213.199.63.29/surgery-care-api";
+
 const HOP_BY_HOP_HEADERS = new Set([
   "connection",
   "content-length",
@@ -16,7 +18,9 @@ const HOP_BY_HOP_HEADERS = new Set([
 ]);
 
 function buildTargetUrl(request: NextRequest, path: string[]) {
-  const backendOrigin = process.env.BACKEND_PROXY_ORIGIN;
+  const backendOrigin =
+    process.env.BACKEND_PROXY_ORIGIN ??
+    (process.env.NODE_ENV === "production" ? PRODUCTION_BACKEND_PROXY_FALLBACK : undefined);
 
   if (!backendOrigin) {
     throw new Error("BACKEND_PROXY_ORIGIN is not configured");

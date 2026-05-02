@@ -31,8 +31,8 @@ interface DisburseRequest {
 }
 
 interface ReconciliationFilters {
-  startDate?: string;
-  endDate?: string;
+  startDate: string;
+  endDate: string;
 }
 
 export interface Donation {
@@ -67,12 +67,20 @@ export interface Withdrawal {
 }
 
 export interface ReconciliationData {
-  totalDonations: number;
-  totalWithdrawals: number;
-  totalDisbursed: number;
-  pendingWithdrawals: number;
-  balance: number;
   period: { startDate: string; endDate: string };
+  donations: {
+    total: number;
+    count: number;
+  };
+  withdrawalRequests: {
+    total: number;
+    count: number;
+  };
+  disbursements: {
+    total: number;
+    count: number;
+  };
+  netBalance: number;
 }
 
 export const financeService = {
@@ -114,7 +122,7 @@ export const financeService = {
 
   getReconciliation(filters?: ReconciliationFilters) {
     return apiClient.get<ReconciliationData>("/finance/reconciliation", {
-      params: filters as Record<string, string | number | boolean | undefined>,
+      params: filters ? { ...filters } : undefined,
     });
   },
 };

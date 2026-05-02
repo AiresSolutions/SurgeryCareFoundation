@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useState, useRef, type ChangeEvent, type Dispatch, type FormEvent, type SetStateAction } from "react";
 import { useRouter } from "next/navigation";
 import { Container } from "@/components/ui/container";
 import { Heading } from "@/components/ui/heading";
@@ -21,9 +21,19 @@ const URGENCY_OPTIONS = [
   { value: "low", label: "Low" },
 ] as const;
 
+const MAX_PROXY_UPLOAD_BYTES = 4 * 1024 * 1024;
+
+function formatFileSize(bytes: number) {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
 export default function StartFundraiserPage() {
   const router = useRouter();
   const { toast } = useToast();
+  const patientImagesInputRef = useRef<HTMLInputElement | null>(null);
+  const medicalDocumentsInputRef = useRef<HTMLInputElement | null>(null);
 
   // --- Form state (fields that map to CreateCampaignRequest) ---
   const [title, setTitle] = useState("");
@@ -41,6 +51,8 @@ export default function StartFundraiserPage() {
   const [accountNumber, setAccountNumber] = useState("");
   const [ifsc, setIfsc] = useState("");
   const [consentChecked, setConsentChecked] = useState(false);
+  const [patientImages, setPatientImages] = useState<File[]>([]);
+  const [medicalDocuments, setMedicalDocuments] = useState<File[]>([]);
 
   // --- Validation errors ---
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -69,6 +81,41 @@ export default function StartFundraiserPage() {
     return Object.keys(next).length === 0;
   }
 
+  function updateSelectedFiles(
+    event: ChangeEvent<HTMLInputElement>,
+    setter: Dispatch<SetStateAction<File[]>>,
+    label: string,
+  ) {
+    const files = Array.from(event.target.files ?? []);
+    const accepted = files.filter((file) => file.size <= MAX_PROXY_UPLOAD_BYTES);
+    const rejected = files.filter((file) => file.size > MAX_PROXY_UPLOAD_BYTES);
+
+    setter((current) => [...current, ...accepted]);
+
+    if (rejected.length > 0) {
+      toast(
+        `${label}: ${rejected
+          .map((file) => `${file.name} exceeds ${formatFileSize(MAX_PROXY_UPLOAD_BYTES)}`)
+          .join(", ")}`,
+        "error",
+      );
+    }
+
+    event.target.value = "";
+  }
+
+  function removeSelectedFile(
+    kind: "patientImages" | "medicalDocuments",
+    fileName: string,
+  ) {
+    if (kind === "patientImages") {
+      setPatientImages((current) => current.filter((file) => file.name !== fileName));
+      return;
+    }
+
+    setMedicalDocuments((current) => current.filter((file) => file.name !== fileName));
+  }
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     if (!validate()) return;
@@ -76,7 +123,7 @@ export default function StartFundraiserPage() {
     setIsSubmitting(true);
 
     try {
-      await campaignService.create({
+      const campaign = await campaignService.create({
         title: title.trim(),
         description: description.trim() || undefined,
         goalAmount: Number(goalAmount),
@@ -91,7 +138,21 @@ export default function StartFundraiserPage() {
         },
       });
 
-      toast("Fundraiser created! It has been saved as a draft.", "success");
+      const uploads = [
+        ...patientImages.map((file) => campaignService.uploadDocument(campaign.id, file, "patient_image")),
+        ...medicalDocuments.map((file) => campaignService.uploadDocument(campaign.id, file, "medical_document")),
+      ];
+
+      if (uploads.length > 0) {
+        await Promise.all(uploads);
+      }
+
+      toast(
+        uploads.length > 0
+          ? "Fundraiser created and files uploaded. It has been saved as a draft."
+          : "Fundraiser created! It has been saved as a draft.",
+        "success",
+      );
       router.push("/dashboard/fundraisers");
     } catch (err: unknown) {
       const message =
@@ -225,18 +286,97 @@ export default function StartFundraiserPage() {
             {/* Media & Documents */}
             <FormSection icon="📎" title="Media & Documents">
               <div className="grid gap-4 sm:grid-cols-2">
-                {["Patient Images", "Medical Documents"].map((label) => (
-                  <div
-                    key={label}
-                    className="flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-surface-border bg-surface-page py-10 text-center transition-colors hover:border-accent/50"
-                  >
+                <div className="rounded-2xl border-2 border-dashed border-surface-border bg-surface-page p-6 text-center transition-colors hover:border-accent/50">
+                  <input
+                    ref={patientImagesInputRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    multiple
+                    className="hidden"
+                    onChange={(event) => updateSelectedFiles(event, setPatientImages, "Patient Images")}
+                  />
+                  <div className="flex flex-col items-center gap-3">
                     <UploadIcon className="size-8 text-slate-light" />
-                    <Text variant="secondary" className="font-bold">{label}</Text>
+                    <Text variant="secondary" className="font-bold">Patient Images</Text>
                     <Text variant="muted" size="label" className="normal-case tracking-normal">
-                      Upload a file (JPG, PNG, PDF)
+                      JPG, PNG, WEBP up to {formatFileSize(MAX_PROXY_UPLOAD_BYTES)} each
                     </Text>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => patientImagesInputRef.current?.click()}
+                      disabled={isSubmitting}
+                    >
+                      Select Images
+                    </Button>
                   </div>
-                ))}
+                  {patientImages.length > 0 && (
+                    <div className="mt-4 space-y-2 text-left">
+                      {patientImages.map((file) => (
+                        <div key={`${file.name}-${file.lastModified}`} className="flex items-center justify-between gap-3 rounded-xl bg-white px-4 py-3">
+                          <div>
+                            <p className="text-sm font-bold text-primary">{file.name}</p>
+                            <p className="text-xs text-slate-medium">{formatFileSize(file.size)}</p>
+                          </div>
+                          <button
+                            type="button"
+                            className="text-sm font-bold text-accent"
+                            onClick={() => removeSelectedFile("patientImages", file.name)}
+                            disabled={isSubmitting}
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div className="rounded-2xl border-2 border-dashed border-surface-border bg-surface-page p-6 text-center transition-colors hover:border-accent/50">
+                  <input
+                    ref={medicalDocumentsInputRef}
+                    type="file"
+                    accept=".pdf,image/jpeg,image/png,image/webp"
+                    multiple
+                    className="hidden"
+                    onChange={(event) => updateSelectedFiles(event, setMedicalDocuments, "Medical Documents")}
+                  />
+                  <div className="flex flex-col items-center gap-3">
+                    <UploadIcon className="size-8 text-slate-light" />
+                    <Text variant="secondary" className="font-bold">Medical Documents</Text>
+                    <Text variant="muted" size="label" className="normal-case tracking-normal">
+                      PDF, JPG, PNG, WEBP up to {formatFileSize(MAX_PROXY_UPLOAD_BYTES)} each
+                    </Text>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => medicalDocumentsInputRef.current?.click()}
+                      disabled={isSubmitting}
+                    >
+                      Select Documents
+                    </Button>
+                  </div>
+                  {medicalDocuments.length > 0 && (
+                    <div className="mt-4 space-y-2 text-left">
+                      {medicalDocuments.map((file) => (
+                        <div key={`${file.name}-${file.lastModified}`} className="flex items-center justify-between gap-3 rounded-xl bg-white px-4 py-3">
+                          <div>
+                            <p className="text-sm font-bold text-primary">{file.name}</p>
+                            <p className="text-xs text-slate-medium">{formatFileSize(file.size)}</p>
+                          </div>
+                          <button
+                            type="button"
+                            className="text-sm font-bold text-accent"
+                            onClick={() => removeSelectedFile("medicalDocuments", file.name)}
+                            disabled={isSubmitting}
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
             </FormSection>
 

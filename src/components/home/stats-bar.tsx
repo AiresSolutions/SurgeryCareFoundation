@@ -7,21 +7,21 @@ import { formatINR } from "@/lib/format";
 
 export function StatsBar() {
   const { data: stats, isLoading } = useApi(() => publicService.getStats(), []);
+  const raisedValue = !isLoading && stats
+    ? `\u20B9 ${formatINR(stats.totalRaised)}`
+    : "\u2014";
+  const donationsValue = !isLoading && stats
+    ? stats.totalDonors.toLocaleString("en-IN")
+    : "\u2014";
+  const activeCausesValue = !isLoading && stats
+    ? String(stats.totalCampaigns)
+    : "\u2014";
 
   const items = [
     { value: "400+", label: "Volunteers" },
-    {
-      value: isLoading ? "\u2014" : `\u20B9 ${formatINR(stats!.totalRaised)}`,
-      label: "Raised",
-    },
-    {
-      value: isLoading ? "\u2014" : stats!.totalDonors.toLocaleString("en-IN"),
-      label: "Donations",
-    },
-    {
-      value: isLoading ? "\u2014" : String(stats!.totalCampaigns),
-      label: "Active Causes",
-    },
+    { value: raisedValue, label: "Raised" },
+    { value: donationsValue, label: "Donations" },
+    { value: activeCausesValue, label: "Active Causes" },
   ];
 
   return (

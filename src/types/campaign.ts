@@ -44,6 +44,19 @@ export interface CampaignUpdate {
   createdAt: string;
 }
 
+export interface CampaignDocument {
+  id: string;
+  campaignId: string;
+  fileName: string;
+  fileType: string;
+  mimeType: string;
+  fileSize: number;
+  verificationStatus: "pending" | "verified" | "rejected";
+  createdAt: string;
+  updatedAt: string;
+  downloadUrl?: string;
+}
+
 export interface CampaignMilestone {
   id: string;
   campaignId: string;
@@ -97,3 +110,5 @@ export interface CampaignFilters {
   sort?: string;
   order?: "asc" | "desc";
 }
+
+export type CampaignDocumentUploadType = "patient_image" | "medical_document";

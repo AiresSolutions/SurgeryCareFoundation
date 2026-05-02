@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/auth-context";
+import { getDefaultAppRoute } from "@/lib/get-default-app-route";
 import { Container } from "@/components/ui/container";
 import { Logo } from "@/components/ui/logo";
 import { NavLink } from "@/components/ui/nav-link";
@@ -40,6 +41,7 @@ export function HeaderAuth() {
 
   const initials = getUserInitials(user?.firstName, user?.lastName);
   const displayName = getUserDisplayName(user?.firstName, user?.lastName);
+  const appHome = getDefaultAppRoute(user?.roles);
 
   return (
     <header className="sticky top-0 z-50">
@@ -70,7 +72,7 @@ export function HeaderAuth() {
 
             <NotificationBell />
 
-            <Link href="/dashboard" className="flex items-center gap-2">
+            <Link href={appHome} className="flex items-center gap-2">
               {isLoading ? (
                 <div className="size-10 animate-pulse rounded-full bg-surface-green" />
               ) : (
@@ -127,7 +129,7 @@ export function HeaderAuth() {
                 </Link>
               </li>
               <li>
-                <Link href="/dashboard" className="block rounded-lg px-4 py-3 text-nav text-slate hover:bg-surface-page" onClick={() => setMobileOpen(false)}>
+                <Link href={appHome} className="block rounded-lg px-4 py-3 text-nav text-slate hover:bg-surface-page" onClick={() => setMobileOpen(false)}>
                   My Account
                 </Link>
               </li>

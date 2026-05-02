@@ -2,6 +2,8 @@ import { apiClient } from "@/lib/api-client";
 import type { PaginatedData } from "@/types/api";
 import type {
   Campaign,
+  CampaignDocument,
+  CampaignDocumentUploadType,
   CampaignUpdate,
   CreateCampaignRequest,
   CampaignFilters,
@@ -44,6 +46,17 @@ export const campaignService = {
 
   submit(id: string) {
     return apiClient.post<Campaign>(`/campaigns/${id}/submit`);
+  },
+
+  uploadDocument(id: string, file: File, fileType: CampaignDocumentUploadType) {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("fileType", fileType);
+    return apiClient.post<{ document: CampaignDocument }>(`/campaigns/${id}/documents`, formData);
+  },
+
+  getDocuments(id: string) {
+    return apiClient.get<CampaignDocument[]>(`/campaigns/${id}/documents`);
   },
 
   addUpdate(id: string, data: { title: string; content: string }) {

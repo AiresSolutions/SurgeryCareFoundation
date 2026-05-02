@@ -35,7 +35,7 @@ export function ImpactStats() {
                 <p className="text-[30px] font-black leading-[30px] tracking-tight text-primary">
                   {raisedDisplay}
                 </p>
-                <Text as="span" variant="muted" size="label" className="mt-1 uppercase tracking-[1.2px]">
+                <Text as="span" variant="muted" size="label" className="mt-1 uppercase tracking-[1.2px] text-slate-medium">
                   Raised
                 </Text>
               </div>
@@ -43,7 +43,7 @@ export function ImpactStats() {
                 <p className="text-h4 font-black text-accent">
                   {goalDisplay}
                 </p>
-                <Text as="span" variant="muted" size="label" className="mt-1 uppercase tracking-[1.2px]">
+                <Text as="span" variant="muted" size="label" className="mt-1 uppercase tracking-[1.2px] text-slate-medium">
                   Goal
                 </Text>
               </div>
@@ -60,13 +60,13 @@ export function ImpactStats() {
               <div className="mt-6 flex gap-8">
                 <div>
                   <p className="text-lg font-black text-primary">{stats.totalDonors.toLocaleString("en-IN")}</p>
-                  <Text as="span" variant="muted" size="label" className="uppercase tracking-[1.2px]">
+                  <Text as="span" variant="muted" size="label" className="uppercase tracking-[1.2px] text-slate-medium">
                     Donors
                   </Text>
                 </div>
                 <div>
                   <p className="text-lg font-black text-primary">{stats.totalCampaigns}</p>
-                  <Text as="span" variant="muted" size="label" className="uppercase tracking-[1.2px]">
+                  <Text as="span" variant="muted" size="label" className="uppercase tracking-[1.2px] text-slate-medium">
                     Campaigns
                   </Text>
                 </div>

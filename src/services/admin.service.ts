@@ -35,13 +35,11 @@ interface BlogPostPayload {
 }
 
 export interface AdminDashboard {
-  totalUsers: number;
-  totalCampaigns: number;
+  totalFundsRaised: number;
+  totalPatients: number;
   activeCampaigns: number;
-  totalDonations: number;
-  totalRaised: number;
+  urgentCampaigns: number;
   totalDonors: number;
-  pendingReviews: number;
   pendingWithdrawals: number;
 }
 

@@ -1,18 +1,24 @@
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Heading } from "@/components/ui/heading";
 import { Text } from "@/components/ui/text";
 import { Avatar } from "@/components/ui/avatar";
 import { buttonVariants } from "@/components/ui/button";
 import { HeartIcon, GridIcon, BookmarkIcon } from "@/components/ui/icons";
 import { useApi } from "@/hooks/use-api";
+import { useAuth } from "@/context/auth-context";
 import { userService } from "@/services/user.service";
 import { formatINR } from "@/lib/format";
+import { getDefaultAppRoute } from "@/lib/get-default-app-route";
 import type { PaginatedData } from "@/types/api";
 import type { Donation } from "@/types/donation";
 
 export default function DashboardPage() {
+  const router = useRouter();
+  const { user, isLoading: authLoading } = useAuth();
   const { data, isLoading } = useApi<PaginatedData<Donation>>(
     () => userService.getDonations({ limit: 50, status: "succeeded" }),
     [],
@@ -21,6 +27,17 @@ export default function DashboardPage() {
     () => userService.getSavedCauses(),
     [],
   );
+
+  useEffect(() => {
+    if (authLoading || !user) {
+      return;
+    }
+
+    const appHome = getDefaultAppRoute(user.roles);
+    if (appHome !== "/dashboard") {
+      router.replace(appHome);
+    }
+  }, [authLoading, router, user]);
 
   const donations = data?.items ?? [];
 

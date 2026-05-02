@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -11,9 +11,10 @@ import { Button } from "@/components/ui/button";
 import { MailIcon, LockIcon, ArrowRightIcon } from "@/components/ui/icons";
 import { useAuth } from "@/context/auth-context";
 import { ApiError } from "@/lib/api-error";
+import { getDefaultAppRoute } from "@/lib/get-default-app-route";
 
 function LoginForm() {
-  const { login } = useAuth();
+  const { login, user, isLoading, isAuthenticated } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -24,6 +25,15 @@ function LoginForm() {
 
   const resetSuccess = searchParams.get("reset") === "success";
 
+  useEffect(() => {
+    if (isLoading || !isAuthenticated) {
+      return;
+    }
+
+    const redirect = searchParams.get("redirect");
+    router.replace(redirect || getDefaultAppRoute(user?.roles));
+  }, [isAuthenticated, isLoading, router, searchParams, user?.roles]);
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
@@ -31,7 +41,7 @@ function LoginForm() {
 
     try {
       await login({ email, password });
-      const redirect = searchParams.get("redirect") || "/dashboard";
+      const redirect = searchParams.get("redirect") || getDefaultAppRoute(user?.roles);
       router.push(redirect);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Login failed. Please try again.");

@@ -53,6 +53,8 @@ export default function EditFundraiserPage({ params }: { params: { id: string } 
   // --- Submission state ---
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const normalizedStatus = campaign?.status?.toLowerCase();
+
   // --- Populate form when campaign data arrives ---
   useEffect(() => {
     if (campaign) {
@@ -170,7 +172,7 @@ export default function EditFundraiserPage({ params }: { params: { id: string } 
   }
 
   // --- Non-draft campaigns cannot be edited ---
-  if (campaign.status !== "draft") {
+  if (normalizedStatus !== "draft") {
     return (
       <Container className="py-12">
         <div className="mx-auto max-w-lg rounded-2xl border border-amber-200 bg-amber-50 p-8 text-center">

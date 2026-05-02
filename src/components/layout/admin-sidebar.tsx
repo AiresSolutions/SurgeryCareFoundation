@@ -9,7 +9,6 @@ import type { IconProps } from "@/components/ui/icons";
 import {
   GridIcon,
   ClipboardCheckIcon,
-  FileSearchIcon,
   DollarSignIcon,
   ArrowDownUpIcon,
   ScaleIcon,
@@ -29,8 +28,7 @@ interface NavItem {
 }
 
 const MODERATOR_NAV: NavItem[] = [
-  { href: "/moderator/campaigns", label: "Campaign Review", icon: ClipboardCheckIcon },
-  { href: "/moderator/documents", label: "Document Review", icon: FileSearchIcon },
+  { href: "/moderator", label: "Campaign Review", icon: ClipboardCheckIcon },
 ];
 
 const FINANCE_NAV: NavItem[] = [
@@ -40,10 +38,10 @@ const FINANCE_NAV: NavItem[] = [
 ];
 
 const ADMIN_NAV: NavItem[] = [
-  { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboardIcon },
+  { href: "/admin", label: "Dashboard", icon: LayoutDashboardIcon },
   { href: "/admin/campaigns", label: "Campaigns", icon: GridIcon },
   { href: "/admin/donors", label: "Donors", icon: UsersIcon },
-  { href: "/admin/audit-logs", label: "Audit Logs", icon: ScrollTextIcon },
+  { href: "/admin/audit", label: "Audit Logs", icon: ScrollTextIcon },
   { href: "/admin/content", label: "Content", icon: FileTextIcon },
   { href: "/admin/analytics", label: "Analytics", icon: BarChart3Icon },
 ];

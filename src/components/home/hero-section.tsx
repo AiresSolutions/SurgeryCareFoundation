@@ -51,7 +51,7 @@ export function HeroSection() {
             {/* Pill badge */}
             <div className="mb-8 inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-5 py-2 shadow-pill">
               <span className="size-2 rounded-full bg-accent-mint" />
-              <span className="text-label uppercase text-surface-green">
+              <span className="text-label uppercase text-white">
                 Start Donating Poor People
               </span>
             </div>
@@ -69,7 +69,7 @@ export function HeroSection() {
             <Text
               variant="on-dark"
               size="body-lg"
-              className="mb-10 max-w-md"
+              className="mb-10 max-w-md text-white/90"
             >
               Join us in providing life-saving medical care and restoring hope
               to those who need it the most.

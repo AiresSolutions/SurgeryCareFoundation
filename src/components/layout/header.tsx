@@ -4,11 +4,15 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/context/auth-context";
+import { getDefaultAppRoute } from "@/lib/get-default-app-route";
 import { Container } from "@/components/ui/container";
 import { Logo } from "@/components/ui/logo";
 import { NavLink } from "@/components/ui/nav-link";
+import { Avatar } from "@/components/ui/avatar";
 import { buttonVariants } from "@/components/ui/button";
 import { PhoneIcon, HeartFilledIcon, MenuIcon, CloseIcon } from "@/components/ui/icons";
+import { NotificationBell } from "@/components/layout/notification-bell";
 
 const NAV_ITEMS = [
   { href: "/", label: "Home" },
@@ -18,9 +22,25 @@ const NAV_ITEMS = [
   { href: "/contact", label: "Contact us" },
 ] as const;
 
+function getUserInitials(firstName?: string, lastName?: string): string {
+  const first = firstName?.charAt(0)?.toUpperCase() ?? "";
+  const last = lastName?.charAt(0)?.toUpperCase() ?? "";
+  return first + last || "?";
+}
+
+function getUserDisplayName(firstName?: string, lastName?: string): string {
+  const name = [firstName, lastName].filter(Boolean).join(" ");
+  return name || "Account";
+}
+
 export function Header() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { user, isLoading } = useAuth();
+  const isAuthenticated = Boolean(user);
+  const initials = getUserInitials(user?.firstName, user?.lastName);
+  const displayName = getUserDisplayName(user?.firstName, user?.lastName);
+  const appHome = getDefaultAppRoute(user?.roles);
 
   return (
     <header className="sticky top-0 z-50">
@@ -63,19 +83,41 @@ export function Header() {
             {/* Donate Button */}
             <Link
               href="/causes"
-              className={buttonVariants({ variant: "secondary", size: "default" })}
+              className={buttonVariants({
+                variant: "secondary",
+                size: "default",
+                className: "!text-white hover:!text-white",
+              })}
             >
-              <HeartFilledIcon className="mr-2 size-3.5" />
+              <HeartFilledIcon className="mr-2 size-3.5 text-white" />
               Donate
             </Link>
 
-            {/* Log in */}
-            <Link
-              href="/login"
-              className="text-btn font-bold text-slate-medium transition-colors hover:text-primary"
-            >
-              Log in
-            </Link>
+            {isAuthenticated && <NotificationBell />}
+
+            {isLoading ? (
+              <div className="h-10 w-24 animate-pulse rounded-full bg-surface-green" />
+            ) : isAuthenticated ? (
+              <Link href={appHome} className="flex items-center gap-2">
+                <Avatar
+                  src={user?.avatarUrl ?? undefined}
+                  alt={displayName}
+                  initials={initials}
+                  size="md"
+                />
+                <div>
+                  <p className="text-caption uppercase text-slate-light">My Account</p>
+                  <p className="text-btn font-black text-primary">{displayName}</p>
+                </div>
+              </Link>
+            ) : (
+              <Link
+                href="/login"
+                className="text-btn font-bold text-slate-medium transition-colors hover:text-primary"
+              >
+                Log in
+              </Link>
+            )}
           </div>
 
           {/* Mobile Menu Toggle */}
@@ -132,18 +174,22 @@ export function Header() {
               <div className="flex gap-3 px-4">
                 <Link
                   href="/causes"
-                  className={buttonVariants({ variant: "secondary", size: "default", className: "flex-1" })}
+                  className={buttonVariants({
+                    variant: "secondary",
+                    size: "default",
+                    className: "flex-1 !text-white hover:!text-white",
+                  })}
                   onClick={() => setMobileOpen(false)}
                 >
-                  <HeartFilledIcon className="mr-2 size-3.5" />
+                  <HeartFilledIcon className="mr-2 size-3.5 text-white" />
                   Donate
                 </Link>
                 <Link
-                  href="/login"
+                  href={isAuthenticated ? appHome : "/login"}
                   className={buttonVariants({ variant: "outline", size: "default", className: "flex-1" })}
                   onClick={() => setMobileOpen(false)}
                 >
-                  Log in
+                  {isAuthenticated ? "My Account" : "Log in"}
                 </Link>
               </div>
             </div>

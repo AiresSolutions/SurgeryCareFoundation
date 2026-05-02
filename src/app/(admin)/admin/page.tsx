@@ -72,32 +72,32 @@ export default function AdminDashboardPage() {
 
   const stats = [
     {
-      label: "Total Users",
-      value: data ? String(data.totalUsers) : "\u2014",
+      label: "Funds Raised",
+      value: data ? `\u20B9 ${formatINR(data.totalFundsRaised)}` : "\u2014",
       icon: UsersIcon,
       color: "bg-primary/10 text-primary",
     },
     {
-      label: "Total Campaigns",
-      value: data ? String(data.totalCampaigns) : "\u2014",
+      label: "Patients Supported",
+      value: data ? String(data.totalPatients) : "\u2014",
       icon: GridIcon,
       color: "bg-accent/10 text-accent",
     },
     {
-      label: "Total Donations",
-      value: data ? String(data.totalDonations) : "\u2014",
+      label: "Active Campaigns",
+      value: data ? String(data.activeCampaigns) : "\u2014",
       icon: HeartIcon,
       color: "bg-red-50 text-red-500",
     },
     {
-      label: "Total Raised",
-      value: data ? `\u20B9 ${formatINR(data.totalRaised)}` : "\u2014",
+      label: "Urgent Campaigns",
+      value: data ? String(data.urgentCampaigns) : "\u2014",
       icon: HeartIcon,
       color: "bg-surface-green text-accent",
     },
     {
-      label: "Active Campaigns",
-      value: data ? String(data.activeCampaigns) : "\u2014",
+      label: "Total Donors",
+      value: data ? String(data.totalDonors) : "\u2014",
       icon: GridIcon,
       color: "bg-accent/10 text-accent",
     },
