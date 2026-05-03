@@ -3,7 +3,7 @@ import Image from "next/image";
 import { Container } from "@/components/ui/container";
 import { Heading } from "@/components/ui/heading";
 import { Text } from "@/components/ui/text";
-import { MailIcon, PhoneIcon, ArrowRightIcon } from "@/components/ui/icons";
+import { MailIcon, PhoneIcon, MapPinIcon, ArrowRightIcon } from "@/components/ui/icons";
 
 const QUICK_LINKS = [
   { href: "/about", label: "About Us" },
@@ -124,13 +124,13 @@ export function Footer() {
             <ul className="space-y-5" role="list">
               <li>
                 <a
-                  href="mailto:Surgerycare4812@gmail.com"
+                  href="mailto:info@surgerycare.in"
                   className="inline-flex items-center gap-3 text-body-sm text-slate-medium transition-colors hover:text-accent"
                 >
                   <span className="flex size-10 items-center justify-center rounded-full border border-surface-subtle bg-white shadow-card">
                     <MailIcon className="size-4 text-slate-light" />
                   </span>
-                  Surgerycare4812@
+                  info@surgerycare.in
                 </a>
               </li>
               <li>
@@ -143,6 +143,17 @@ export function Footer() {
                   </span>
                   +91 9960513453
                 </a>
+              </li>
+              <li className="flex items-start gap-3 text-body-sm text-slate-medium">
+                <span className="mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-full border border-surface-subtle bg-white shadow-card">
+                  <MapPinIcon className="size-4 text-slate-light" />
+                </span>
+                <span className="leading-relaxed">
+                  1st Floor, Plot No. 06, Katol Road,<br />
+                  Falke Layout, Kolbaswami Nagar,<br />
+                  Akar Nagar, Nagpur,<br />
+                  Maharashtra 440013
+                </span>
               </li>
             </ul>
           </div>

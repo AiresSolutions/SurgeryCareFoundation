@@ -52,17 +52,16 @@ export function HeroSection() {
             <div className="mb-8 inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-5 py-2 shadow-pill">
               <span className="size-2 rounded-full bg-accent-mint" />
               <span className="text-label uppercase text-white">
-                Start Donating Poor People
+                More Care. Less Cost.
               </span>
             </div>
 
             {/* Heading */}
             <Heading level="h1" className="mb-6 text-white">
-              We Are Non{" "}
+              Quality Surgery for{" "}
               <span className="bg-gradient-to-b from-accent-mint to-accent-green bg-clip-text text-transparent">
-                Profit Charity
-              </span>{" "}
-              Organization
+                Every Patient
+              </span>
             </Heading>
 
             {/* Description */}
@@ -71,8 +70,9 @@ export function HeroSection() {
               size="body-lg"
               className="mb-10 max-w-md text-white/90"
             >
-              Join us in providing life-saving medical care and restoring hope
-              to those who need it the most.
+              We connect patients to top hospitals across India for high-quality
+              treatment &mdash; and raise funds so that no family has to delay
+              life-saving surgery for cost.
             </Text>
 
             {/* CTA Button */}

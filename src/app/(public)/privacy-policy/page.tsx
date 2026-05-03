@@ -156,10 +156,10 @@ export default function PrivacyPolicyPage() {
               communications at any time. To exercise these rights, contact us
               at{" "}
               <a
-                href="mailto:Surgerycare4812@gmail.com"
+                href="mailto:info@surgerycare.in"
                 className="font-medium text-accent underline underline-offset-2 hover:text-primary"
               >
-                Surgerycare4812@gmail.com
+                info@surgerycare.in
               </a>
               .
             </Text>
@@ -190,19 +190,21 @@ export default function PrivacyPolicyPage() {
             <div className="rounded-2xl border border-surface-subtle bg-surface-bg p-6">
               <Text variant="secondary">
                 <strong className="text-primary">
-                  Surgery Care Foundation
+                  Surgery Care &mdash; Alinto Healthcare Pvt. Ltd.
                 </strong>
                 <br />
-                123 Healthcare Avenue, Medical District
+                1st Floor, Plot No. 06, Katol Road,
                 <br />
-                Mumbai, Maharashtra, India 400001
+                Falke Layout, Kolbaswami Nagar,
+                <br />
+                Akar Nagar, Nagpur, Maharashtra 440013
                 <br />
                 Email:{" "}
                 <a
-                  href="mailto:Surgerycare4812@gmail.com"
+                  href="mailto:info@surgerycare.in"
                   className="font-medium text-accent underline underline-offset-2 hover:text-primary"
                 >
-                  Surgerycare4812@gmail.com
+                  info@surgerycare.in
                 </a>
                 <br />
                 Phone:{" "}

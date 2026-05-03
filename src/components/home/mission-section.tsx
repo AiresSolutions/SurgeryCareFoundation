@@ -47,9 +47,10 @@ export function MissionSection() {
 
             {/* Body */}
             <Text variant="secondary" size="body-lg" className="mb-8">
-              We provide timely surgical care and medical support to
-              underprivileged patients and families facing financial hardship.
-              Your contribution helps save lives and restore hope.
+              Surgery Care partners with top hospitals across India to bring
+              high-quality treatment to every class of patient. For families
+              who cannot afford care, we raise the funds needed and complete
+              the treatment at no cost &mdash; staying with the patient end to end.
             </Text>
 
             {/* Callout */}
@@ -58,7 +59,7 @@ export function MissionSection() {
                 <CheckCircleIcon className="size-6 text-accent" />
               </span>
               <p className="text-btn-lg font-bold text-primary">
-                Together, we can heal lives through compassion and care.
+                The patient always comes first &mdash; from first consult to full recovery.
               </p>
             </div>
 

@@ -15,24 +15,29 @@ interface FaqItem {
 
 const FAQ_ITEMS: FaqItem[] = [
   {
-    question: "When will I receive the raised funds?",
+    question: "What does Surgery Care actually do?",
     answer:
-      "You can request a withdrawal as soon as your fundraiser has raised a certain amount. Once Surgery Care verifies your bank details, the raised funds will be transferred within a few working days. You can request multiple fund withdrawals as and when required.",
+      "We connect patients to top hospitals across India for high-quality surgical care. For patients who can afford treatment, we offer curated packages and on-call coordination. For patients who cannot, we raise the required funds and complete the treatment at no cost — staying with each patient from counselling through recovery.",
   },
   {
-    question: "How is Surgery Care different from Go Fund Me?",
+    question: "How do you choose the hospitals you work with?",
     answer:
-      "Surgery Care is specifically focused on medical and surgical fundraising in India. Unlike GoFundMe, every case is verified by our medical board, and funds are transferred directly to partnered hospitals to ensure transparency and proper use of donations.",
+      "Every partner hospital must clear a strict tie-up checklist: NABH accreditation, valid CE, PCPNDT and BMW certificates, hospital SOC, certificate of incorporation, registration details, verified bank account, and a signed MOU. Only hospitals that meet these standards can treat our patients.",
   },
   {
-    question: "Can I raise money for my surgery on Surgery Care?",
+    question: "What kinds of cases do you support?",
     answer:
-      "Yes, you can start a fundraiser for your own surgery or for someone you know. Simply create a campaign with the required medical documents, and our team will verify and publish your case within 24-48 hours.",
+      "We support a wide range of paediatric and adult surgical conditions — including burns, cleft lip and palate, cystic hygroma, meningomyelocele, encephalocele, hydrocephalus, omphalocele, bladder exstrophy, neuroblastoma, neurofibromatosis, and visible oncology cases.",
   },
   {
-    question: "Is raising funds for medical expenses safe on Surgery Care?",
+    question: "How are donations used and tracked?",
     answer:
-      "Absolutely. Surgery Care uses 256-bit encryption to protect all transactions. Every fundraiser is verified by our medical team, and funds are transferred directly to the hospital, ensuring complete safety and transparency.",
+      "Funds raised for a non-affordable patient are transferred directly to the partnered hospital that performs the surgery. Our team verifies every case, coordinates the admission, and accompanies the family through the treatment so every rupee goes to care.",
+  },
+  {
+    question: "Are insurance and cash patients welcome too?",
+    answer:
+      "Yes. Affordable patients receive exclusive package pricing for insurance holders and cash payers, plus on-call assistance for hospital coordination — the same end-to-end support we extend to every patient.",
   },
 ];
 

@@ -9,7 +9,7 @@ export function TopBanner({ className, ...props }: TopBannerProps) {
       {...props}
     >
       <p className="px-6 py-2 text-center text-label uppercase text-surface-green">
-        India&apos;s Most Trusted Platform
+        More Care. Less Cost. &mdash; Surgical care for every patient, across India
       </p>
     </div>
   );

@@ -13,23 +13,23 @@ interface Testimonial {
 const TESTIMONIALS: Testimonial[] = [
   {
     quote:
-      "\u201CSurgery Care Foundation gave my family hope when we had none. Truly life-saving support.\u201D",
-    name: "Shree Pawar",
-    role: "Interior Designer",
+      "\u201CSonam was born with a meningocele between her nose and head. The surgery cost lakhs we could never have raised on a daily wage. Surgery Care arranged the funds and the operation \u2014 today she is back at school, healthy and happy.\u201D",
+    name: "Sonam\u2019s Family",
+    role: "Meningocele \u00B7 Cranial Surgery",
     image: "/images/testimonial-1.png",
   },
   {
     quote:
-      "\u201CBecause of their help, timely surgery was possible. Forever grateful.\u201D",
-    name: "Salim Khan",
-    role: "Teacher",
+      "\u201CMy son Raubi had a fast-growing cancerous tumour on his chin and could barely eat or speak. As a daily-wage labourer I had no way to pay for the urgent surgery. Surgery Care made it happen \u2014 he is now playing and eating without pain.\u201D",
+    name: "Raubi\u2019s Father",
+    role: "Paediatric Oncology",
     image: "/images/testimonial-2.png",
   },
   {
     quote:
-      "\u201CTheir donation-based support changed a life in our family. Thank you.\u201D",
-    name: "Meena Joshi",
-    role: "Advocate",
+      "\u201COur newborn was diagnosed with spina bifida myelomeningocele. The surgery cost \u20B92.5 lakh \u2014 impossible on \u20B9300 a day. Surgery Care\u2019s team handled everything. The operation was a success and our baby is growing well.\u201D",
+    name: "Priya & Pawan",
+    role: "Parents \u00B7 Spina Bifida Surgery",
     image: "/images/testimonial-3.png",
   },
 ];

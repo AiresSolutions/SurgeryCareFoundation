@@ -109,8 +109,8 @@ export default function ContactPage() {
             </div>
 
             {/* Contact Info */}
-            <div className="space-y-8 lg:w-[400px]">
-              {/* Email */}
+            <div className="space-y-6 lg:w-[400px]">
+              {/* General Email */}
               <div className="flex items-start gap-6 rounded-[32px] border border-surface-subtle bg-white p-8 shadow-[0px_10px_40px_0px_rgba(0,0,0,0.04)]">
                 <span className="flex size-16 shrink-0 items-center justify-center rounded-full bg-surface-green">
                   <MailIcon className="size-7 text-accent" />
@@ -119,15 +119,55 @@ export default function ContactPage() {
                   <Heading level="h4" as="h3" className="mb-1 text-[20px]">
                     Email Us
                   </Heading>
-                  <Text variant="secondary" className="mb-2 text-[16px]">
+                  <Text variant="secondary" className="mb-3 text-[15px]">
                     We&apos;ll respond within 24 hours.
                   </Text>
-                  <a
-                    href="mailto:Surgerycare4812@gmail.com"
-                    className="text-[18px] font-bold text-accent transition-colors hover:text-accent-green"
-                  >
-                    Surgerycare4812@gmail.com
-                  </a>
+                  <ul className="space-y-2 text-[15px] font-bold">
+                    <li>
+                      <Text as="span" size="label" variant="muted" className="mr-2 uppercase tracking-[1px]">
+                        General
+                      </Text>
+                      <a
+                        href="mailto:info@surgerycare.in"
+                        className="text-accent transition-colors hover:text-accent-green"
+                      >
+                        info@surgerycare.in
+                      </a>
+                    </li>
+                    <li>
+                      <Text as="span" size="label" variant="muted" className="mr-2 uppercase tracking-[1px]">
+                        HR
+                      </Text>
+                      <a
+                        href="mailto:hr@surgerycare.in"
+                        className="text-accent transition-colors hover:text-accent-green"
+                      >
+                        hr@surgerycare.in
+                      </a>
+                    </li>
+                    <li>
+                      <Text as="span" size="label" variant="muted" className="mr-2 uppercase tracking-[1px]">
+                        Director
+                      </Text>
+                      <a
+                        href="mailto:naim.diwan@surgerycare.in"
+                        className="text-accent transition-colors hover:text-accent-green"
+                      >
+                        naim.diwan@surgerycare.in
+                      </a>
+                    </li>
+                    <li>
+                      <Text as="span" size="label" variant="muted" className="mr-2 uppercase tracking-[1px]">
+                        Director
+                      </Text>
+                      <a
+                        href="mailto:vinay.jawle@surgerycare.in"
+                        className="text-accent transition-colors hover:text-accent-green"
+                      >
+                        vinay.jawle@surgerycare.in
+                      </a>
+                    </li>
+                  </ul>
                 </div>
               </div>
 
@@ -152,18 +192,20 @@ export default function ContactPage() {
                 </div>
               </div>
 
-              {/* HQ */}
+              {/* Corporate Office */}
               <div className="rounded-[32px] bg-primary p-8 shadow-[0px_20px_25px_0px_rgba(0,0,0,0.1),0px_8px_10px_0px_rgba(0,0,0,0.1)]">
                 <span className="mb-6 flex size-16 items-center justify-center rounded-full bg-white/10">
                   <MapPinIcon className="size-7 text-white" />
                 </span>
                 <Heading level="h4" as="h3" className="mb-4 text-[24px] leading-[32px] text-white">
-                  Headquarters
+                  Corporate Office
                 </Heading>
-                <Text className="text-[16px] leading-[26px] text-[rgba(236,253,245,0.8)]">
-                  123 Healthcare Avenue,<br />
-                  Medical District, Mumbai<br />
-                  Maharashtra, India 400001
+                <Text className="text-[16px] leading-[26px] text-[rgba(236,253,245,0.85)]">
+                  Surgery Care &mdash; a brand of Alinto Healthcare Pvt. Ltd.<br />
+                  1st Floor, Plot No. 06, Katol Road,<br />
+                  Falke Layout, Kolbaswami Nagar,<br />
+                  Akar Nagar, Nagpur,<br />
+                  Maharashtra 440013, India
                 </Text>
               </div>
             </div>
