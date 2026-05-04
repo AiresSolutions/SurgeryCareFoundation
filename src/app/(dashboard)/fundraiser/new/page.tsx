@@ -12,6 +12,7 @@ import { FormSection } from "@/components/ui/form-section";
 import { UploadIcon, ArrowRightIcon } from "@/components/ui/icons";
 import { campaignService } from "@/services/campaign.service";
 import { useToast } from "@/components/ui/toast";
+import { CAMPAIGN_CATEGORIES } from "@/lib/categories";
 
 const URGENCY_OPTIONS = [
   { value: "", label: "Select urgency level" },
@@ -42,7 +43,8 @@ export default function StartFundraiserPage() {
   const [goalAmount, setGoalAmount] = useState("");
   const [urgencyLevel, setUrgencyLevel] = useState("");
   const [description, setDescription] = useState("");
-  const [category] = useState("medical"); // default category for medical fundraisers
+  const [category, setCategory] = useState<string>("");
+  const [condition, setCondition] = useState("");
 
   // --- Visual-only fields (not submitted to campaign API) ---
   const [relationship, setRelationship] = useState("");
@@ -68,6 +70,9 @@ export default function StartFundraiserPage() {
     }
     if (!patientName.trim()) {
       next.patientName = "Patient / Cause name is required.";
+    }
+    if (!category) {
+      next.category = "Please pick a category.";
     }
     const parsed = Number(goalAmount);
     if (!goalAmount || isNaN(parsed) || parsed <= 0) {
@@ -132,6 +137,7 @@ export default function StartFundraiserPage() {
             ? undefined
             : (urgencyLevel as "critical" | "high" | "medium" | "low"),
         category,
+        condition: condition.trim() || diagnosis.trim() || undefined,
         medicalDetails: {
           patientName: patientName.trim(),
           diagnosis: diagnosis.trim() || undefined,
@@ -227,6 +233,50 @@ export default function StartFundraiserPage() {
                   placeholder="E.g., Brain Tumor Stage 2"
                   value={diagnosis}
                   onChange={(e) => setDiagnosis(e.target.value)}
+                  disabled={isSubmitting}
+                />
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="flex flex-col gap-2">
+                  <label
+                    htmlFor="campaign-category"
+                    className="text-[14px] font-bold uppercase leading-[20px] tracking-[0.35px] text-[#314158]"
+                  >
+                    Category
+                  </label>
+                  <select
+                    id="campaign-category"
+                    value={category}
+                    onChange={(e) => {
+                      setCategory(e.target.value);
+                      if (errors.category) {
+                        setErrors((prev) => {
+                          const { category: _, ...rest } = prev;
+                          return rest;
+                        });
+                      }
+                    }}
+                    disabled={isSubmitting}
+                    className="w-full rounded-[14px] border border-surface-border bg-surface-bg px-4 py-[14px] text-body text-slate transition-colors focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <option value="">Select a category…</option>
+                    {CAMPAIGN_CATEGORIES.map((opt) => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </option>
+                    ))}
+                  </select>
+                  {errors.category && (
+                    <Text size="label" className="text-red-600 normal-case tracking-normal">
+                      {errors.category}
+                    </Text>
+                  )}
+                </div>
+                <Input
+                  label="Specific Condition (Optional)"
+                  placeholder="E.g., Glioblastoma, Cleft palate"
+                  value={condition}
+                  onChange={(e) => setCondition(e.target.value)}
                   disabled={isSubmitting}
                 />
               </div>

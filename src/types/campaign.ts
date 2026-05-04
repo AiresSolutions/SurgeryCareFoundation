@@ -18,6 +18,7 @@ export interface Campaign {
   summary: string;
   description: string;
   category: string;
+  condition?: string | null;
   urgencyLevel: UrgencyLevel;
   status: CampaignStatus;
   creatorId: string;
@@ -91,6 +92,7 @@ export interface CreateCampaignRequest {
   summary?: string;
   description?: string;
   category?: string;
+  condition?: string;
   urgencyLevel?: UrgencyLevel;
   goalAmount: number;
   coverImageUrl?: string;

@@ -17,6 +17,7 @@ import { userService, type SavedCauseEntry } from "@/services/user.service";
 import { useAuth } from "@/context/auth-context";
 import { useToast } from "@/components/ui/toast";
 import { formatINR } from "@/lib/format";
+import { categoryLabel } from "@/lib/categories";
 import type { CampaignDocument, CampaignUpdate } from "@/types/campaign";
 
 export default function CauseDetailPage({ params }: { params: { id: string } }) {
@@ -138,8 +139,13 @@ export default function CauseDetailPage({ params }: { params: { id: string } }) 
               />
             </div>
 
-            <div className="mb-6 flex flex-wrap gap-3">
-              <Badge variant="accent">{campaign.category}</Badge>
+            <div className="mb-6 flex flex-wrap items-center gap-3">
+              <Badge variant="accent">{categoryLabel(campaign.category)}</Badge>
+              {campaign.condition && (
+                <Text variant="secondary" className="font-bold">
+                  {campaign.condition}
+                </Text>
+              )}
             </div>
 
             <Heading level="h2" as="h1" className="mb-6">

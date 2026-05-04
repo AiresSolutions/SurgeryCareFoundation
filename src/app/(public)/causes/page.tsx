@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { formatINR } from "@/lib/format";
 import { useApi } from "@/hooks/use-api";
 import { campaignService } from "@/services/campaign.service";
+import { CAMPAIGN_CATEGORIES, categoryLabel } from "@/lib/categories";
 import type { CampaignFilters } from "@/types/campaign";
 import { Container } from "@/components/ui/container";
 import { Heading } from "@/components/ui/heading";
@@ -16,7 +17,10 @@ import { Badge } from "@/components/ui/badge";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { buttonVariants } from "@/components/ui/button";
 
-const CATEGORIES = ["All Causes", "Cancer", "Heart Disease", "Brain Tumor", "Kidney"] as const;
+const FILTER_CHIPS = [
+  { value: "", label: "All Causes" },
+  ...CAMPAIGN_CATEGORIES.map((c) => ({ value: c.value, label: c.label })),
+] as const;
 
 const CONDITIONS = [
   {
@@ -50,13 +54,13 @@ const CONDITIONS = [
 ] as const;
 
 export default function CausesPage() {
-  const [activeFilter, setActiveFilter] = useState("All Causes");
+  const [activeFilter, setActiveFilter] = useState<string>(""); // "" = All Causes
   const [page, setPage] = useState(1);
 
   const filters: CampaignFilters = {
     page,
     limit: 8,
-    ...(activeFilter !== "All Causes" ? { category: activeFilter } : {}),
+    ...(activeFilter ? { category: activeFilter } : {}),
   };
 
   const { data, error, isLoading } = useApi(
@@ -67,8 +71,8 @@ export default function CausesPage() {
   const campaigns = data?.items ?? [];
   const totalPages = data?.totalPages ?? 1;
 
-  function handleCategoryChange(cat: string) {
-    setActiveFilter(cat);
+  function handleCategoryChange(value: string) {
+    setActiveFilter(value);
     setPage(1);
   }
 
@@ -134,19 +138,19 @@ export default function CausesPage() {
         </div>
 
         <div className="mb-10 flex flex-wrap gap-2">
-            {CATEGORIES.map((cat) => (
+            {FILTER_CHIPS.map((chip) => (
               <button
-                key={cat}
+                key={chip.value || "all"}
                 type="button"
-                onClick={() => handleCategoryChange(cat)}
+                onClick={() => handleCategoryChange(chip.value)}
                 className={cn(
                   "rounded-full px-5 py-2 text-btn font-bold transition-colors",
-                  activeFilter === cat
+                  activeFilter === chip.value
                     ? "bg-primary text-white"
                     : "bg-white text-slate hover:bg-surface-page"
                 )}
               >
-                {cat}
+                {chip.label}
               </button>
             ))}
           </div>
@@ -202,9 +206,16 @@ export default function CausesPage() {
                         <p className="text-lg font-black text-white">
                           {campaign.title}
                         </p>
-                        <Badge variant="accent" className="mt-1 text-caption">
-                          {campaign.category}
-                        </Badge>
+                        <div className="mt-1 flex flex-wrap items-center gap-1.5">
+                          <Badge variant="accent" className="text-caption">
+                            {categoryLabel(campaign.category)}
+                          </Badge>
+                          {campaign.condition && (
+                            <span className="text-caption font-bold text-white/90">
+                              {campaign.condition}
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
                     <CardContent>
