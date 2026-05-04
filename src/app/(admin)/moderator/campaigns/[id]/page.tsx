@@ -405,8 +405,38 @@ export default function CampaignReviewPage({ params }: { params: { id: string } 
                           };
                           const isPending = statusKey === "pending";
                           const isBusy = busyDocId === doc.id;
+                          const isImage = doc.mimeType?.startsWith("image/");
+                          const isVideo = doc.mimeType?.startsWith("video/");
                           return (
                             <li key={doc.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
+                              <div className="flex min-w-0 flex-1 items-center gap-3">
+                                {isImage && doc.downloadUrl ? (
+                                  <a
+                                    href={doc.downloadUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="block size-20 shrink-0 overflow-hidden rounded-lg border border-surface-border bg-surface-page"
+                                  >
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    <img
+                                      src={doc.downloadUrl}
+                                      alt={doc.fileName}
+                                      className="size-full object-cover"
+                                      loading="lazy"
+                                    />
+                                  </a>
+                                ) : isVideo && doc.downloadUrl ? (
+                                  <video
+                                    src={doc.downloadUrl}
+                                    controls
+                                    preload="metadata"
+                                    className="block h-20 w-32 shrink-0 rounded-lg border border-surface-border bg-black"
+                                  />
+                                ) : (
+                                  <div className="flex size-20 shrink-0 items-center justify-center rounded-lg border border-surface-border bg-surface-page text-2xl">
+                                    📄
+                                  </div>
+                                )}
                               <div className="min-w-0 flex-1">
                                 <div className="flex items-center gap-2">
                                   <p className="truncate text-btn font-bold text-primary">
@@ -419,6 +449,7 @@ export default function CampaignReviewPage({ params }: { params: { id: string } 
                                 <Text variant="muted" size="label" className="normal-case tracking-normal">
                                   {doc.fileType} · {(doc.fileSize / 1024).toFixed(0)} KB
                                 </Text>
+                              </div>
                               </div>
                               <div className="flex items-center gap-2">
                                 {doc.downloadUrl && (

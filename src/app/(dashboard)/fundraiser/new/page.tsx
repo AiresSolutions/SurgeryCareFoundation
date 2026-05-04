@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, type ChangeEvent, type Dispatch, type FormEvent, type SetStateAction } from "react";
+import { useEffect, useState, useRef, type ChangeEvent, type Dispatch, type FormEvent, type SetStateAction } from "react";
 import { useRouter } from "next/navigation";
 import { Container } from "@/components/ui/container";
 import { Heading } from "@/components/ui/heading";
@@ -33,6 +33,37 @@ function formatFileSize(bytes: number) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+// Renders a thumbnail/video preview from a File using a blob URL.
+// Cleans up the URL on unmount or when the file reference changes.
+function LocalPreview({ file }: { file: File }) {
+  const [url, setUrl] = useState<string | null>(null);
+  useEffect(() => {
+    const u = URL.createObjectURL(file);
+    setUrl(u);
+    return () => URL.revokeObjectURL(u);
+  }, [file]);
+  if (!url) return null;
+  if (file.type.startsWith("image/")) {
+    // eslint-disable-next-line @next/next/no-img-element
+    return <img src={url} alt="" className="size-16 shrink-0 rounded-lg object-cover" />;
+  }
+  if (file.type.startsWith("video/")) {
+    return (
+      <video
+        src={url}
+        controls
+        preload="metadata"
+        className="h-16 w-24 shrink-0 rounded-lg bg-black"
+      />
+    );
+  }
+  return (
+    <div className="flex size-16 shrink-0 items-center justify-center rounded-lg bg-surface-page text-2xl">
+      📄
+    </div>
+  );
+}
+
 export default function StartFundraiserPage() {
   const router = useRouter();
   const { toast } = useToast();
@@ -60,6 +91,20 @@ export default function StartFundraiserPage() {
   const [patientImages, setPatientImages] = useState<File[]>([]);
   const [medicalDocuments, setMedicalDocuments] = useState<File[]>([]);
   const [patientVideos, setPatientVideos] = useState<File[]>([]);
+  // Index into patientImages picked as the campaign cover. -1 = no images yet.
+  const [coverImageIndex, setCoverImageIndex] = useState<number>(0);
+
+  // Keep the cover index inside the bounds of the current image list
+  // (important after a remove or after the first image is added).
+  useEffect(() => {
+    if (patientImages.length === 0) {
+      setCoverImageIndex(0);
+      return;
+    }
+    if (coverImageIndex >= patientImages.length) {
+      setCoverImageIndex(patientImages.length - 1);
+    }
+  }, [patientImages.length, coverImageIndex]);
 
   // --- Validation errors ---
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -154,18 +199,34 @@ export default function StartFundraiserPage() {
         },
       });
 
-      const uploads = [
-        ...patientImages.map((file) => campaignService.uploadDocument(campaign.id, file, "patient_image")),
-        ...medicalDocuments.map((file) => campaignService.uploadDocument(campaign.id, file, "medical_document")),
-        ...patientVideos.map((file) => campaignService.uploadDocument(campaign.id, file, "video")),
-      ];
+      const [patientImageResults] = await Promise.all([
+        Promise.all(
+          patientImages.map((file) => campaignService.uploadDocument(campaign.id, file, "patient_image")),
+        ),
+        Promise.all(
+          medicalDocuments.map((file) => campaignService.uploadDocument(campaign.id, file, "medical_document")),
+        ),
+        Promise.all(
+          patientVideos.map((file) => campaignService.uploadDocument(campaign.id, file, "video")),
+        ),
+      ]);
 
-      if (uploads.length > 0) {
-        await Promise.all(uploads);
+      // Persist the creator's cover choice. Falls back to backend
+      // auto-derivation when no images were uploaded.
+      if (patientImageResults.length > 0) {
+        const safeIndex = Math.min(Math.max(coverImageIndex, 0), patientImageResults.length - 1);
+        const coverDocId = patientImageResults[safeIndex]?.document.id;
+        if (coverDocId) {
+          await campaignService.update(campaign.id, {
+            coverImageUrl: `/api/v1/public/campaigns/documents/${coverDocId}/file`,
+          });
+        }
       }
 
+      const totalUploads =
+        patientImages.length + medicalDocuments.length + patientVideos.length;
       toast(
-        uploads.length > 0
+        totalUploads > 0
           ? "Fundraiser created and files uploaded. It has been saved as a draft."
           : "Fundraiser created! It has been saved as a draft.",
         "success",
@@ -374,21 +435,46 @@ export default function StartFundraiserPage() {
                   </div>
                   {patientImages.length > 0 && (
                     <div className="mt-4 space-y-2 text-left">
-                      {patientImages.map((file) => (
-                        <div key={`${file.name}-${file.lastModified}`} className="flex items-center justify-between gap-3 rounded-xl bg-white px-4 py-3">
-                          <div>
-                            <p className="text-sm font-bold text-primary">{file.name}</p>
-                            <p className="text-xs text-slate-medium">{formatFileSize(file.size)}</p>
+                      <p className="px-1 text-xs font-bold uppercase tracking-wide text-slate-medium">
+                        Pick one as the campaign cover image
+                      </p>
+                      {patientImages.map((file, i) => (
+                        <label
+                          key={`${file.name}-${file.lastModified}`}
+                          className={`flex cursor-pointer items-center gap-3 rounded-xl border bg-white px-3 py-3 transition-colors ${
+                            coverImageIndex === i
+                              ? "border-accent ring-2 ring-accent/30"
+                              : "border-transparent hover:border-surface-border"
+                          }`}
+                        >
+                          <input
+                            type="radio"
+                            name="cover-image"
+                            checked={coverImageIndex === i}
+                            onChange={() => setCoverImageIndex(i)}
+                            disabled={isSubmitting}
+                            className="size-4 shrink-0 accent-accent"
+                          />
+                          <LocalPreview file={file} />
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate text-sm font-bold text-primary">{file.name}</p>
+                            <p className="text-xs text-slate-medium">
+                              {formatFileSize(file.size)}
+                              {coverImageIndex === i && " · Cover"}
+                            </p>
                           </div>
                           <button
                             type="button"
                             className="text-sm font-bold text-accent"
-                            onClick={() => removeSelectedFile("patientImages", file.name)}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              removeSelectedFile("patientImages", file.name);
+                            }}
                             disabled={isSubmitting}
                           >
                             Remove
                           </button>
-                        </div>
+                        </label>
                       ))}
                     </div>
                   )}
@@ -421,9 +507,10 @@ export default function StartFundraiserPage() {
                   {medicalDocuments.length > 0 && (
                     <div className="mt-4 space-y-2 text-left">
                       {medicalDocuments.map((file) => (
-                        <div key={`${file.name}-${file.lastModified}`} className="flex items-center justify-between gap-3 rounded-xl bg-white px-4 py-3">
-                          <div>
-                            <p className="text-sm font-bold text-primary">{file.name}</p>
+                        <div key={`${file.name}-${file.lastModified}`} className="flex items-center gap-3 rounded-xl bg-white px-3 py-3">
+                          <LocalPreview file={file} />
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate text-sm font-bold text-primary">{file.name}</p>
                             <p className="text-xs text-slate-medium">{formatFileSize(file.size)}</p>
                           </div>
                           <button
@@ -469,9 +556,10 @@ export default function StartFundraiserPage() {
                   {patientVideos.length > 0 && (
                     <div className="mt-4 space-y-2 text-left">
                       {patientVideos.map((file) => (
-                        <div key={`${file.name}-${file.lastModified}`} className="flex items-center justify-between gap-3 rounded-xl bg-white px-4 py-3">
-                          <div>
-                            <p className="text-sm font-bold text-primary">{file.name}</p>
+                        <div key={`${file.name}-${file.lastModified}`} className="flex items-center gap-3 rounded-xl bg-white px-3 py-3">
+                          <LocalPreview file={file} />
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate text-sm font-bold text-primary">{file.name}</p>
                             <p className="text-xs text-slate-medium">{formatFileSize(file.size)}</p>
                           </div>
                           <button
