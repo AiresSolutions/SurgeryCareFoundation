@@ -5,7 +5,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/auth-context";
-import { getDefaultAppRoute } from "@/lib/get-default-app-route";
 import { Container } from "@/components/ui/container";
 import { Logo } from "@/components/ui/logo";
 import { NavLink } from "@/components/ui/nav-link";
@@ -40,7 +39,6 @@ export function Header() {
   const isAuthenticated = Boolean(user);
   const initials = getUserInitials(user?.firstName, user?.lastName);
   const displayName = getUserDisplayName(user?.firstName, user?.lastName);
-  const appHome = getDefaultAppRoute(user?.roles);
 
   return (
     <header className="sticky top-0 z-50">
@@ -98,7 +96,7 @@ export function Header() {
             {isLoading ? (
               <div className="h-10 w-24 animate-pulse rounded-full bg-surface-green" />
             ) : isAuthenticated ? (
-              <Link href={appHome} className="flex items-center gap-2">
+              <Link href="/dashboard/account" className="flex items-center gap-2">
                 <Avatar
                   src={user?.avatarUrl ?? undefined}
                   alt={displayName}
@@ -185,7 +183,7 @@ export function Header() {
                   Donate
                 </Link>
                 <Link
-                  href={isAuthenticated ? appHome : "/login"}
+                  href={isAuthenticated ? "/dashboard/account" : "/login"}
                   className={buttonVariants({ variant: "outline", size: "default", className: "flex-1" })}
                   onClick={() => setMobileOpen(false)}
                 >
