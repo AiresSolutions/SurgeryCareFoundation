@@ -3,6 +3,7 @@ import { HeaderAuth } from "@/components/layout/header-auth";
 import { Footer } from "@/components/layout/footer";
 import { ProfileSidebar } from "@/components/layout/profile-sidebar";
 import { Container } from "@/components/ui/container";
+import { AuthGuard } from "@/components/auth/auth-guard";
 
 export default function DashboardLayout({
   children,
@@ -18,10 +19,12 @@ export default function DashboardLayout({
       <HeaderAuth />
       <main id="main-content" className="py-8 md:py-12">
         <Container>
-          <div className="flex flex-col gap-8 lg:flex-row">
-            <ProfileSidebar />
-            <div className="min-w-0 flex-1">{children}</div>
-          </div>
+          <AuthGuard>
+            <div className="flex flex-col gap-8 lg:flex-row">
+              <ProfileSidebar />
+              <div className="min-w-0 flex-1">{children}</div>
+            </div>
+          </AuthGuard>
         </Container>
       </main>
       <Footer />
