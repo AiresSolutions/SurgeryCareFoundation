@@ -13,7 +13,6 @@ import {
   ShieldCheckIcon,
   HeartIcon,
   ClipboardCheckIcon,
-  FileSearchIcon,
   DollarSignIcon,
   PhoneIcon,
 } from "@/components/ui/icons";
@@ -121,25 +120,13 @@ const HOSPITAL_BENEFITS = [
   "Grow economically alongside Surgery Care.",
 ] as const;
 
-const TIE_UP_DOCS = [
-  "NABH accreditation",
-  "CE license",
-  "PCPNDT license",
-  "BMW certificate",
-  "Hospital SOC",
-  "Certificate of incorporation",
-  "Hospital registration details",
-  "Bank account details with cancelled cheque",
-  "Signed MOU agreement",
-] as const;
-
 export default function AboutPage() {
   return (
     <>
       <PageHero
         title="More Care."
         highlight="Less Cost."
-        subtitle="Surgery Care is the healthcare service brand of Alinto Healthcare Private Limited. We connect patients to top hospitals across India and ensure every patient — affordable or not — receives high-quality surgical treatment."
+        subtitle="Surgery Care connects patients to top hospitals across India and ensures every patient — affordable or not — receives high-quality surgical treatment."
       />
 
       <ImpactStats />
@@ -167,18 +154,12 @@ export default function AboutPage() {
               </div>
 
               <Heading level="h2" className="mb-6">
-                A healthcare service brand of{" "}
+                Healthcare for{" "}
                 <span className="bg-gradient-to-b from-accent-green to-accent-mint bg-clip-text text-transparent">
-                  Alinto Healthcare Pvt. Ltd.
+                  every class of patient
                 </span>
               </Heading>
 
-              <Text variant="secondary" size="body-lg" className="mb-6">
-                Surgery Care is the healthcare service company that belongs to its parent
-                company, Alinto Healthcare Private Limited. The company is led by its
-                two directors, <strong>Naim Bashir Diwan</strong> and{" "}
-                <strong>Vinay Jawle</strong>.
-              </Text>
               <Text variant="secondary" size="body-lg" className="mb-10">
                 As a healthcare-focused organisation, our main focus is to improve the
                 health of every patient by consulting and treating them at top hospitals
@@ -301,64 +282,40 @@ export default function AboutPage() {
         </Container>
       </section>
 
-      {/* Hospital Tie-ups + Benefits to Hospitals */}
+      {/* Benefits to Hospitals */}
       <section className="py-16 md:py-24">
         <Container>
-          <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
-            {/* Benefits to Hospitals */}
-            <div>
-              <Text size="label" className="mb-3 tracking-[1.4px] font-black text-accent">
-                BENEFITS TO HOSPITALS
-              </Text>
-              <Heading level="h2" className="mb-6">
-                A win-win partnership for{" "}
-                <span className="text-accent">our hospital network</span>
-              </Heading>
-              <Text variant="secondary" size="body-lg" className="mb-8">
-                Surgery Care drives additional patient volume, reaches new
-                segments and supports a strong social mission &mdash; while our
-                partner hospitals deliver the clinical care.
-              </Text>
-              <ul className="space-y-3">
-                {HOSPITAL_BENEFITS.map((benefit) => (
-                  <li key={benefit} className="flex items-start gap-3">
-                    <span className="mt-1 flex size-6 shrink-0 items-center justify-center rounded-full bg-surface-green">
-                      <CheckIconSmall />
-                    </span>
-                    <span
-                      className="text-[16px] leading-relaxed text-slate"
-                      dangerouslySetInnerHTML={{ __html: benefit }}
-                    />
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Tie-up Docs */}
-            <div className="rounded-[40px] bg-primary p-10 text-white shadow-elevated">
-              <span className="mb-6 inline-flex size-12 items-center justify-center rounded-full bg-white/10">
-                <FileSearchIcon className="size-6 text-accent-mint" />
-              </span>
-              <Heading level="h3" as="h2" className="mb-4 text-white">
-                Hospital Tie-up Process
-              </Heading>
-              <Text className="mb-8 text-[16px] leading-relaxed text-white/80">
-                Surgery Care has tie-ups with hospitals across India. To partner
-                with us, hospitals are reviewed against the following criteria
-                and documentation:
-              </Text>
-              <ul className="space-y-3">
-                {TIE_UP_DOCS.map((doc) => (
-                  <li key={doc} className="flex items-start gap-3">
-                    <span className="mt-1 flex size-5 shrink-0 items-center justify-center rounded-full bg-accent-mint/20">
-                      <span className="size-2 rounded-full bg-accent-mint" />
-                    </span>
-                    <span className="text-[15px] leading-relaxed text-white/90">{doc}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
+          <div className="mx-auto mb-12 max-w-2xl text-center">
+            <Text size="label" className="mb-3 tracking-[1.4px] font-black text-accent">
+              BENEFITS TO HOSPITALS
+            </Text>
+            <Heading level="h2" className="mb-4">
+              A win-win partnership for{" "}
+              <span className="text-accent">our hospital network</span>
+            </Heading>
+            <Text variant="secondary" size="body-lg">
+              Surgery Care drives additional patient volume, reaches new
+              segments and supports a strong social mission &mdash; while our
+              partner hospitals deliver the clinical care.
+            </Text>
           </div>
+
+          <ul className="mx-auto grid max-w-5xl gap-4 md:grid-cols-2">
+            {HOSPITAL_BENEFITS.map((benefit) => (
+              <li
+                key={benefit}
+                className="flex items-start gap-4 rounded-2xl border border-surface-border bg-white p-6 shadow-card"
+              >
+                <span className="mt-1 flex size-6 shrink-0 items-center justify-center rounded-full bg-surface-green">
+                  <CheckIconSmall />
+                </span>
+                <span
+                  className="text-[16px] leading-relaxed text-slate"
+                  dangerouslySetInnerHTML={{ __html: benefit }}
+                />
+              </li>
+            ))}
+          </ul>
         </Container>
       </section>
 

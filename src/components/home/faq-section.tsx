@@ -22,7 +22,7 @@ const FAQ_ITEMS: FaqItem[] = [
   {
     question: "How do you choose the hospitals you work with?",
     answer:
-      "Every partner hospital must clear a strict tie-up checklist: NABH accreditation, valid CE, PCPNDT and BMW certificates, hospital SOC, certificate of incorporation, registration details, verified bank account, and a signed MOU. Only hospitals that meet these standards can treat our patients.",
+      "We work only with established, accredited hospitals. Every partner is reviewed by our team before any patient is referred there, so the clinical quality and safety standards are consistent across our network.",
   },
   {
     question: "What kinds of cases do you support?",

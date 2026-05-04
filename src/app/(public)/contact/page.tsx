@@ -201,7 +201,6 @@ export default function ContactPage() {
                   Corporate Office
                 </Heading>
                 <Text className="text-[16px] leading-[26px] text-[rgba(236,253,245,0.85)]">
-                  Surgery Care &mdash; a brand of Alinto Healthcare Pvt. Ltd.<br />
                   1st Floor, Plot No. 06, Katol Road,<br />
                   Falke Layout, Kolbaswami Nagar,<br />
                   Akar Nagar, Nagpur,<br />

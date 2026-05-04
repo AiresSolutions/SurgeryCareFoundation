@@ -10,8 +10,8 @@ interface AuthContextValue {
   user: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
-  login: (data: LoginRequest) => Promise<void>;
-  register: (data: RegisterRequest) => Promise<void>;
+  login: (data: LoginRequest) => Promise<User>;
+  register: (data: RegisterRequest) => Promise<User>;
   logout: () => Promise<void>;
   updateUser: (data: Partial<User>) => void;
 }
@@ -49,6 +49,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setAccessToken(result.accessToken);
       const session = await authService.getMe();
       setUser(session);
+      return session;
     },
     [],
   );
@@ -59,6 +60,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setAccessToken(result.accessToken);
       const session = await authService.getMe();
       setUser(session);
+      return session;
     },
     [],
   );

@@ -83,12 +83,17 @@ async function proxy(request: NextRequest, path: string[]) {
       ? (upstream.headers as Headers & { getSetCookie: () => string[] }).getSetCookie()
       : [];
 
+  // Backend may set Domain=<its own host> (e.g. "localhost") which the
+  // browser would reject when it sees this proxy's host. Strip Domain so
+  // the cookie defaults to the request host.
+  const rewriteCookie = (cookie: string) => cookie.replace(/;\s*Domain=[^;]*/gi, "");
+
   if (setCookieValues.length > 0) {
-    setCookieValues.forEach((cookie) => responseHeaders.append("set-cookie", cookie));
+    setCookieValues.forEach((cookie) => responseHeaders.append("set-cookie", rewriteCookie(cookie)));
   } else {
     const setCookie = upstream.headers.get("set-cookie");
     if (setCookie) {
-      responseHeaders.append("set-cookie", setCookie);
+      responseHeaders.append("set-cookie", rewriteCookie(setCookie));
     }
   }
 

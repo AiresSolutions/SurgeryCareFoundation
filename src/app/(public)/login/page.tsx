@@ -12,11 +12,13 @@ import { MailIcon, LockIcon, ArrowRightIcon } from "@/components/ui/icons";
 import { useAuth } from "@/context/auth-context";
 import { ApiError } from "@/lib/api-error";
 import { getDefaultAppRoute } from "@/lib/get-default-app-route";
+import { useToast } from "@/components/ui/toast";
 
 function LoginForm() {
   const { login, user, isLoading, isAuthenticated } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { toast } = useToast();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -40,12 +42,13 @@ function LoginForm() {
     setIsSubmitting(true);
 
     try {
-      await login({ email, password });
-      const redirect = searchParams.get("redirect") || getDefaultAppRoute(user?.roles);
+      const session = await login({ email, password });
+      const redirect = searchParams.get("redirect") || getDefaultAppRoute(session.roles);
+      const greetName = session.firstName?.trim() || session.email;
+      toast(`Welcome back, ${greetName}! You're logged in successfully.`, "success");
       router.push(redirect);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Login failed. Please try again.");
-    } finally {
       setIsSubmitting(false);
     }
   }

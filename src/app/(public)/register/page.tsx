@@ -11,10 +11,13 @@ import { Button } from "@/components/ui/button";
 import { MailIcon, LockIcon, ArrowRightIcon } from "@/components/ui/icons";
 import { useAuth } from "@/context/auth-context";
 import { ApiError } from "@/lib/api-error";
+import { useToast } from "@/components/ui/toast";
+import { getDefaultAppRoute } from "@/lib/get-default-app-route";
 
 export default function RegisterPage() {
   const { register } = useAuth();
   const router = useRouter();
+  const { toast } = useToast();
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -36,11 +39,18 @@ export default function RegisterPage() {
 
     setIsSubmitting(true);
     try {
-      await register({ firstName, lastName, email, phone: phone || undefined, password });
-      router.push("/dashboard");
+      const session = await register({
+        firstName,
+        lastName,
+        email,
+        phone: phone || undefined,
+        password,
+      });
+      const greetName = session.firstName?.trim() || session.email;
+      toast(`Welcome, ${greetName}! Your account has been created.`, "success");
+      router.push(getDefaultAppRoute(session.roles));
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Registration failed. Please try again.");
-    } finally {
       setIsSubmitting(false);
     }
   }

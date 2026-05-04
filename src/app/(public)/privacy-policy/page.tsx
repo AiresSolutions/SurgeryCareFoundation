@@ -190,7 +190,7 @@ export default function PrivacyPolicyPage() {
             <div className="rounded-2xl border border-surface-subtle bg-surface-bg p-6">
               <Text variant="secondary">
                 <strong className="text-primary">
-                  Surgery Care &mdash; Alinto Healthcare Pvt. Ltd.
+                  Surgery Care Foundation
                 </strong>
                 <br />
                 1st Floor, Plot No. 06, Katol Road,
