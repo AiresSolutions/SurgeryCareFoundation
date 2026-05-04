@@ -23,6 +23,9 @@ const URGENCY_OPTIONS = [
 ] as const;
 
 const MAX_PROXY_UPLOAD_BYTES = 4 * 1024 * 1024;
+// Videos get a higher per-file ceiling than images/docs. Backend's
+// multer limit is 50MB; keep client-side validation aligned.
+const MAX_VIDEO_UPLOAD_BYTES = 50 * 1024 * 1024;
 
 function formatFileSize(bytes: number) {
   if (bytes < 1024) return `${bytes} B`;
@@ -35,6 +38,7 @@ export default function StartFundraiserPage() {
   const { toast } = useToast();
   const patientImagesInputRef = useRef<HTMLInputElement | null>(null);
   const medicalDocumentsInputRef = useRef<HTMLInputElement | null>(null);
+  const patientVideosInputRef = useRef<HTMLInputElement | null>(null);
 
   // --- Form state (fields that map to CreateCampaignRequest) ---
   const [title, setTitle] = useState("");
@@ -55,6 +59,7 @@ export default function StartFundraiserPage() {
   const [consentChecked, setConsentChecked] = useState(false);
   const [patientImages, setPatientImages] = useState<File[]>([]);
   const [medicalDocuments, setMedicalDocuments] = useState<File[]>([]);
+  const [patientVideos, setPatientVideos] = useState<File[]>([]);
 
   // --- Validation errors ---
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -90,17 +95,18 @@ export default function StartFundraiserPage() {
     event: ChangeEvent<HTMLInputElement>,
     setter: Dispatch<SetStateAction<File[]>>,
     label: string,
+    maxBytes: number = MAX_PROXY_UPLOAD_BYTES,
   ) {
     const files = Array.from(event.target.files ?? []);
-    const accepted = files.filter((file) => file.size <= MAX_PROXY_UPLOAD_BYTES);
-    const rejected = files.filter((file) => file.size > MAX_PROXY_UPLOAD_BYTES);
+    const accepted = files.filter((file) => file.size <= maxBytes);
+    const rejected = files.filter((file) => file.size > maxBytes);
 
     setter((current) => [...current, ...accepted]);
 
     if (rejected.length > 0) {
       toast(
         `${label}: ${rejected
-          .map((file) => `${file.name} exceeds ${formatFileSize(MAX_PROXY_UPLOAD_BYTES)}`)
+          .map((file) => `${file.name} exceeds ${formatFileSize(maxBytes)}`)
           .join(", ")}`,
         "error",
       );
@@ -110,11 +116,15 @@ export default function StartFundraiserPage() {
   }
 
   function removeSelectedFile(
-    kind: "patientImages" | "medicalDocuments",
+    kind: "patientImages" | "medicalDocuments" | "patientVideos",
     fileName: string,
   ) {
     if (kind === "patientImages") {
       setPatientImages((current) => current.filter((file) => file.name !== fileName));
+      return;
+    }
+    if (kind === "patientVideos") {
+      setPatientVideos((current) => current.filter((file) => file.name !== fileName));
       return;
     }
 
@@ -147,6 +157,7 @@ export default function StartFundraiserPage() {
       const uploads = [
         ...patientImages.map((file) => campaignService.uploadDocument(campaign.id, file, "patient_image")),
         ...medicalDocuments.map((file) => campaignService.uploadDocument(campaign.id, file, "medical_document")),
+        ...patientVideos.map((file) => campaignService.uploadDocument(campaign.id, file, "video")),
       ];
 
       if (uploads.length > 0) {
@@ -419,6 +430,54 @@ export default function StartFundraiserPage() {
                             type="button"
                             className="text-sm font-bold text-accent"
                             onClick={() => removeSelectedFile("medicalDocuments", file.name)}
+                            disabled={isSubmitting}
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div className="rounded-2xl border-2 border-dashed border-surface-border bg-surface-page p-6 text-center transition-colors hover:border-accent/50 sm:col-span-2">
+                  <input
+                    ref={patientVideosInputRef}
+                    type="file"
+                    accept="video/mp4,video/webm,video/quicktime"
+                    multiple
+                    className="hidden"
+                    onChange={(event) =>
+                      updateSelectedFiles(event, setPatientVideos, "Patient Videos", MAX_VIDEO_UPLOAD_BYTES)
+                    }
+                  />
+                  <div className="flex flex-col items-center gap-3">
+                    <UploadIcon className="size-8 text-slate-light" />
+                    <Text variant="secondary" className="font-bold">Patient Videos</Text>
+                    <Text variant="muted" size="label" className="normal-case tracking-normal">
+                      MP4, WEBM, MOV up to {formatFileSize(MAX_VIDEO_UPLOAD_BYTES)} each
+                    </Text>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => patientVideosInputRef.current?.click()}
+                      disabled={isSubmitting}
+                    >
+                      Select Videos
+                    </Button>
+                  </div>
+                  {patientVideos.length > 0 && (
+                    <div className="mt-4 space-y-2 text-left">
+                      {patientVideos.map((file) => (
+                        <div key={`${file.name}-${file.lastModified}`} className="flex items-center justify-between gap-3 rounded-xl bg-white px-4 py-3">
+                          <div>
+                            <p className="text-sm font-bold text-primary">{file.name}</p>
+                            <p className="text-xs text-slate-medium">{formatFileSize(file.size)}</p>
+                          </div>
+                          <button
+                            type="button"
+                            className="text-sm font-bold text-accent"
+                            onClick={() => removeSelectedFile("patientVideos", file.name)}
                             disabled={isSubmitting}
                           >
                             Remove

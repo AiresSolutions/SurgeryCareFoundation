@@ -114,4 +114,4 @@ export interface CampaignFilters {
   order?: "asc" | "desc";
 }
 
-export type CampaignDocumentUploadType = "patient_image" | "medical_document";
+export type CampaignDocumentUploadType = "patient_image" | "medical_document" | "video";

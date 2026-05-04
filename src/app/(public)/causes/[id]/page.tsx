@@ -162,12 +162,34 @@ export default function CauseDetailPage({ params }: { params: { id: string } }) 
               )}
             </div>
 
-            {/* Patient Images & Medical Documents */}
+            {/* Patient Images, Videos & Medical Documents */}
             {documents && documents.length > 0 && (() => {
+              const videos = documents.filter((d) => d.mimeType?.startsWith("video/"));
               const images = documents.filter((d) => d.mimeType?.startsWith("image/"));
-              const docs = documents.filter((d) => !d.mimeType?.startsWith("image/"));
+              const docs = documents.filter(
+                (d) => !d.mimeType?.startsWith("image/") && !d.mimeType?.startsWith("video/"),
+              );
               return (
                 <div className="mt-8 space-y-6">
+                  {videos.length > 0 && (
+                    <div>
+                      <Heading level="h4" as="h2" className="mb-3">Patient Videos</Heading>
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        {videos.map((vid) => (
+                          <video
+                            key={vid.id}
+                            src={vid.downloadUrl}
+                            controls
+                            preload="metadata"
+                            className="aspect-video w-full overflow-hidden rounded-xl border border-surface-border bg-black"
+                          >
+                            Your browser does not support embedded video.
+                          </video>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   {images.length > 0 && (
                     <div>
                       <Heading level="h4" as="h2" className="mb-3">Patient Photos</Heading>
