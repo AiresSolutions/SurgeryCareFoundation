@@ -199,15 +199,19 @@ export default function CauseDetailPage({ params }: { params: { id: string } }) 
                       <Heading level="h4" as="h2" className="mb-3">Patient Videos</Heading>
                       <div className="grid gap-3 sm:grid-cols-2">
                         {videos.map((vid) => (
-                          <video
+                          <div
                             key={vid.id}
-                            src={vid.downloadUrl}
-                            controls
-                            preload="metadata"
-                            className="aspect-video w-full overflow-hidden rounded-xl border border-surface-border bg-black"
+                            className="flex items-center justify-center overflow-hidden rounded-xl border border-surface-border bg-surface-page"
                           >
-                            Your browser does not support embedded video.
-                          </video>
+                            <video
+                              src={vid.downloadUrl}
+                              controls
+                              preload="metadata"
+                              className="mx-auto block max-h-[500px] max-w-full"
+                            >
+                              Your browser does not support embedded video.
+                            </video>
+                          </div>
                         ))}
                       </div>
                     </div>
