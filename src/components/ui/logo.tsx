@@ -11,8 +11,8 @@ export interface LogoProps extends React.HTMLAttributes<HTMLAnchorElement> {
 // Native logo aspect ratio is 815x366 ≈ 2.227. Sizes below are tuned so the
 // logo never crowds the navbar and stays crisp when downscaled by next/image.
 const sizeConfig = {
-  default: { height: 48, width: 107 },
-  lg: { height: 96, width: 214 },
+  default: { height: 72, width: 160 },
+  lg: { height: 120, width: 267 },
 } as const;
 
 export function Logo({ size = "default", className, ...props }: LogoProps) {

@@ -46,7 +46,7 @@ export function HeaderAuth() {
   return (
     <header className="sticky top-0 z-50">
       <nav className="border-b border-surface-border/50 bg-white/70 shadow-subtle backdrop-blur-md" aria-label="Main navigation">
-        <Container className="flex h-20 items-center justify-between">
+        <Container className="flex h-24 items-center justify-between">
           <Logo />
 
           <ul className="hidden items-center gap-8 lg:flex" role="list">

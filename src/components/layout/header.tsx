@@ -47,7 +47,7 @@ export function Header() {
         className="border-b border-surface-border/50 bg-white/70 shadow-subtle backdrop-blur-md"
         aria-label="Main navigation"
       >
-        <Container className="flex h-20 items-center justify-between">
+        <Container className="flex h-24 items-center justify-between">
           {/* Logo */}
           <Logo />
 
