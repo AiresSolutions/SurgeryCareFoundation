@@ -216,27 +216,42 @@ export default function CauseDetailPage({ params }: { params: { id: string } }) 
                   {reports.length > 0 && (
                     <div>
                       <Heading level="h4" as="h2" className="mb-3">Medical Reports</Heading>
-                      <ul className="space-y-2">
-                        {reports.map((doc) => (
-                          <li key={doc.id}>
+                      <div className="space-y-4">
+                        {reports.map((doc) => {
+                          const isImage = doc.mimeType?.startsWith("image/");
+                          if (isImage && doc.downloadUrl) {
+                            return (
+                              <a
+                                key={doc.id}
+                                href={doc.downloadUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="block overflow-hidden rounded-xl bg-surface-page"
+                              >
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img
+                                  src={doc.downloadUrl}
+                                  alt=""
+                                  className="w-full object-contain"
+                                  loading="lazy"
+                                />
+                              </a>
+                            );
+                          }
+                          // Non-image report (PDF etc) — fall back to a download card
+                          return (
                             <a
+                              key={doc.id}
                               href={doc.downloadUrl}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="flex items-center justify-between gap-3 rounded-xl border border-surface-border bg-white px-4 py-3 transition-colors hover:border-accent"
+                              className="block truncate rounded-xl border border-surface-border bg-white px-4 py-3 text-btn font-bold text-primary transition-colors hover:border-accent"
                             >
-                              <div className="min-w-0">
-                                <p className="truncate text-btn font-bold text-primary">{doc.fileName}</p>
-                                <Text variant="muted" size="label" className="normal-case tracking-normal">
-                                  {(doc.fileSize / 1024).toFixed(0)} KB
-                                  {doc.verificationStatus === "verified" && " • Verified"}
-                                </Text>
-                              </div>
-                              <CheckCircleIcon className="size-5 shrink-0 text-accent" />
+                              {doc.fileName}
                             </a>
-                          </li>
-                        ))}
-                      </ul>
+                          );
+                        })}
+                      </div>
                     </div>
                   )}
                 </div>
