@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Container } from "@/components/ui/container";
 import { Heading } from "@/components/ui/heading";
@@ -18,6 +17,7 @@ import { useAuth } from "@/context/auth-context";
 import { useToast } from "@/components/ui/toast";
 import { formatINR } from "@/lib/format";
 import { categoryLabel } from "@/lib/categories";
+import { CoverSlideshow } from "@/components/campaign/cover-slideshow";
 import type { CampaignDocument, CampaignUpdate } from "@/types/campaign";
 
 export default function CauseDetailPage({ params }: { params: { id: string } }) {
@@ -128,14 +128,13 @@ export default function CauseDetailPage({ params }: { params: { id: string } }) 
         <div className="grid gap-8 lg:grid-cols-5 lg:gap-12">
           {/* Left — Content */}
           <div className="lg:col-span-3">
-            <div className="relative mb-6 h-[300px] overflow-hidden rounded-2xl md:h-[400px]">
-              <Image
-                src={campaign.coverImageUrl || "/images/placeholder.jpg"}
+            <div className="mb-6">
+              <CoverSlideshow
+                slides={(documents ?? []).filter(
+                  (d) => d.fileType === "patient_image" || d.fileType === "video",
+                )}
+                fallbackSrc={campaign.coverImageUrl || "/images/placeholder.jpg"}
                 alt={campaign.title}
-                fill
-                className="object-cover"
-                sizes="(min-width: 1024px) 800px, 100vw"
-                priority
               />
             </div>
 
@@ -162,39 +161,21 @@ export default function CauseDetailPage({ params }: { params: { id: string } }) 
               )}
             </div>
 
-            {/* Patient Images, Videos & Medical Documents */}
+            {/* Patient Photos, Videos & Medical Reports — group by the
+                creator-chosen fileType, not MIME, so a JPEG of a hospital
+                report scan stays in Medical Reports instead of showing
+                up as a "patient photo". */}
             {documents && documents.length > 0 && (() => {
-              const videos = documents.filter((d) => d.mimeType?.startsWith("video/"));
-              const images = documents.filter((d) => d.mimeType?.startsWith("image/"));
-              const docs = documents.filter(
-                (d) => !d.mimeType?.startsWith("image/") && !d.mimeType?.startsWith("video/"),
-              );
+              const photos = documents.filter((d) => d.fileType === "patient_image");
+              const videos = documents.filter((d) => d.fileType === "video");
+              const reports = documents.filter((d) => d.fileType === "medical_document");
               return (
                 <div className="mt-8 space-y-6">
-                  {videos.length > 0 && (
-                    <div>
-                      <Heading level="h4" as="h2" className="mb-3">Patient Videos</Heading>
-                      <div className="grid gap-3 sm:grid-cols-2">
-                        {videos.map((vid) => (
-                          <video
-                            key={vid.id}
-                            src={vid.downloadUrl}
-                            controls
-                            preload="metadata"
-                            className="aspect-video w-full overflow-hidden rounded-xl border border-surface-border bg-black"
-                          >
-                            Your browser does not support embedded video.
-                          </video>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {images.length > 0 && (
+                  {photos.length > 0 && (
                     <div>
                       <Heading level="h4" as="h2" className="mb-3">Patient Photos</Heading>
                       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                        {images.map((img) => (
+                        {photos.map((img) => (
                           <a
                             key={img.id}
                             href={img.downloadUrl}
@@ -215,11 +196,30 @@ export default function CauseDetailPage({ params }: { params: { id: string } }) 
                     </div>
                   )}
 
-                  {docs.length > 0 && (
+                  {videos.length > 0 && (
                     <div>
-                      <Heading level="h4" as="h2" className="mb-3">Medical Documents</Heading>
+                      <Heading level="h4" as="h2" className="mb-3">Patient Videos</Heading>
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        {videos.map((vid) => (
+                          <video
+                            key={vid.id}
+                            src={vid.downloadUrl}
+                            controls
+                            preload="metadata"
+                            className="aspect-video w-full overflow-hidden rounded-xl border border-surface-border bg-black"
+                          >
+                            Your browser does not support embedded video.
+                          </video>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {reports.length > 0 && (
+                    <div>
+                      <Heading level="h4" as="h2" className="mb-3">Medical Reports</Heading>
                       <ul className="space-y-2">
-                        {docs.map((doc) => (
+                        {reports.map((doc) => (
                           <li key={doc.id}>
                             <a
                               href={doc.downloadUrl}
