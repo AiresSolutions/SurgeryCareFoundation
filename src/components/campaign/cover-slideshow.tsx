@@ -50,13 +50,24 @@ export function CoverSlideshow({
   const current = safeSlides[idx]!;
 
   return (
-    <div className="relative h-[300px] overflow-hidden rounded-2xl bg-black md:h-[400px]">
+    <div className="relative h-[300px] overflow-hidden rounded-2xl bg-surface-page md:h-[400px]">
+      {/* Blurred backdrop fills the dead space around portrait photos
+          instead of leaving harsh black bars. */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        key={`bg-${current.id}`}
+        src={current.downloadUrl}
+        alt=""
+        aria-hidden
+        className="absolute inset-0 size-full scale-110 object-cover blur-2xl"
+      />
+      <div className="absolute inset-0 bg-black/20" />
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         key={current.id}
         src={current.downloadUrl}
         alt={current.fileName || alt}
-        className="size-full object-contain"
+        className="relative size-full object-contain"
       />
 
 
