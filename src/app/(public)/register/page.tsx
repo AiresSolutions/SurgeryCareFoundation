@@ -51,6 +51,7 @@ export default function RegisterPage() {
       router.push(getDefaultAppRoute(session.roles));
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Registration failed. Please try again.");
+    } finally {
       setIsSubmitting(false);
     }
   }

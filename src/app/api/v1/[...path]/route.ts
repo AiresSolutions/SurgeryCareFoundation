@@ -85,8 +85,14 @@ async function proxy(request: NextRequest, path: string[]) {
 
   // Backend may set Domain=<its own host> (e.g. "localhost") which the
   // browser would reject when it sees this proxy's host. Strip Domain so
-  // the cookie defaults to the request host.
-  const rewriteCookie = (cookie: string) => cookie.replace(/;\s*Domain=[^;]*/gi, "");
+  // the cookie defaults to the request host. Also downgrade SameSite=Strict
+  // to Lax — Strict can drop the cookie on Next.js RSC fetches triggered by
+  // <Link> client-side navigation, which then makes the auth middleware
+  // think the user is logged out and bounce them to /login.
+  const rewriteCookie = (cookie: string) =>
+    cookie
+      .replace(/;\s*Domain=[^;]*/gi, "")
+      .replace(/;\s*SameSite=Strict/gi, "; SameSite=Lax");
 
   if (setCookieValues.length > 0) {
     setCookieValues.forEach((cookie) => responseHeaders.append("set-cookie", rewriteCookie(cookie)));

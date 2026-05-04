@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -27,11 +27,16 @@ function LoginForm() {
 
   const resetSuccess = searchParams.get("reset") === "success";
 
+  // Auto-redirect already-authenticated users away from /login, but only ONCE
+  // per mount. Otherwise, if middleware bounces a navigation back to /login
+  // (e.g. cookie not seen server-side), this useEffect re-fires on every
+  // searchParams change and creates an infinite redirect loop.
+  const didAutoRedirect = useRef(false);
   useEffect(() => {
-    if (isLoading || !isAuthenticated) {
+    if (isLoading || !isAuthenticated || didAutoRedirect.current) {
       return;
     }
-
+    didAutoRedirect.current = true;
     const redirect = searchParams.get("redirect");
     router.replace(redirect || getDefaultAppRoute(user?.roles));
   }, [isAuthenticated, isLoading, router, searchParams, user?.roles]);
@@ -49,6 +54,7 @@ function LoginForm() {
       router.push(redirect);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Login failed. Please try again.");
+    } finally {
       setIsSubmitting(false);
     }
   }
