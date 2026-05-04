@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { formatINR } from "@/lib/format";
 import { useApi } from "@/hooks/use-api";
 import { useToast } from "@/components/ui/toast";
+import { useAuth } from "@/context/auth-context";
 import { campaignService } from "@/services/campaign.service";
 import { paymentService } from "@/services/payment.service";
 import { Container } from "@/components/ui/container";
@@ -36,6 +37,7 @@ async function loadRazorpayScript() {
 export default function CheckoutPage({ params }: { params: { id: string } }) {
   const router = useRouter();
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const { data: campaign, isLoading: campaignLoading } = useApi(
     () => campaignService.getBySlug(params.id),
@@ -73,18 +75,27 @@ export default function CheckoutPage({ params }: { params: { id: string } }) {
     setIsSubmitting(true);
 
     try {
-      const donation = await paymentService.createGuestDonation({
+      const donationPayload = {
         campaignId: campaign.id,
         amount: donationAmount,
         donorName: `${firstName.trim()} ${lastName.trim()}`.trim(),
         donorEmail: email.trim(),
         isAnonymous,
-      });
+      };
 
-      const paymentIntent = await paymentService.createGuestIntent({
-        donationId: donation.id,
-        amount: donationAmount,
-      });
+      let donation;
+      let paymentIntent;
+      if (user) {
+        const initiation = await paymentService.createDonation(donationPayload);
+        donation = initiation.donation;
+        paymentIntent = initiation.paymentIntent;
+      } else {
+        donation = await paymentService.createGuestDonation(donationPayload);
+        paymentIntent = await paymentService.createGuestIntent({
+          donationId: donation.id,
+          amount: donationAmount,
+        });
+      }
 
       if (!paymentIntent.clientData.key || !paymentIntent.clientData.order_id) {
         throw new Error("Payment gateway is not configured yet. Please try again later.");

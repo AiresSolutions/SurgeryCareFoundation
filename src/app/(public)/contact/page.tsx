@@ -128,10 +128,10 @@ export default function ContactPage() {
                         General
                       </Text>
                       <a
-                        href="mailto:info@surgerycare.in"
+                        href="mailto:info@surgerycarefoundation.com"
                         className="text-accent transition-colors hover:text-accent-green"
                       >
-                        info@surgerycare.in
+                        info@surgerycarefoundation.com
                       </a>
                     </li>
                     <li>
@@ -139,10 +139,10 @@ export default function ContactPage() {
                         HR
                       </Text>
                       <a
-                        href="mailto:hr@surgerycare.in"
+                        href="mailto:hr@surgerycarefoundation.com"
                         className="text-accent transition-colors hover:text-accent-green"
                       >
-                        hr@surgerycare.in
+                        hr@surgerycarefoundation.com
                       </a>
                     </li>
                     <li>
@@ -150,10 +150,10 @@ export default function ContactPage() {
                         Director
                       </Text>
                       <a
-                        href="mailto:naim.diwan@surgerycare.in"
+                        href="mailto:naim.diwan@surgerycarefoundation.com"
                         className="text-accent transition-colors hover:text-accent-green"
                       >
-                        naim.diwan@surgerycare.in
+                        naim.diwan@surgerycarefoundation.com
                       </a>
                     </li>
                     <li>
@@ -161,10 +161,10 @@ export default function ContactPage() {
                         Director
                       </Text>
                       <a
-                        href="mailto:vinay.jawle@surgerycare.in"
+                        href="mailto:vinay.jawle@surgerycarefoundation.com"
                         className="text-accent transition-colors hover:text-accent-green"
                       >
-                        vinay.jawle@surgerycare.in
+                        vinay.jawle@surgerycarefoundation.com
                       </a>
                     </li>
                   </ul>

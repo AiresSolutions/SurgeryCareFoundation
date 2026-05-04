@@ -156,10 +156,10 @@ export default function PrivacyPolicyPage() {
               communications at any time. To exercise these rights, contact us
               at{" "}
               <a
-                href="mailto:info@surgerycare.in"
+                href="mailto:info@surgerycarefoundation.com"
                 className="font-medium text-accent underline underline-offset-2 hover:text-primary"
               >
-                info@surgerycare.in
+                info@surgerycarefoundation.com
               </a>
               .
             </Text>
@@ -201,10 +201,10 @@ export default function PrivacyPolicyPage() {
                 <br />
                 Email:{" "}
                 <a
-                  href="mailto:info@surgerycare.in"
+                  href="mailto:info@surgerycarefoundation.com"
                   className="font-medium text-accent underline underline-offset-2 hover:text-primary"
                 >
-                  info@surgerycare.in
+                  info@surgerycarefoundation.com
                 </a>
                 <br />
                 Phone:{" "}

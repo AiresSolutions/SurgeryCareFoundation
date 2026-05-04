@@ -124,13 +124,13 @@ export function Footer() {
             <ul className="space-y-5" role="list">
               <li>
                 <a
-                  href="mailto:info@surgerycare.in"
+                  href="mailto:info@surgerycarefoundation.com"
                   className="inline-flex items-center gap-3 text-body-sm text-slate-medium transition-colors hover:text-accent"
                 >
                   <span className="flex size-10 items-center justify-center rounded-full border border-surface-subtle bg-white shadow-card">
                     <MailIcon className="size-4 text-slate-light" />
                   </span>
-                  info@surgerycare.in
+                  info@surgerycarefoundation.com
                 </a>
               </li>
               <li>
