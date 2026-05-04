@@ -22,12 +22,22 @@ function CauseCard({ cause }: { cause: Campaign }) {
   return (
     <Card>
       {/* Image with overlay */}
-      <div className="relative h-56 overflow-hidden">
+      <div className="relative h-56 overflow-hidden bg-surface-page">
+        {/* Blurred backdrop fills the dead space around
+            portrait/landscape mismatches so the actual cover
+            can stay object-contain (never clipped). */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={cause.coverImageUrl || "/images/placeholder.jpg"}
+          alt=""
+          aria-hidden
+          className="absolute inset-0 size-full scale-110 object-cover blur-2xl"
+        />
         <Image
           src={cause.coverImageUrl || "/images/placeholder.jpg"}
           alt={cause.title}
           fill
-          className="object-cover"
+          className="object-contain"
           sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
         />
 
