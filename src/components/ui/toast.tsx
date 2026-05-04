@@ -27,9 +27,9 @@ export function useToast() {
 }
 
 const typeStyles: Record<ToastType, string> = {
-  success: "border-accent/20 bg-accent/5 text-accent",
-  error: "border-red-200 bg-red-50 text-red-600",
-  info: "border-primary/20 bg-primary/5 text-primary",
+  success: "border-accent/30 bg-white text-accent",
+  error: "border-red-200 bg-white text-red-600",
+  info: "border-primary/30 bg-white text-primary",
 };
 
 export function ToastProvider({ children }: { children: React.ReactNode }) {
