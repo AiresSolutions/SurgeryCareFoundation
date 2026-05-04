@@ -251,8 +251,9 @@ export default function StartFundraiserPage() {
                       setCategory(e.target.value);
                       if (errors.category) {
                         setErrors((prev) => {
-                          const { category: _, ...rest } = prev;
-                          return rest;
+                          const next = { ...prev };
+                          delete next.category;
+                          return next;
                         });
                       }
                     }}
