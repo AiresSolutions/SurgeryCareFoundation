@@ -18,6 +18,10 @@ import { useToast } from "@/components/ui/toast";
 import { formatINR } from "@/lib/format";
 import { categoryLabel } from "@/lib/categories";
 import { CoverSlideshow } from "@/components/campaign/cover-slideshow";
+import {
+  CampaignStory,
+  descriptionHasInlineMedia,
+} from "@/components/campaign/campaign-story";
 import type { CampaignDocument, CampaignUpdate } from "@/types/campaign";
 
 export default function CauseDetailPage({ params }: { params: { id: string } }) {
@@ -48,15 +52,10 @@ export default function CauseDetailPage({ params }: { params: { id: string } }) 
   );
   const [isSaving, setIsSaving] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
-  const [shareCount, setShareCount] = useState(0);
 
   useEffect(() => {
     setIsSaved(Boolean(campaign && savedCauses?.some((entry) => entry.campaign.id === campaign.id)));
   }, [campaign, savedCauses]);
-
-  useEffect(() => {
-    setShareCount(campaign?.shareCount ?? 0);
-  }, [campaign?.shareCount]);
 
   async function handleShare() {
     const shareUrl =
@@ -81,10 +80,8 @@ export default function CauseDetailPage({ params }: { params: { id: string } }) 
       toast("Couldn't copy link, please copy from the address bar.", "error");
       return;
     }
-    setShareCount((c) => c + 1);
     try {
-      const result = await campaignService.recordShare(slug);
-      setShareCount(result.shareCount);
+      await campaignService.recordShare(slug);
     } catch {
       // Silently swallow — the user already got their copied link;
       // a failed counter update isn't worth a second toast.
@@ -188,12 +185,9 @@ export default function CauseDetailPage({ params }: { params: { id: string } }) 
             </Heading>
 
             <div className="space-y-4">
-              <Text>{campaign.summary}</Text>
+              {campaign.summary && <Text>{campaign.summary}</Text>}
               {campaign.description && (
-                <>
-                  <Heading level="h4" as="h2">Details</Heading>
-                  <Text variant="secondary">{campaign.description}</Text>
-                </>
+                <CampaignStory description={campaign.description} />
               )}
             </div>
 
@@ -202,9 +196,18 @@ export default function CauseDetailPage({ params }: { params: { id: string } }) 
                 report scan stays in Medical Reports instead of showing
                 up as a "patient photo". */}
             {documents && documents.length > 0 && (() => {
-              const photos = documents.filter((d) => d.fileType === "patient_image");
+              // When the description already weaves images into the story
+              // (markdown ![](...) syntax), we suppress the auto photo and
+              // medical-report galleries so the same images don't appear
+              // twice. Videos still render — they don't fit inline well.
+              const inlineMedia = descriptionHasInlineMedia(campaign.description);
+              const photos = inlineMedia
+                ? []
+                : documents.filter((d) => d.fileType === "patient_image");
               const videos = documents.filter((d) => d.fileType === "video");
-              const reports = documents.filter((d) => d.fileType === "medical_document");
+              const reports = inlineMedia
+                ? []
+                : documents.filter((d) => d.fileType === "medical_document");
               return (
                 <div className="mt-8 space-y-6">
                   {photos.length > 0 && (
@@ -364,11 +367,6 @@ export default function CauseDetailPage({ params }: { params: { id: string } }) 
               >
                 <ShareIcon className="size-4" />
                 Share this cause
-                {shareCount > 0 && (
-                  <span className="text-caption font-bold text-slate-medium">
-                    · {shareCount}
-                  </span>
-                )}
               </button>
               <button
                 type="button"
