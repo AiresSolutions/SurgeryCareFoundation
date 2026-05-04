@@ -71,4 +71,11 @@ export const moderationService = {
   rejectDocument(id: string, data: DocumentRejectRequest) {
     return apiClient.post<void>(`/moderation/documents/${id}/reject`, data);
   },
+
+  verifyAllDocuments(campaignId: string, data?: DocumentVerifyRequest) {
+    return apiClient.post<{ verifiedCount: number }>(
+      `/moderation/campaigns/${campaignId}/documents/verify-all`,
+      data,
+    );
+  },
 };

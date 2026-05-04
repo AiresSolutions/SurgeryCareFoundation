@@ -17,7 +17,7 @@ import { userService, type SavedCauseEntry } from "@/services/user.service";
 import { useAuth } from "@/context/auth-context";
 import { useToast } from "@/components/ui/toast";
 import { formatINR } from "@/lib/format";
-import type { CampaignUpdate } from "@/types/campaign";
+import type { CampaignDocument, CampaignUpdate } from "@/types/campaign";
 
 export default function CauseDetailPage({ params }: { params: { id: string } }) {
   const slug = params.id;
@@ -36,6 +36,11 @@ export default function CauseDetailPage({ params }: { params: { id: string } }) 
     error: updatesError,
     isLoading: updatesLoading,
   } = useApi(() => campaignService.getUpdates(slug), [slug]);
+
+  const { data: documents } = useApi<CampaignDocument[]>(
+    () => campaignService.getPublicDocuments(slug),
+    [slug],
+  );
   const { data: savedCauses, refetch: refetchSavedCauses } = useApi<SavedCauseEntry[]>(
     () => (user ? userService.getSavedCauses() : Promise.resolve([])),
     [user?.id],
@@ -150,6 +155,67 @@ export default function CauseDetailPage({ params }: { params: { id: string } }) 
                 </>
               )}
             </div>
+
+            {/* Patient Images & Medical Documents */}
+            {documents && documents.length > 0 && (() => {
+              const images = documents.filter((d) => d.mimeType?.startsWith("image/"));
+              const docs = documents.filter((d) => !d.mimeType?.startsWith("image/"));
+              return (
+                <div className="mt-8 space-y-6">
+                  {images.length > 0 && (
+                    <div>
+                      <Heading level="h4" as="h2" className="mb-3">Patient Photos</Heading>
+                      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                        {images.map((img) => (
+                          <a
+                            key={img.id}
+                            href={img.downloadUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="relative block aspect-square overflow-hidden rounded-xl border border-surface-border bg-surface-page transition-transform hover:scale-[1.02]"
+                          >
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={img.downloadUrl}
+                              alt={img.fileName}
+                              className="size-full object-cover"
+                              loading="lazy"
+                            />
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {docs.length > 0 && (
+                    <div>
+                      <Heading level="h4" as="h2" className="mb-3">Medical Documents</Heading>
+                      <ul className="space-y-2">
+                        {docs.map((doc) => (
+                          <li key={doc.id}>
+                            <a
+                              href={doc.downloadUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center justify-between gap-3 rounded-xl border border-surface-border bg-white px-4 py-3 transition-colors hover:border-accent"
+                            >
+                              <div className="min-w-0">
+                                <p className="truncate text-btn font-bold text-primary">{doc.fileName}</p>
+                                <Text variant="muted" size="label" className="normal-case tracking-normal">
+                                  {(doc.fileSize / 1024).toFixed(0)} KB
+                                  {doc.verificationStatus === "verified" && " • Verified"}
+                                </Text>
+                              </div>
+                              <CheckCircleIcon className="size-5 shrink-0 text-accent" />
+                            </a>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
 
             {/* Campaign Updates */}
             {!updatesLoading && !updatesError && updates.length > 0 && (

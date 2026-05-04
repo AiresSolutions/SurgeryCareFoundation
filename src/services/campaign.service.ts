@@ -26,6 +26,10 @@ export const campaignService = {
     });
   },
 
+  getPublicDocuments(slug: string) {
+    return apiClient.get<CampaignDocument[]>(`/public/campaigns/${slug}/documents`);
+  },
+
   create(data: CreateCampaignRequest) {
     return apiClient.post<Campaign>("/campaigns", data);
   },

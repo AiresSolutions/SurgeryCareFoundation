@@ -33,6 +33,7 @@ export interface Campaign {
   createdAt: string;
   updatedAt: string;
   creator?: { id: string; firstName: string; lastName: string };
+  documents?: CampaignDocument[];
   _count?: { donations: number };
 }
 

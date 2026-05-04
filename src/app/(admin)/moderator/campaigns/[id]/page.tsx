@@ -13,9 +13,18 @@ import { useApi } from "@/hooks/use-api";
 import { useToast } from "@/components/ui/toast";
 import { moderationService } from "@/services/moderation.service";
 import { formatINR } from "@/lib/format";
-import type { Campaign } from "@/types/campaign";
+import type { Campaign, CampaignDocument } from "@/types/campaign";
 
 type ActionType = "approve" | "reject" | "request_changes" | null;
+
+const DOC_STATUS_CONFIG: Record<
+  string,
+  { label: string; variant: "default" | "accent" | "success" | "outline" }
+> = {
+  pending: { label: "Pending", variant: "outline" },
+  verified: { label: "Verified", variant: "success" },
+  rejected: { label: "Rejected", variant: "default" },
+};
 
 const STATUS_CONFIG: Record<
   string,
@@ -51,6 +60,7 @@ export default function CampaignReviewPage({ params }: { params: { id: string } 
     data: campaign,
     error: fetchError,
     isLoading,
+    refetch: refetchCampaign,
   } = useApi<Campaign>(
     () => moderationService.getCampaignForReview(campaignId),
     [campaignId],
@@ -61,6 +71,54 @@ export default function CampaignReviewPage({ params }: { params: { id: string } 
   const [notes, setNotes] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [busyDocId, setBusyDocId] = useState<string | null>(null);
+  const [isVerifyingAll, setIsVerifyingAll] = useState(false);
+
+  async function handleVerifyDocument(doc: CampaignDocument) {
+    setBusyDocId(doc.id);
+    try {
+      await moderationService.verifyDocument(doc.id);
+      toast(`"${doc.fileName}" verified`, "success");
+      await refetchCampaign();
+    } catch (err) {
+      toast(err instanceof Error ? err.message : "Failed to verify document", "error");
+    } finally {
+      setBusyDocId(null);
+    }
+  }
+
+  async function handleRejectDocument(doc: CampaignDocument) {
+    const reasonInput = window.prompt(`Reason for rejecting "${doc.fileName}":`);
+    if (!reasonInput || !reasonInput.trim()) return;
+    setBusyDocId(doc.id);
+    try {
+      await moderationService.rejectDocument(doc.id, { reason: reasonInput.trim() });
+      toast(`"${doc.fileName}" rejected`, "success");
+      await refetchCampaign();
+    } catch (err) {
+      toast(err instanceof Error ? err.message : "Failed to reject document", "error");
+    } finally {
+      setBusyDocId(null);
+    }
+  }
+
+  async function handleVerifyAllDocuments() {
+    setIsVerifyingAll(true);
+    try {
+      const result = await moderationService.verifyAllDocuments(campaignId);
+      toast(
+        result.verifiedCount > 0
+          ? `Verified ${result.verifiedCount} document(s)`
+          : "No pending documents to verify",
+        "success",
+      );
+      await refetchCampaign();
+    } catch (err) {
+      toast(err instanceof Error ? err.message : "Failed to verify documents", "error");
+    } finally {
+      setIsVerifyingAll(false);
+    }
+  }
 
   function openAction(action: ActionType) {
     setActiveAction(action);
@@ -305,6 +363,103 @@ export default function CampaignReviewPage({ params }: { params: { id: string } 
                   <Text variant="secondary">Creator information unavailable.</Text>
                 )}
               </div>
+
+              {/* Documents card */}
+              {(() => {
+                const docs = campaign.documents ?? [];
+                const pendingCount = docs.filter((d) => d.verificationStatus === "pending").length;
+                return (
+                  <div className="rounded-2xl border border-surface-border bg-white p-6 shadow-card">
+                    <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                      <div>
+                        <Heading level="h4" as="h3">Documents</Heading>
+                        <Text variant="muted" size="label" className="normal-case tracking-normal">
+                          {docs.length === 0
+                            ? "No documents uploaded"
+                            : `${docs.length} total · ${pendingCount} pending review`}
+                        </Text>
+                      </div>
+                      {pendingCount > 0 && (
+                        <button
+                          type="button"
+                          onClick={handleVerifyAllDocuments}
+                          disabled={isVerifyingAll || busyDocId !== null}
+                          className="rounded-full bg-emerald-600 px-4 py-2 text-btn font-bold text-white transition-colors hover:bg-emerald-700 disabled:pointer-events-none disabled:opacity-50"
+                        >
+                          {isVerifyingAll ? "Verifying..." : `Verify All (${pendingCount})`}
+                        </button>
+                      )}
+                    </div>
+
+                    {docs.length === 0 ? (
+                      <Text variant="secondary">
+                        The creator hasn&apos;t uploaded any patient images or medical documents yet.
+                      </Text>
+                    ) : (
+                      <ul className="divide-y divide-surface-border">
+                        {docs.map((doc) => {
+                          const statusKey = doc.verificationStatus.toLowerCase();
+                          const statusCfg = DOC_STATUS_CONFIG[statusKey] ?? {
+                            label: doc.verificationStatus,
+                            variant: "outline" as const,
+                          };
+                          const isPending = statusKey === "pending";
+                          const isBusy = busyDocId === doc.id;
+                          return (
+                            <li key={doc.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
+                              <div className="min-w-0 flex-1">
+                                <div className="flex items-center gap-2">
+                                  <p className="truncate text-btn font-bold text-primary">
+                                    {doc.fileName}
+                                  </p>
+                                  <Badge variant={statusCfg.variant} className="text-[10px]">
+                                    {statusCfg.label}
+                                  </Badge>
+                                </div>
+                                <Text variant="muted" size="label" className="normal-case tracking-normal">
+                                  {doc.fileType} · {(doc.fileSize / 1024).toFixed(0)} KB
+                                </Text>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                {doc.downloadUrl && (
+                                  <a
+                                    href={doc.downloadUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="rounded-full border border-surface-border px-3 py-1.5 text-btn font-bold text-slate-medium transition-colors hover:border-accent hover:text-accent"
+                                  >
+                                    View
+                                  </a>
+                                )}
+                                {isPending && (
+                                  <>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleVerifyDocument(doc)}
+                                      disabled={isBusy || isVerifyingAll}
+                                      className="rounded-full bg-emerald-600 px-3 py-1.5 text-btn font-bold text-white transition-colors hover:bg-emerald-700 disabled:pointer-events-none disabled:opacity-50"
+                                    >
+                                      {isBusy ? "..." : "Verify"}
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleRejectDocument(doc)}
+                                      disabled={isBusy || isVerifyingAll}
+                                      className="rounded-full bg-red-600 px-3 py-1.5 text-btn font-bold text-white transition-colors hover:bg-red-700 disabled:pointer-events-none disabled:opacity-50"
+                                    >
+                                      Reject
+                                    </button>
+                                  </>
+                                )}
+                              </div>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    )}
+                  </div>
+                );
+              })()}
             </div>
 
             {/* Right column - actions */}
