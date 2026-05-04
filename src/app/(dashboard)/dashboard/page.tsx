@@ -20,7 +20,7 @@ export default function DashboardPage() {
   const router = useRouter();
   const { user, isLoading: authLoading } = useAuth();
   const { data, isLoading } = useApi<PaginatedData<Donation>>(
-    () => userService.getDonations({ limit: 50, status: "succeeded" }),
+    () => userService.getDonations({ limit: 50, status: "SUCCEEDED" }),
     [],
   );
   const { data: savedCauses } = useApi(

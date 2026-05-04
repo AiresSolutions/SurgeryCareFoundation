@@ -17,19 +17,19 @@ import type { Donation } from "@/types/donation";
 const FILTERS = ["All", "Succeeded", "Pending", "Failed"] as const;
 
 const STATUS_CONFIG: Record<string, { label: string; variant: "success" | "outline" | "default" }> = {
-  succeeded: { label: "Succeeded", variant: "success" },
-  pending: { label: "Pending", variant: "outline" },
-  failed: { label: "Failed", variant: "default" },
-  initiated: { label: "Initiated", variant: "outline" },
-  cancelled: { label: "Cancelled", variant: "default" },
-  refunded: { label: "Refunded", variant: "outline" },
+  SUCCEEDED: { label: "Succeeded", variant: "success" },
+  PENDING: { label: "Pending", variant: "outline" },
+  FAILED: { label: "Failed", variant: "default" },
+  INITIATED: { label: "Initiated", variant: "outline" },
+  CANCELLED: { label: "Cancelled", variant: "default" },
+  REFUNDED: { label: "Refunded", variant: "outline" },
 };
 
 export default function DonationHistoryPage() {
   const [activeFilter, setActiveFilter] = useState<string>("All");
 
   const params: Record<string, string | number | boolean | undefined> =
-    activeFilter === "All" ? {} : { status: activeFilter.toLowerCase() };
+    activeFilter === "All" ? {} : { status: activeFilter.toUpperCase() };
 
   const { data, isLoading } = useApi<PaginatedData<Donation>>(
     () => userService.getDonations(params),
@@ -39,10 +39,10 @@ export default function DonationHistoryPage() {
   const donations = data?.items ?? [];
 
   const totalDonated = donations
-    .filter((d) => d.status === "succeeded")
+    .filter((d) => d.status === "SUCCEEDED")
     .reduce((sum, d) => sum + d.amount, 0);
 
-  const totalCount = donations.filter((d) => d.status === "succeeded").length;
+  const totalCount = donations.filter((d) => d.status === "SUCCEEDED").length;
 
   const lastDonationDate =
     donations.length > 0

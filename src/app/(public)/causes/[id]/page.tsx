@@ -184,7 +184,7 @@ export default function CauseDetailPage({ params }: { params: { id: string } }) 
             </div>
 
             <Heading level="h2" as="h1" className="mb-6">
-              Help {campaign.title}
+              {/[.!?]/.test(campaign.title) ? campaign.title : `Help ${campaign.title}`}
             </Heading>
 
             <div className="space-y-4">

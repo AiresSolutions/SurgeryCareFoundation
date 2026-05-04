@@ -1,10 +1,10 @@
 export type DonationStatus =
-  | "initiated"
-  | "pending"
-  | "succeeded"
-  | "failed"
-  | "cancelled"
-  | "refunded";
+  | "INITIATED"
+  | "PENDING"
+  | "SUCCEEDED"
+  | "FAILED"
+  | "CANCELLED"
+  | "REFUNDED";
 
 export interface Donation {
   id: string;

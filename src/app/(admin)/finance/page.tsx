@@ -53,7 +53,7 @@ export default function FinanceOverviewPage() {
   const withdrawals = withdrawalsData?.items ?? [];
 
   const totalDonations = donations
-    .filter((d) => d.status === "succeeded")
+    .filter((d) => d.status === "SUCCEEDED")
     .reduce((sum, d) => sum + d.amount, 0);
 
   const pendingWithdrawalsTotal = withdrawals
