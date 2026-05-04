@@ -30,6 +30,10 @@ export const campaignService = {
     return apiClient.get<CampaignDocument[]>(`/public/campaigns/${slug}/documents`);
   },
 
+  recordShare(slug: string) {
+    return apiClient.post<{ shareCount: number }>(`/public/campaigns/${slug}/share`);
+  },
+
   create(data: CreateCampaignRequest) {
     return apiClient.post<Campaign>("/campaigns", data);
   },

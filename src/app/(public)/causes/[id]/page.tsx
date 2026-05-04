@@ -48,10 +48,48 @@ export default function CauseDetailPage({ params }: { params: { id: string } }) 
   );
   const [isSaving, setIsSaving] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
+  const [shareCount, setShareCount] = useState(0);
 
   useEffect(() => {
     setIsSaved(Boolean(campaign && savedCauses?.some((entry) => entry.campaign.id === campaign.id)));
   }, [campaign, savedCauses]);
+
+  useEffect(() => {
+    setShareCount(campaign?.shareCount ?? 0);
+  }, [campaign?.shareCount]);
+
+  async function handleShare() {
+    const shareUrl =
+      typeof window !== "undefined" ? window.location.href : `/causes/${slug}`;
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(shareUrl);
+      } else {
+        // Fallback for older browsers / non-HTTPS contexts where the
+        // Clipboard API is unavailable.
+        const ta = document.createElement("textarea");
+        ta.value = shareUrl;
+        ta.style.position = "fixed";
+        ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+      }
+      toast("Link copied to clipboard", "success");
+    } catch {
+      toast("Couldn't copy link, please copy from the address bar.", "error");
+      return;
+    }
+    setShareCount((c) => c + 1);
+    try {
+      const result = await campaignService.recordShare(slug);
+      setShareCount(result.shareCount);
+    } catch {
+      // Silently swallow — the user already got their copied link;
+      // a failed counter update isn't worth a second toast.
+    }
+  }
 
   if (campaignLoading) {
     return (
@@ -320,11 +358,17 @@ export default function CauseDetailPage({ params }: { params: { id: string } }) 
               </Link>
               <button
                 type="button"
+                onClick={handleShare}
                 className={buttonVariants({ variant: "outline", size: "default", className: "w-full gap-2" })}
-                aria-label="Share this cause"
+                aria-label="Copy share link to clipboard"
               >
                 <ShareIcon className="size-4" />
                 Share this cause
+                {shareCount > 0 && (
+                  <span className="text-caption font-bold text-slate-medium">
+                    · {shareCount}
+                  </span>
+                )}
               </button>
               <button
                 type="button"

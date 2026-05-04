@@ -24,6 +24,7 @@ export interface Campaign {
   creatorId: string;
   goalAmount: number;
   raisedAmount: number;
+  shareCount?: number;
   currency: string;
   coverImageUrl: string | null;
   videoUrl: string | null;
