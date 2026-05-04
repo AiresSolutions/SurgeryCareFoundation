@@ -78,7 +78,7 @@ export default function CampaignReviewPage({ params }: { params: { id: string } 
     setBusyDocId(doc.id);
     try {
       await moderationService.verifyDocument(doc.id);
-      toast(`"${doc.fileName}" verified`, "success");
+      toast("Document verified", "success");
       await refetchCampaign();
     } catch (err) {
       toast(err instanceof Error ? err.message : "Failed to verify document", "error");
@@ -88,12 +88,12 @@ export default function CampaignReviewPage({ params }: { params: { id: string } 
   }
 
   async function handleRejectDocument(doc: CampaignDocument) {
-    const reasonInput = window.prompt(`Reason for rejecting "${doc.fileName}":`);
+    const reasonInput = window.prompt("Reason for rejecting this document:");
     if (!reasonInput || !reasonInput.trim()) return;
     setBusyDocId(doc.id);
     try {
       await moderationService.rejectDocument(doc.id, { reason: reasonInput.trim() });
-      toast(`"${doc.fileName}" rejected`, "success");
+      toast("Document rejected", "success");
       await refetchCampaign();
     } catch (err) {
       toast(err instanceof Error ? err.message : "Failed to reject document", "error");
@@ -364,13 +364,113 @@ export default function CampaignReviewPage({ params }: { params: { id: string } 
                 )}
               </div>
 
-              {/* Documents card */}
+              {/* Documents card — grouped by uploader-chosen fileType so a
+                  scanned hospital report (a JPEG) stays in Reports, not in
+                  Patient Images. Filenames are intentionally hidden — the
+                  preview is what the moderator actually needs to judge. */}
               {(() => {
                 const docs = campaign.documents ?? [];
                 const pendingCount = docs.filter((d) => d.verificationStatus === "pending").length;
+                const images = docs.filter((d) => d.fileType === "patient_image");
+                const videos = docs.filter((d) => d.fileType === "video");
+                const reports = docs.filter((d) => d.fileType === "medical_document");
+
+                const renderItem = (doc: CampaignDocument, kind: "image" | "video" | "report") => {
+                  const statusKey = doc.verificationStatus.toLowerCase();
+                  const statusCfg = DOC_STATUS_CONFIG[statusKey] ?? {
+                    label: doc.verificationStatus,
+                    variant: "outline" as const,
+                  };
+                  const isPending = statusKey === "pending";
+                  const isBusy = busyDocId === doc.id;
+                  const reportIsImage = kind === "report" && doc.mimeType?.startsWith("image/");
+
+                  return (
+                    <div
+                      key={doc.id}
+                      className="rounded-xl border border-surface-border bg-surface-page p-3"
+                    >
+                      <a
+                        href={doc.downloadUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mb-3 block overflow-hidden rounded-lg bg-black/5"
+                      >
+                        {kind === "image" || reportIsImage ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={doc.downloadUrl}
+                            alt=""
+                            className="block max-h-72 w-full object-contain"
+                            loading="lazy"
+                          />
+                        ) : kind === "video" ? (
+                          <video
+                            src={doc.downloadUrl}
+                            controls
+                            preload="metadata"
+                            className="block max-h-72 w-full"
+                          />
+                        ) : (
+                          <div className="flex h-32 items-center justify-center text-4xl">📄</div>
+                        )}
+                      </a>
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <Badge variant={statusCfg.variant} className="text-[10px]">
+                          {statusCfg.label}
+                        </Badge>
+                        {isPending && (
+                          <div className="flex gap-2">
+                            <button
+                              type="button"
+                              onClick={() => handleVerifyDocument(doc)}
+                              disabled={isBusy || isVerifyingAll}
+                              className="rounded-full bg-emerald-600 px-3 py-1.5 text-btn font-bold text-white transition-colors hover:bg-emerald-700 disabled:pointer-events-none disabled:opacity-50"
+                            >
+                              {isBusy ? "..." : "Verify"}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleRejectDocument(doc)}
+                              disabled={isBusy || isVerifyingAll}
+                              className="rounded-full bg-red-600 px-3 py-1.5 text-btn font-bold text-white transition-colors hover:bg-red-700 disabled:pointer-events-none disabled:opacity-50"
+                            >
+                              Reject
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                };
+
+                const renderSection = (
+                  title: string,
+                  items: CampaignDocument[],
+                  kind: "image" | "video" | "report",
+                ) => {
+                  if (items.length === 0) return null;
+                  return (
+                    <div>
+                      <Heading level="h4" as="h3" className="mb-3">
+                        {title} ({items.length})
+                      </Heading>
+                      <div
+                        className={
+                          kind === "report"
+                            ? "space-y-3"
+                            : "grid gap-3 sm:grid-cols-2"
+                        }
+                      >
+                        {items.map((d) => renderItem(d, kind))}
+                      </div>
+                    </div>
+                  );
+                };
+
                 return (
                   <div className="rounded-2xl border border-surface-border bg-white p-6 shadow-card">
-                    <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                    <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
                       <div>
                         <Heading level="h4" as="h3">Documents</Heading>
                         <Text variant="muted" size="label" className="normal-case tracking-normal">
@@ -396,97 +496,11 @@ export default function CampaignReviewPage({ params }: { params: { id: string } 
                         The creator hasn&apos;t uploaded any patient images or medical documents yet.
                       </Text>
                     ) : (
-                      <ul className="divide-y divide-surface-border">
-                        {docs.map((doc) => {
-                          const statusKey = doc.verificationStatus.toLowerCase();
-                          const statusCfg = DOC_STATUS_CONFIG[statusKey] ?? {
-                            label: doc.verificationStatus,
-                            variant: "outline" as const,
-                          };
-                          const isPending = statusKey === "pending";
-                          const isBusy = busyDocId === doc.id;
-                          const isImage = doc.mimeType?.startsWith("image/");
-                          const isVideo = doc.mimeType?.startsWith("video/");
-                          return (
-                            <li key={doc.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
-                              <div className="flex min-w-0 flex-1 items-center gap-3">
-                                {isImage && doc.downloadUrl ? (
-                                  <a
-                                    href={doc.downloadUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="block size-20 shrink-0 overflow-hidden rounded-lg border border-surface-border bg-surface-page"
-                                  >
-                                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                                    <img
-                                      src={doc.downloadUrl}
-                                      alt={doc.fileName}
-                                      className="size-full object-cover"
-                                      loading="lazy"
-                                    />
-                                  </a>
-                                ) : isVideo && doc.downloadUrl ? (
-                                  <video
-                                    src={doc.downloadUrl}
-                                    controls
-                                    preload="metadata"
-                                    className="block h-20 w-32 shrink-0 rounded-lg border border-surface-border bg-black"
-                                  />
-                                ) : (
-                                  <div className="flex size-20 shrink-0 items-center justify-center rounded-lg border border-surface-border bg-surface-page text-2xl">
-                                    📄
-                                  </div>
-                                )}
-                              <div className="min-w-0 flex-1">
-                                <div className="flex items-center gap-2">
-                                  <p className="truncate text-btn font-bold text-primary">
-                                    {doc.fileName}
-                                  </p>
-                                  <Badge variant={statusCfg.variant} className="text-[10px]">
-                                    {statusCfg.label}
-                                  </Badge>
-                                </div>
-                                <Text variant="muted" size="label" className="normal-case tracking-normal">
-                                  {doc.fileType} · {(doc.fileSize / 1024).toFixed(0)} KB
-                                </Text>
-                              </div>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                {doc.downloadUrl && (
-                                  <a
-                                    href={doc.downloadUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="rounded-full border border-surface-border px-3 py-1.5 text-btn font-bold text-slate-medium transition-colors hover:border-accent hover:text-accent"
-                                  >
-                                    View
-                                  </a>
-                                )}
-                                {isPending && (
-                                  <>
-                                    <button
-                                      type="button"
-                                      onClick={() => handleVerifyDocument(doc)}
-                                      disabled={isBusy || isVerifyingAll}
-                                      className="rounded-full bg-emerald-600 px-3 py-1.5 text-btn font-bold text-white transition-colors hover:bg-emerald-700 disabled:pointer-events-none disabled:opacity-50"
-                                    >
-                                      {isBusy ? "..." : "Verify"}
-                                    </button>
-                                    <button
-                                      type="button"
-                                      onClick={() => handleRejectDocument(doc)}
-                                      disabled={isBusy || isVerifyingAll}
-                                      className="rounded-full bg-red-600 px-3 py-1.5 text-btn font-bold text-white transition-colors hover:bg-red-700 disabled:pointer-events-none disabled:opacity-50"
-                                    >
-                                      Reject
-                                    </button>
-                                  </>
-                                )}
-                              </div>
-                            </li>
-                          );
-                        })}
-                      </ul>
+                      <div className="space-y-8">
+                        {renderSection("Patient Images", images, "image")}
+                        {renderSection("Patient Videos", videos, "video")}
+                        {renderSection("Medical Reports", reports, "report")}
+                      </div>
                     )}
                   </div>
                 );
