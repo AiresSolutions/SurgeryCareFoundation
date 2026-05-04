@@ -291,9 +291,17 @@ export default function CauseDetailPage({ params }: { params: { id: string } }) 
           {/* Right — Donation Sidebar */}
           <aside className="lg:col-span-2">
             <div className="sticky top-32 rounded-2xl border border-surface-border bg-white p-6 shadow-card">
-              <p className="mb-1 text-h3 text-primary">
-                &#8377; {formatINR(campaign.raisedAmount)}
-              </p>
+              <div className="mb-1 flex items-baseline justify-between gap-2">
+                <p className="text-h3 text-primary">
+                  &#8377; {formatINR(campaign.raisedAmount)}
+                </p>
+                <p className="text-btn font-black text-accent">
+                  {campaign.goalAmount > 0
+                    ? Math.round((campaign.raisedAmount / campaign.goalAmount) * 100)
+                    : 0}
+                  % funded
+                </p>
+              </div>
               <Text variant="muted" size="label" className="mb-4">
                 Raised of &#8377;{formatINR(campaign.goalAmount)} Goal
               </Text>

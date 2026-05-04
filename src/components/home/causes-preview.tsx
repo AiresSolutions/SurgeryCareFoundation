@@ -20,7 +20,11 @@ function CauseCard({ cause }: { cause: Campaign }) {
     : 0;
 
   return (
-    <Card>
+    <Link
+      href={`/causes/${cause.slug}`}
+      className="block transition-transform hover:-translate-y-1"
+    >
+    <Card className="h-full overflow-hidden">
       {/* Image with overlay */}
       <div className="relative h-56 overflow-hidden bg-surface-page">
         {/* Blurred backdrop fills the dead space around
@@ -79,8 +83,7 @@ function CauseCard({ cause }: { cause: Campaign }) {
         <ProgressBar value={cause.raisedAmount} max={cause.goalAmount} className="mb-4" />
 
         {/* CTA */}
-        <Link
-          href={`/causes/${cause.slug}`}
+        <span
           className={buttonVariants({
             variant: "outline",
             size: "default",
@@ -88,9 +91,10 @@ function CauseCard({ cause }: { cause: Campaign }) {
           })}
         >
           Donate Now
-        </Link>
+        </span>
       </CardContent>
     </Card>
+    </Link>
   );
 }
 

@@ -193,7 +193,12 @@ export default function CausesPage() {
                   (campaign.raisedAmount / campaign.goalAmount) * 100
                 );
                 return (
-                  <Card key={campaign.id}>
+                  <Link
+                    key={campaign.id}
+                    href={`/causes/${campaign.slug}`}
+                    className="block transition-transform hover:-translate-y-1"
+                  >
+                  <Card className="h-full overflow-hidden">
                     <div className="relative h-56 overflow-hidden bg-surface-page">
                       {/* Blurred backdrop fills the dead space around
                           portrait/landscape mismatches so the actual cover
@@ -261,17 +266,17 @@ export default function CausesPage() {
                         max={campaign.goalAmount}
                         className="mb-4"
                       />
-                      <Link
-                        href={`/causes/${campaign.slug}`}
+                      <span
                         className={buttonVariants({
                           variant: "outline",
                           className: "w-full",
                         })}
                       >
                         Donate Now
-                      </Link>
+                      </span>
                     </CardContent>
                   </Card>
+                  </Link>
                 );
               })}
             </div>
