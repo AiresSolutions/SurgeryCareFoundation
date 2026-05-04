@@ -4,10 +4,12 @@ import { useState } from "react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { formatINR } from "@/lib/format";
+import { downloadReceipt } from "@/lib/download-receipt";
 import { Heading } from "@/components/ui/heading";
 import { Text } from "@/components/ui/text";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/components/ui/toast";
 import { CalendarIcon, CheckCircleIcon, ClockIcon, HeartIcon } from "@/components/ui/icons";
 import { useApi } from "@/hooks/use-api";
 import { userService } from "@/services/user.service";
@@ -27,6 +29,8 @@ const STATUS_CONFIG: Record<string, { label: string; variant: "success" | "outli
 
 export default function DonationHistoryPage() {
   const [activeFilter, setActiveFilter] = useState<string>("All");
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
+  const { toast } = useToast();
 
   const params: Record<string, string | number | boolean | undefined> =
     activeFilter === "All" ? {} : { status: activeFilter.toUpperCase() };
@@ -35,6 +39,18 @@ export default function DonationHistoryPage() {
     () => userService.getDonations(params),
     [activeFilter],
   );
+
+  async function handleDownload(donationId: string, receiptNumber?: string) {
+    if (downloadingId) return;
+    setDownloadingId(donationId);
+    try {
+      await downloadReceipt(donationId, receiptNumber ? `receipt-${receiptNumber}.pdf` : undefined);
+    } catch {
+      toast("Couldn't download receipt. Please try again.", "error");
+    } finally {
+      setDownloadingId(null);
+    }
+  }
 
   const donations = data?.items ?? [];
 
@@ -154,9 +170,11 @@ export default function DonationHistoryPage() {
                       {donation.receipt?.receiptNumber ? (
                         <button
                           type="button"
-                          className="text-label text-primary hover:text-accent transition-colors font-bold"
+                          onClick={() => handleDownload(donation.id, donation.receipt?.receiptNumber)}
+                          disabled={downloadingId === donation.id}
+                          className="text-label text-primary hover:text-accent transition-colors font-bold disabled:opacity-50"
                         >
-                          Download Receipt
+                          {downloadingId === donation.id ? "Downloading..." : "Download Receipt"}
                         </button>
                       ) : (
                         <Text variant="muted" size="label" className="normal-case tracking-normal">

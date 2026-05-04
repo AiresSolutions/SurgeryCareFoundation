@@ -13,7 +13,7 @@ const variantStyles: Record<TextVariant, string> = {
   default: "text-slate",
   secondary: "text-slate-medium",
   muted: "text-slate-light",
-  "on-dark": "text-white/78",
+  "on-dark": "text-white/90",
 };
 
 const sizeStyles: Record<TextSize, string> = {

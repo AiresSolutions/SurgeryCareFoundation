@@ -1,17 +1,19 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Heading } from "@/components/ui/heading";
 import { Text } from "@/components/ui/text";
 import { Avatar } from "@/components/ui/avatar";
 import { buttonVariants } from "@/components/ui/button";
+import { useToast } from "@/components/ui/toast";
 import { HeartIcon, GridIcon, BookmarkIcon } from "@/components/ui/icons";
 import { useApi } from "@/hooks/use-api";
 import { useAuth } from "@/context/auth-context";
 import { userService } from "@/services/user.service";
 import { formatINR } from "@/lib/format";
+import { downloadReceipt } from "@/lib/download-receipt";
 import { getDefaultAppRoute } from "@/lib/get-default-app-route";
 import type { PaginatedData } from "@/types/api";
 import type { Donation } from "@/types/donation";
@@ -19,6 +21,8 @@ import type { Donation } from "@/types/donation";
 export default function DashboardPage() {
   const router = useRouter();
   const { user, isLoading: authLoading } = useAuth();
+  const { toast } = useToast();
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const { data, isLoading } = useApi<PaginatedData<Donation>>(
     () => userService.getDonations({ limit: 50, status: "SUCCEEDED" }),
     [],
@@ -27,6 +31,18 @@ export default function DashboardPage() {
     () => userService.getSavedCauses(),
     [],
   );
+
+  async function handleDownload(donationId: string, receiptNumber?: string) {
+    if (downloadingId) return;
+    setDownloadingId(donationId);
+    try {
+      await downloadReceipt(donationId, receiptNumber ? `receipt-${receiptNumber}.pdf` : undefined);
+    } catch {
+      toast("Couldn't download receipt. Please try again.", "error");
+    } finally {
+      setDownloadingId(null);
+    }
+  }
 
   useEffect(() => {
     if (authLoading || !user) {
@@ -108,9 +124,20 @@ export default function DashboardPage() {
                 </div>
                 <div className="text-right">
                   <p className="text-btn font-black text-accent">&#8377; {formatINR(donation.amount)}</p>
-                  <Text variant="muted" size="label" className="normal-case tracking-normal">
-                    {donation.receipt ? "Download Receipt" : "No receipt"}
-                  </Text>
+                  {donation.receipt?.receiptNumber ? (
+                    <button
+                      type="button"
+                      onClick={() => handleDownload(donation.id, donation.receipt?.receiptNumber)}
+                      disabled={downloadingId === donation.id}
+                      className="text-label font-bold uppercase tracking-[1.2px] text-primary transition-colors hover:text-accent disabled:opacity-50"
+                    >
+                      {downloadingId === donation.id ? "Downloading..." : "Download Receipt"}
+                    </button>
+                  ) : (
+                    <Text variant="muted" size="label" className="normal-case tracking-normal">
+                      No receipt
+                    </Text>
+                  )}
                 </div>
               </div>
             ))}

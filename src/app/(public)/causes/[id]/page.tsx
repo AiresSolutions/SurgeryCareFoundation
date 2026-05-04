@@ -161,8 +161,8 @@ export default function CauseDetailPage({ params }: { params: { id: string } }) 
         </Link>
 
         <div className="grid gap-8 lg:grid-cols-5 lg:gap-12">
-          {/* Left — Content */}
-          <div className="lg:col-span-3">
+          {/* Hero — cover, badges, title */}
+          <div className="lg:col-span-3 lg:col-start-1 lg:row-start-1">
             <div className="mb-6">
               <CoverSlideshow
                 slides={(documents ?? []).filter((d) => d.fileType === "patient_image")}
@@ -183,7 +183,82 @@ export default function CauseDetailPage({ params }: { params: { id: string } }) 
             <Heading level="h2" as="h1" className="mb-6">
               {/[.!?]/.test(campaign.title) ? campaign.title : `Help ${campaign.title}`}
             </Heading>
+          </div>
 
+          {/* Donation Sidebar — second in DOM so it appears between title and
+              story on mobile, while desktop pins it to the right column with
+              row-span-2 sticky behavior. */}
+          <aside className="lg:col-span-2 lg:col-start-4 lg:row-span-2 lg:row-start-1">
+            <div className="sticky top-32 rounded-2xl border border-surface-border bg-white p-6 shadow-card">
+              <div className="mb-1 flex items-baseline justify-between gap-2">
+                <p className="text-h3 text-primary">
+                  &#8377; {formatINR(campaign.raisedAmount)}
+                </p>
+                <p className="text-btn font-black text-accent">
+                  {campaign.goalAmount > 0
+                    ? Math.round((campaign.raisedAmount / campaign.goalAmount) * 100)
+                    : 0}
+                  % funded
+                </p>
+              </div>
+              <Text variant="muted" size="label" className="mb-4">
+                Raised of &#8377;{formatINR(campaign.goalAmount)} Goal
+              </Text>
+              <ProgressBar value={campaign.raisedAmount} max={campaign.goalAmount} className="mb-4" />
+
+              <div className="mb-6 flex items-center gap-2">
+                <HeartFilledIcon className="size-4 text-red-500" />
+                <Text variant="secondary">{backers} generous {backers === 1 ? "backer" : "backers"}</Text>
+              </div>
+
+              <Link
+                href={`/causes/${params.id}/checkout`}
+                className={buttonVariants({ variant: "primary", size: "lg", className: "mb-3 w-full" })}
+              >
+                Donate Now
+              </Link>
+              <button
+                type="button"
+                onClick={handleShare}
+                className={buttonVariants({ variant: "outline", size: "default", className: "w-full gap-2" })}
+                aria-label="Copy share link to clipboard"
+              >
+                <ShareIcon className="size-4" />
+                Share this cause
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveCause}
+                disabled={isSaving}
+                className={buttonVariants({
+                  variant: "outline",
+                  size: "default",
+                  className: "mt-3 w-full gap-2",
+                })}
+              >
+                <HeartFilledIcon className={`size-4 ${isSaved ? "text-red-500" : "text-slate-light"}`} />
+                {isSaving ? "Updating..." : isSaved ? "Saved for Later" : "Save Cause"}
+              </button>
+
+              <div className="mt-6 space-y-3 border-t border-surface-border pt-6">
+                <div className="flex items-start gap-3">
+                  <CheckCircleIcon className="mt-0.5 size-5 shrink-0 text-accent" />
+                  <Text variant="secondary">
+                    Funds are securely processed and sent directly to the partnered medical facility.
+                  </Text>
+                </div>
+                <div className="flex items-start gap-3">
+                  <CheckCircleIcon className="mt-0.5 size-5 shrink-0 text-accent" />
+                  <Text variant="secondary">
+                    All cases are 100% verified by our expert medical board.
+                  </Text>
+                </div>
+              </div>
+            </div>
+          </aside>
+
+          {/* Body — story, media, updates */}
+          <div className="lg:col-span-3 lg:col-start-1 lg:row-start-2">
             <div className="space-y-4">
               {campaign.summary && <Text>{campaign.summary}</Text>}
               {campaign.description && (
@@ -328,76 +403,6 @@ export default function CauseDetailPage({ params }: { params: { id: string } }) 
               </div>
             )}
           </div>
-
-          {/* Right — Donation Sidebar */}
-          <aside className="lg:col-span-2">
-            <div className="sticky top-32 rounded-2xl border border-surface-border bg-white p-6 shadow-card">
-              <div className="mb-1 flex items-baseline justify-between gap-2">
-                <p className="text-h3 text-primary">
-                  &#8377; {formatINR(campaign.raisedAmount)}
-                </p>
-                <p className="text-btn font-black text-accent">
-                  {campaign.goalAmount > 0
-                    ? Math.round((campaign.raisedAmount / campaign.goalAmount) * 100)
-                    : 0}
-                  % funded
-                </p>
-              </div>
-              <Text variant="muted" size="label" className="mb-4">
-                Raised of &#8377;{formatINR(campaign.goalAmount)} Goal
-              </Text>
-              <ProgressBar value={campaign.raisedAmount} max={campaign.goalAmount} className="mb-4" />
-
-              <div className="mb-6 flex items-center gap-2">
-                <HeartFilledIcon className="size-4 text-red-500" />
-                <Text variant="secondary">{backers} generous {backers === 1 ? "backer" : "backers"}</Text>
-              </div>
-
-              <Link
-                href={`/causes/${params.id}/checkout`}
-                className={buttonVariants({ variant: "primary", size: "lg", className: "mb-3 w-full" })}
-              >
-                Donate Now
-              </Link>
-              <button
-                type="button"
-                onClick={handleShare}
-                className={buttonVariants({ variant: "outline", size: "default", className: "w-full gap-2" })}
-                aria-label="Copy share link to clipboard"
-              >
-                <ShareIcon className="size-4" />
-                Share this cause
-              </button>
-              <button
-                type="button"
-                onClick={handleSaveCause}
-                disabled={isSaving}
-                className={buttonVariants({
-                  variant: "outline",
-                  size: "default",
-                  className: "mt-3 w-full gap-2",
-                })}
-              >
-                <HeartFilledIcon className={`size-4 ${isSaved ? "text-red-500" : "text-slate-light"}`} />
-                {isSaving ? "Updating..." : isSaved ? "Saved for Later" : "Save Cause"}
-              </button>
-
-              <div className="mt-6 space-y-3 border-t border-surface-border pt-6">
-                <div className="flex items-start gap-3">
-                  <CheckCircleIcon className="mt-0.5 size-5 shrink-0 text-accent" />
-                  <Text variant="secondary">
-                    Funds are securely processed and sent directly to the partnered medical facility.
-                  </Text>
-                </div>
-                <div className="flex items-start gap-3">
-                  <CheckCircleIcon className="mt-0.5 size-5 shrink-0 text-accent" />
-                  <Text variant="secondary">
-                    All cases are 100% verified by our expert medical board.
-                  </Text>
-                </div>
-              </div>
-            </div>
-          </aside>
         </div>
       </Container>
     </section>

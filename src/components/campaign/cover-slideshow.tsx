@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import type { CampaignDocument } from "@/types/campaign";
 
@@ -12,6 +12,8 @@ interface CoverSlideshowProps {
   intervalMs?: number;
 }
 
+const SWIPE_THRESHOLD_PX = 50;
+
 export function CoverSlideshow({
   slides,
   fallbackSrc = "/images/placeholder.jpg",
@@ -19,14 +21,40 @@ export function CoverSlideshow({
   intervalMs = 6000,
 }: CoverSlideshowProps) {
   const [idx, setIdx] = useState(0);
+  const [interactedAt, setInteractedAt] = useState(0);
+  const touchStartX = useRef<number | null>(null);
   const safeSlides = slides.filter((s) => s.downloadUrl);
   const count = safeSlides.length;
 
   useEffect(() => {
     if (count <= 1) return;
-    const t = setTimeout(() => setIdx((i) => (i + 1) % count), intervalMs);
+    const sinceInteraction = Date.now() - interactedAt;
+    const delay = sinceInteraction < intervalMs ? intervalMs - sinceInteraction : intervalMs;
+    const t = setTimeout(() => setIdx((i) => (i + 1) % count), delay);
     return () => clearTimeout(t);
-  }, [idx, count, intervalMs]);
+  }, [idx, count, intervalMs, interactedAt]);
+
+  const goNext = () => {
+    setIdx((i) => (i + 1) % count);
+    setInteractedAt(Date.now());
+  };
+  const goPrev = () => {
+    setIdx((i) => (i - 1 + count) % count);
+    setInteractedAt(Date.now());
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0]?.clientX ?? null;
+  };
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null || count <= 1) return;
+    const endX = e.changedTouches[0]?.clientX ?? touchStartX.current;
+    const dx = endX - touchStartX.current;
+    touchStartX.current = null;
+    if (Math.abs(dx) < SWIPE_THRESHOLD_PX) return;
+    if (dx < 0) goNext();
+    else goPrev();
+  };
 
   // Reset to first slide if the underlying list shrinks
   useEffect(() => {
@@ -50,7 +78,11 @@ export function CoverSlideshow({
   const current = safeSlides[idx]!;
 
   return (
-    <div className="relative h-[300px] overflow-hidden rounded-2xl bg-surface-page md:h-[400px]">
+    <div
+      className="relative h-[300px] touch-pan-y overflow-hidden rounded-2xl bg-surface-page md:h-[400px]"
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+    >
       {/* Blurred backdrop fills the dead space around portrait photos
           instead of leaving harsh black bars. */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -67,7 +99,8 @@ export function CoverSlideshow({
         key={current.id}
         src={current.downloadUrl}
         alt={current.fileName || alt}
-        className="relative size-full object-contain"
+        className="pointer-events-none relative size-full object-contain"
+        draggable={false}
       />
 
 
@@ -76,7 +109,7 @@ export function CoverSlideshow({
           <button
             type="button"
             aria-label="Previous slide"
-            onClick={() => setIdx((i) => (i - 1 + count) % count)}
+            onClick={goPrev}
             className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-black/40 p-2 text-white backdrop-blur transition-colors hover:bg-black/60"
           >
             <svg viewBox="0 0 24 24" fill="none" className="size-5"><path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
@@ -84,7 +117,7 @@ export function CoverSlideshow({
           <button
             type="button"
             aria-label="Next slide"
-            onClick={() => setIdx((i) => (i + 1) % count)}
+            onClick={goNext}
             className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-black/40 p-2 text-white backdrop-blur transition-colors hover:bg-black/60"
           >
             <svg viewBox="0 0 24 24" fill="none" className="size-5"><path d="M9 6L15 12L9 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
@@ -96,7 +129,10 @@ export function CoverSlideshow({
                 key={s.id}
                 type="button"
                 aria-label={`Go to slide ${i + 1}`}
-                onClick={() => setIdx(i)}
+                onClick={() => {
+                  setIdx(i);
+                  setInteractedAt(Date.now());
+                }}
                 className={cn(
                   "size-2 rounded-full transition-all",
                   i === idx ? "w-6 bg-white" : "bg-white/50 hover:bg-white/80",

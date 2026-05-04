@@ -47,7 +47,7 @@ export function Header() {
         className="border-b border-surface-border/50 bg-white/70 shadow-subtle backdrop-blur-md"
         aria-label="Main navigation"
       >
-        <Container className="flex h-24 items-center justify-between">
+        <Container className="flex h-16 items-center justify-between lg:h-24">
           {/* Logo */}
           <Logo />
 
@@ -148,7 +148,7 @@ export function Header() {
                   <Link
                     href={href}
                     className={cn(
-                      "block rounded-lg px-4 py-3 text-nav transition-colors",
+                      "block rounded-lg px-4 py-2.5 text-nav transition-colors",
                       pathname === href
                         ? "bg-surface-green text-accent"
                         : "text-slate hover:bg-surface-page"

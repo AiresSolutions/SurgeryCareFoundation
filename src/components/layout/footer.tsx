@@ -68,8 +68,8 @@ export function Footer() {
       {/* Green blur decoration — bottom right */}
       <div className="pointer-events-none absolute -bottom-20 right-0 h-[433px] w-[624px] rounded-full bg-[rgba(208,250,229,0.5)] blur-[120px]" />
 
-      <Container className="relative py-16">
-        <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-3">
+      <Container className="relative py-10 md:py-16">
+        <div className="grid gap-8 md:grid-cols-2 md:gap-12 lg:grid-cols-3">
           {/* Brand column */}
           <div>
             <div className="mb-4 flex items-baseline gap-2">
@@ -99,7 +99,7 @@ export function Footer() {
 
           {/* Quick Links */}
           <div>
-            <Heading level="h4" as="h2" className="mb-8 text-[20px] tracking-[0.5px]">
+            <Heading level="h4" as="h2" className="mb-4 text-[20px] tracking-[0.5px] md:mb-8">
               Quick Links
             </Heading>
             <ul className="space-y-4" role="list">
@@ -118,7 +118,7 @@ export function Footer() {
 
           {/* Contact */}
           <div>
-            <Heading level="h4" as="h2" className="mb-8 text-[20px] tracking-[0.5px]">
+            <Heading level="h4" as="h2" className="mb-4 text-[20px] tracking-[0.5px] md:mb-8">
               Contact Us
             </Heading>
             <ul className="space-y-5" role="list">
@@ -160,8 +160,8 @@ export function Footer() {
         </div>
 
         {/* Follow Us + Payment */}
-        <div className="mt-12">
-          <div className="mb-8">
+        <div className="mt-8 md:mt-12">
+          <div className="mb-4 md:mb-8">
             <Heading level="h4" as="h3" className="mb-4 text-[20px] tracking-[0.5px]">
               Follow Us
             </Heading>
@@ -173,7 +173,7 @@ export function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={label}
-                  className="inline-flex size-11 items-center justify-center rounded-full border border-surface-border bg-white text-primary shadow-card transition-colors hover:bg-surface-green hover:border-accent/30"
+                  className="inline-flex size-10 items-center justify-center rounded-full border border-surface-border bg-white text-primary shadow-card transition-colors hover:bg-surface-green hover:border-accent/30 md:size-11"
                 >
                   {icon}
                 </a>
@@ -207,7 +207,7 @@ export function Footer() {
 
       {/* Bottom bar — copyright right-aligned */}
       <div className="relative border-t border-surface-border">
-        <Container className="flex items-center justify-between py-8">
+        <Container className="flex items-center justify-between py-5 md:py-8">
           <Link
             href="/privacy-policy"
             className="text-label uppercase tracking-[1.2px] text-slate-light transition-colors hover:text-accent"
