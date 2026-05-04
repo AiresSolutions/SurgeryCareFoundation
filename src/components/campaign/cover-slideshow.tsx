@@ -5,11 +5,10 @@ import { cn } from "@/lib/utils";
 import type { CampaignDocument } from "@/types/campaign";
 
 interface CoverSlideshowProps {
+  // Only image documents — videos belong in their own section below.
   slides: CampaignDocument[];
   fallbackSrc?: string;
   alt: string;
-  // Time on each image slide before auto-advancing (ms). Video slides
-  // pause auto-advance entirely so the visitor can watch.
   intervalMs?: number;
 }
 
@@ -17,7 +16,7 @@ export function CoverSlideshow({
   slides,
   fallbackSrc = "/images/placeholder.jpg",
   alt,
-  intervalMs = 5000,
+  intervalMs = 6000,
 }: CoverSlideshowProps) {
   const [idx, setIdx] = useState(0);
   const safeSlides = slides.filter((s) => s.downloadUrl);
@@ -25,55 +24,41 @@ export function CoverSlideshow({
 
   useEffect(() => {
     if (count <= 1) return;
-    const current = safeSlides[idx];
-    if (current?.mimeType?.startsWith("video/")) return; // don't auto-advance on videos
     const t = setTimeout(() => setIdx((i) => (i + 1) % count), intervalMs);
     return () => clearTimeout(t);
-  }, [idx, count, safeSlides, intervalMs]);
+  }, [idx, count, intervalMs]);
 
-  // Reset to first slide if the underlying list changes (e.g. doc list refetch)
+  // Reset to first slide if the underlying list shrinks
   useEffect(() => {
     if (idx >= count) setIdx(0);
   }, [count, idx]);
 
-  // Empty state — render the same placeholder behaviour as before
+  // Empty state — placeholder fallback
   if (count === 0) {
     return (
-      <div className="relative h-[300px] overflow-hidden rounded-2xl md:h-[400px]">
+      <div className="relative h-[300px] overflow-hidden rounded-2xl bg-surface-page md:h-[400px]">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={fallbackSrc}
           alt={alt}
-          className="size-full object-cover"
+          className="size-full object-contain"
         />
       </div>
     );
   }
 
   const current = safeSlides[idx]!;
-  const isVideo = current.mimeType?.startsWith("video/");
 
   return (
     <div className="relative h-[300px] overflow-hidden rounded-2xl bg-black md:h-[400px]">
-      {isVideo ? (
-        <video
-          key={current.id}
-          src={current.downloadUrl}
-          controls
-          preload="metadata"
-          className="size-full object-contain"
-        >
-          Your browser does not support embedded video.
-        </video>
-      ) : (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          key={current.id}
-          src={current.downloadUrl}
-          alt={current.fileName || alt}
-          className="size-full object-cover"
-        />
-      )}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        key={current.id}
+        src={current.downloadUrl}
+        alt={current.fileName || alt}
+        className="size-full object-contain"
+      />
+
 
       {count > 1 && (
         <>

@@ -130,9 +130,7 @@ export default function CauseDetailPage({ params }: { params: { id: string } }) 
           <div className="lg:col-span-3">
             <div className="mb-6">
               <CoverSlideshow
-                slides={(documents ?? []).filter(
-                  (d) => d.fileType === "patient_image" || d.fileType === "video",
-                )}
+                slides={(documents ?? []).filter((d) => d.fileType === "patient_image")}
                 fallbackSrc={campaign.coverImageUrl || "/images/placeholder.jpg"}
                 alt={campaign.title}
               />
@@ -218,27 +216,50 @@ export default function CauseDetailPage({ params }: { params: { id: string } }) 
                   {reports.length > 0 && (
                     <div>
                       <Heading level="h4" as="h2" className="mb-3">Medical Reports</Heading>
-                      <ul className="space-y-2">
-                        {reports.map((doc) => (
-                          <li key={doc.id}>
-                            <a
-                              href={doc.downloadUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="flex items-center justify-between gap-3 rounded-xl border border-surface-border bg-white px-4 py-3 transition-colors hover:border-accent"
+                      <div className="space-y-4">
+                        {reports.map((doc) => {
+                          const isImage = doc.mimeType?.startsWith("image/");
+                          return (
+                            <div
+                              key={doc.id}
+                              className="overflow-hidden rounded-xl border border-surface-border bg-white"
                             >
-                              <div className="min-w-0">
-                                <p className="truncate text-btn font-bold text-primary">{doc.fileName}</p>
-                                <Text variant="muted" size="label" className="normal-case tracking-normal">
-                                  {(doc.fileSize / 1024).toFixed(0)} KB
-                                  {doc.verificationStatus === "verified" && " • Verified"}
-                                </Text>
-                              </div>
-                              <CheckCircleIcon className="size-5 shrink-0 text-accent" />
-                            </a>
-                          </li>
-                        ))}
-                      </ul>
+                              {isImage && doc.downloadUrl && (
+                                <a
+                                  href={doc.downloadUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="block bg-surface-page"
+                                  aria-label={`Open ${doc.fileName} full size`}
+                                >
+                                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                                  <img
+                                    src={doc.downloadUrl}
+                                    alt={doc.fileName}
+                                    className="max-h-[600px] w-full object-contain"
+                                    loading="lazy"
+                                  />
+                                </a>
+                              )}
+                              <a
+                                href={doc.downloadUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center justify-between gap-3 px-4 py-3 transition-colors hover:bg-surface-page"
+                              >
+                                <div className="min-w-0">
+                                  <p className="truncate text-btn font-bold text-primary">{doc.fileName}</p>
+                                  <Text variant="muted" size="label" className="normal-case tracking-normal">
+                                    {(doc.fileSize / 1024).toFixed(0)} KB
+                                    {doc.verificationStatus === "verified" && " • Verified"}
+                                  </Text>
+                                </div>
+                                <CheckCircleIcon className="size-5 shrink-0 text-accent" />
+                              </a>
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
                   )}
                 </div>
