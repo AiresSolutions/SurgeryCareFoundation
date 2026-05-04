@@ -8,14 +8,13 @@ import { useApi } from "@/hooks/use-api";
 import { publicService } from "@/services/public.service";
 import { formatINR } from "@/lib/format";
 
-const FUNDRAISING_GOAL = 950000;
-
 export function ImpactStats() {
   const { data: stats, isLoading } = useApi(() => publicService.getStats(), []);
 
   const totalRaised = stats?.totalRaised ?? 0;
+  const totalGoal = stats?.totalGoal ?? 0;
   const raisedDisplay = isLoading ? "\u2014" : `\u20B9 ${formatINR(totalRaised)}`;
-  const goalDisplay = `\u20B9 ${formatINR(FUNDRAISING_GOAL)}`;
+  const goalDisplay = isLoading ? "\u2014" : `\u20B9 ${formatINR(totalGoal)}`;
 
   return (
     <section className="relative -mt-16 z-10 pb-8">
@@ -51,7 +50,7 @@ export function ImpactStats() {
 
             <ProgressBar
               value={isLoading ? 0 : totalRaised}
-              max={FUNDRAISING_GOAL}
+              max={totalGoal || 1}
               className="mt-4"
             />
 

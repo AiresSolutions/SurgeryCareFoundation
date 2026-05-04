@@ -53,6 +53,7 @@ export interface ContactFormData {
 
 export interface SiteStats {
   totalRaised: number;
+  totalGoal: number;
   totalDonors: number;
   totalCampaigns: number;
 }
