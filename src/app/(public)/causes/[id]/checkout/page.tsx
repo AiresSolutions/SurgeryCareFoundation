@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { formatINR } from "@/lib/format";
 import { useApi } from "@/hooks/use-api";
@@ -36,6 +36,7 @@ async function loadRazorpayScript() {
 
 export default function CheckoutPage({ params }: { params: { id: string } }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -44,8 +45,21 @@ export default function CheckoutPage({ params }: { params: { id: string } }) {
     [params.id],
   );
 
-  const [selectedAmount, setSelectedAmount] = useState<number>(5000);
-  const [customAmount, setCustomAmount] = useState("");
+  // Honour ?amount= deep-link from the mobile QuickDonateBar. Fall back
+  // to the standard 5000 default if absent or non-positive. Custom amount
+  // wins over preset, matching how the form already disambiguates.
+  const initialAmount = (() => {
+    const raw = searchParams.get("amount");
+    const n = raw ? parseInt(raw, 10) : NaN;
+    return Number.isFinite(n) && n > 0 ? n : 5000;
+  })();
+  const isPresetAmount = (AMOUNTS as readonly number[]).includes(initialAmount);
+  const [selectedAmount, setSelectedAmount] = useState<number>(
+    isPresetAmount ? initialAmount : 5000,
+  );
+  const [customAmount, setCustomAmount] = useState(
+    isPresetAmount ? "" : String(initialAmount === 5000 ? "" : initialAmount),
+  );
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
