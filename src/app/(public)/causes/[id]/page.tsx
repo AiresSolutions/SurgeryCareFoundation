@@ -90,8 +90,9 @@ export default function CauseDetailPage({ params }: { params: { id: string } }) 
         ta.style.opacity = "0";
         document.body.appendChild(ta);
         ta.select();
-        // eslint-disable-next-line @typescript-eslint/no-deprecated
-        document.execCommand("copy");
+        // execCommand is deprecated but it's the only API that works
+        // here; cast bypasses the editor's deprecation hint.
+        (document as { execCommand: (c: string) => boolean }).execCommand("copy");
         document.body.removeChild(ta);
       }
       toast("Link copied to clipboard", "success");
@@ -214,7 +215,7 @@ export default function CauseDetailPage({ params }: { params: { id: string } }) 
                 On short viewports the bottom rows can fall below the
                 sticky region, but the primary CTA at the top stays
                 pinned, which is the important part. */}
-            <div className="sticky top-24 mb-6 rounded-2xl border border-surface-border bg-white p-6 shadow-card">
+            <div className="sticky top-32 mb-6 rounded-2xl border border-surface-border bg-white p-6 shadow-card">
               <div className="mb-1 flex items-baseline justify-between gap-2">
                 <p className="text-h3 text-primary">
                   &#8377; {formatINR(campaign.raisedAmount)}
