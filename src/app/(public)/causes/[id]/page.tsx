@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Container } from "@/components/ui/container";
 import { Heading } from "@/components/ui/heading";
@@ -29,6 +30,16 @@ import {
   extractYouTubeId,
 } from "@/components/campaign/youtube-embed";
 import type { CampaignDocument, CampaignUpdate } from "@/types/campaign";
+
+// Mirror of footer's PAYMENT_METHODS. Duplicated rather than shared
+// because the footer block isn't exported and we want this card to
+// keep working if someone restructures the footer later.
+const SIDEBAR_PAYMENT_METHODS = [
+  { src: "/images/pay-amex.png", alt: "American Express", width: 56 },
+  { src: "/images/pay-upi.png", alt: "UPI", width: 32 },
+  { src: "/images/pay-paytm.png", alt: "Paytm", width: 40 },
+  { src: "/images/pay-visa.png", alt: "Visa", width: 42 },
+] as const;
 
 export default function CauseDetailPage({ params }: { params: { id: string } }) {
   const slug = params.id;
@@ -258,6 +269,32 @@ export default function CauseDetailPage({ params }: { params: { id: string } }) 
                   <Text variant="secondary">
                     All cases are 100% verified by our expert medical board.
                   </Text>
+                </div>
+              </div>
+
+              {/* Payment methods — same set the footer advertises, kept
+                  in sync via the SIDEBAR_PAYMENT_METHODS constant below.
+                  Visible on all viewports so donors see the accepted
+                  methods before tapping Donate. */}
+              <div className="mt-6 border-t border-surface-border pt-6">
+                <Text variant="muted" size="label" className="mb-3 tracking-[1.28px]">
+                  We Accept
+                </Text>
+                <div className="flex flex-wrap gap-2">
+                  {SIDEBAR_PAYMENT_METHODS.map(({ src, alt, width }) => (
+                    <span
+                      key={alt}
+                      className="inline-flex h-9 items-center justify-center rounded-lg border border-surface-subtle bg-white px-2 opacity-90 shadow-card"
+                    >
+                      <Image
+                        src={src}
+                        alt={alt}
+                        width={width}
+                        height={20}
+                        className="object-contain"
+                      />
+                    </span>
+                  ))}
                 </div>
               </div>
             </div>
