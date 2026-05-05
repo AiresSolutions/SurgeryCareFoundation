@@ -82,13 +82,15 @@ export default function CauseDetailPage({ params }: { params: { id: string } }) 
         await navigator.clipboard.writeText(shareUrl);
       } else {
         // Fallback for older browsers / non-HTTPS contexts where the
-        // Clipboard API is unavailable.
+        // Clipboard API is unavailable. execCommand("copy") is
+        // deprecated but it's the only API that works here.
         const ta = document.createElement("textarea");
         ta.value = shareUrl;
         ta.style.position = "fixed";
         ta.style.opacity = "0";
         document.body.appendChild(ta);
         ta.select();
+        // eslint-disable-next-line @typescript-eslint/no-deprecated
         document.execCommand("copy");
         document.body.removeChild(ta);
       }
@@ -158,7 +160,7 @@ export default function CauseDetailPage({ params }: { params: { id: string } }) 
         await userService.saveCause(campaign.id);
         toast("Cause saved for later.");
       }
-      await refetchSavedCauses();
+      refetchSavedCauses();
     } catch (err) {
       toast(err instanceof Error ? err.message : "Unable to update saved causes.", "error");
     } finally {
@@ -206,10 +208,13 @@ export default function CauseDetailPage({ params }: { params: { id: string } }) 
               story on mobile, while desktop pins it to the right column with
               row-span-2 sticky behavior. */}
           <aside className="lg:col-span-2 lg:col-start-4 lg:row-span-2 lg:row-start-1">
-            {/* Sticky card. max-h + internal overflow guards against
-                short viewports where the trust + payments sections
-                would otherwise clip below the fold. */}
-            <div className="hide-scrollbar sticky top-28 max-h-[calc(100vh-12rem)] overflow-y-auto rounded-2xl border border-surface-border bg-white p-6 shadow-card">
+            {/* Sticky card. No max-h or internal scroll — cropping
+                content to fit viewport hid the payments row and the
+                hidden scrollbar gave users no way to discover it.
+                On short viewports the bottom rows can fall below the
+                sticky region, but the primary CTA at the top stays
+                pinned, which is the important part. */}
+            <div className="sticky top-28 rounded-2xl border border-surface-border bg-white p-6 shadow-card">
               <div className="mb-1 flex items-baseline justify-between gap-2">
                 <p className="text-h3 text-primary">
                   &#8377; {formatINR(campaign.raisedAmount)}
