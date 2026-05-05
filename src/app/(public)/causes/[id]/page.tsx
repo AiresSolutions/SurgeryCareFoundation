@@ -209,7 +209,7 @@ export default function CauseDetailPage({ params }: { params: { id: string } }) 
             {/* Sticky card. max-h + internal overflow guards against
                 short viewports where the trust + payments sections
                 would otherwise clip below the fold. */}
-            <div className="sticky top-28 max-h-[calc(100vh-7rem)] overflow-y-auto rounded-2xl border border-surface-border bg-white p-5 shadow-card">
+            <div className="sticky top-28 max-h-[calc(100vh-7rem)] overflow-y-auto rounded-2xl border border-surface-border bg-white p-6 shadow-card">
               <div className="mb-1 flex items-baseline justify-between gap-2">
                 <p className="text-h3 text-primary">
                   &#8377; {formatINR(campaign.raisedAmount)}
@@ -233,7 +233,7 @@ export default function CauseDetailPage({ params }: { params: { id: string } }) 
 
               <Link
                 href={`/causes/${params.id}/checkout`}
-                className={buttonVariants({ variant: "primary", size: "default", className: "mb-2 w-full" })}
+                className={buttonVariants({ variant: "primary", size: "default", className: "mb-3 w-full" })}
               >
                 Donate Now
               </Link>
@@ -253,23 +253,23 @@ export default function CauseDetailPage({ params }: { params: { id: string } }) 
                 className={buttonVariants({
                   variant: "outline",
                   size: "default",
-                  className: "mt-2 w-full gap-2",
+                  className: "mt-3 w-full gap-2",
                 })}
               >
                 <HeartFilledIcon className={`size-4 ${isSaved ? "text-red-500" : "text-slate-light"}`} />
                 {isSaving ? "Updating..." : isSaved ? "Saved for Later" : "Save Cause"}
               </button>
 
-              <div className="mt-4 space-y-2 border-t border-surface-border pt-4">
-                <div className="flex items-start gap-2">
-                  <CheckCircleIcon className="mt-0.5 size-4 shrink-0 text-accent" />
-                  <Text variant="secondary" size="label">
+              <div className="mt-5 space-y-3 border-t border-surface-border pt-5">
+                <div className="flex items-start gap-3">
+                  <CheckCircleIcon className="mt-0.5 size-5 shrink-0 text-accent" />
+                  <Text variant="secondary">
                     Funds are securely processed and sent directly to the partnered medical facility.
                   </Text>
                 </div>
-                <div className="flex items-start gap-2">
-                  <CheckCircleIcon className="mt-0.5 size-4 shrink-0 text-accent" />
-                  <Text variant="secondary" size="label">
+                <div className="flex items-start gap-3">
+                  <CheckCircleIcon className="mt-0.5 size-5 shrink-0 text-accent" />
+                  <Text variant="secondary">
                     All cases are 100% verified by our expert medical board.
                   </Text>
                 </div>
@@ -279,7 +279,7 @@ export default function CauseDetailPage({ params }: { params: { id: string } }) 
                   in sync via the SIDEBAR_PAYMENT_METHODS constant below.
                   Visible on all viewports so donors see the accepted
                   methods before tapping Donate. */}
-              <div className="mt-4 border-t border-surface-border pt-4">
+              <div className="mt-5 border-t border-surface-border pt-5">
                 <Text variant="muted" size="label" className="mb-2 tracking-[1.28px]">
                   We Accept
                 </Text>
