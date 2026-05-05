@@ -189,17 +189,18 @@ export default function CausesPage() {
           <>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {campaigns.map((campaign) => {
-                const pct = Math.round(
-                  (campaign.raisedAmount / campaign.goalAmount) * 100
-                );
+                const pct = campaign.goalAmount > 0
+                  ? Math.min(100, Math.round((campaign.raisedAmount / campaign.goalAmount) * 100))
+                  : 0;
+                const backers = campaign._count?.donations || 0;
                 return (
                   <Link
                     key={campaign.id}
                     href={`/causes/${campaign.slug}`}
-                    className="block transition-transform hover:-translate-y-1"
+                    className="group block focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 rounded-2xl"
                   >
-                  <Card className="h-full overflow-hidden">
-                    <div className="relative h-56 overflow-hidden bg-surface-page">
+                  <Card className="flex h-full flex-col overflow-hidden transition-transform group-hover:-translate-y-1">
+                    <div className="relative aspect-[4/3] overflow-hidden bg-surface-page">
                       {/* Blurred backdrop fills the dead space around
                           portrait/landscape mismatches so the actual cover
                           can stay object-contain (never clipped). */}
@@ -210,70 +211,67 @@ export default function CausesPage() {
                         aria-hidden
                         className="absolute inset-0 size-full scale-110 object-cover blur-2xl"
                       />
+                      <div className="absolute inset-0 bg-black/15" />
                       <Image
                         src={campaign.coverImageUrl || "/images/placeholder.jpg"}
                         alt={campaign.title}
                         fill
-                        className="object-contain"
+                        className="relative object-contain"
                         sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
                       />
-                      <div className="absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-black/60 to-transparent p-4 pt-12">
-                        <p className="text-lg font-black text-white">
-                          {campaign.title}
-                        </p>
-                        <div className="mt-1 flex flex-wrap items-center gap-1.5">
-                          <Badge variant="accent" className="text-caption">
-                            {categoryLabel(campaign.category)}
-                          </Badge>
-                          {campaign.condition && (
-                            <span className="text-caption font-bold text-white/90">
-                              {campaign.condition}
-                            </span>
-                          )}
-                        </div>
+                      <div className="absolute left-3 top-3 z-10">
+                        <Badge variant="accent" className="text-caption shadow-sm">
+                          {categoryLabel(campaign.category)}
+                        </Badge>
                       </div>
                     </div>
-                    <CardContent>
-                      <Text variant="secondary" className="mb-4 line-clamp-2">
-                        {campaign.summary}
-                      </Text>
-                      <div className="mb-1 flex justify-between">
-                        <p className="text-btn font-black text-primary">
-                          &#8377; {formatINR(campaign.raisedAmount)}
-                        </p>
-                        <p className="text-btn font-black text-primary">
-                          {campaign._count?.donations || 0}
-                        </p>
+                    <CardContent className="flex flex-1 flex-col p-5">
+                      <h3 className="mb-1 line-clamp-2 text-btn font-black text-primary transition-colors group-hover:text-accent">
+                        {campaign.title}
+                      </h3>
+                      {campaign.condition && (
+                        <Text variant="muted" size="label" className="mb-3 normal-case tracking-normal line-clamp-1">
+                          {campaign.condition}
+                        </Text>
+                      )}
+                      {campaign.summary && (
+                        <Text variant="secondary" size="body" className="mb-4 line-clamp-2">
+                          {campaign.summary}
+                        </Text>
+                      )}
+
+                      {/* Progress */}
+                      <div className="mt-auto">
+                        <div className="mb-1.5 flex items-baseline justify-between gap-2">
+                          <p className="text-btn font-black text-primary">
+                            &#8377;&nbsp;{formatINR(campaign.raisedAmount)}
+                          </p>
+                          <p className="text-btn font-black text-accent">
+                            {pct}% funded
+                          </p>
+                        </div>
+                        <ProgressBar
+                          value={campaign.raisedAmount}
+                          max={campaign.goalAmount}
+                          className="mb-2"
+                        />
+                        <div className="mb-4 flex items-center justify-between">
+                          <Text variant="muted" size="label" className="normal-case tracking-normal">
+                            of &#8377;&nbsp;{formatINR(campaign.goalAmount)} goal
+                          </Text>
+                          <Text variant="muted" size="label" className="normal-case tracking-normal">
+                            {backers} {backers === 1 ? "backer" : "backers"}
+                          </Text>
+                        </div>
+                        <span
+                          className={buttonVariants({
+                            variant: "secondary",
+                            className: "w-full !text-white hover:!text-white",
+                          })}
+                        >
+                          Donate Now
+                        </span>
                       </div>
-                      <div className="mb-3 flex justify-between">
-                        <Text as="span" variant="muted" size="label">
-                          Raised
-                        </Text>
-                        <Text as="span" variant="muted" size="label">
-                          Backers
-                        </Text>
-                      </div>
-                      <div className="mb-1 flex justify-between">
-                        <Text as="span" variant="muted" size="label">
-                          Goal: &#8377; {formatINR(campaign.goalAmount)}
-                        </Text>
-                        <Text as="span" variant="muted" size="label">
-                          {pct}%
-                        </Text>
-                      </div>
-                      <ProgressBar
-                        value={campaign.raisedAmount}
-                        max={campaign.goalAmount}
-                        className="mb-4"
-                      />
-                      <span
-                        className={buttonVariants({
-                          variant: "outline",
-                          className: "w-full",
-                        })}
-                      >
-                        Donate Now
-                      </span>
                     </CardContent>
                   </Card>
                   </Link>
