@@ -214,7 +214,7 @@ export default function CauseDetailPage({ params }: { params: { id: string } }) 
                 On short viewports the bottom rows can fall below the
                 sticky region, but the primary CTA at the top stays
                 pinned, which is the important part. */}
-            <div className="sticky top-28 rounded-2xl border border-surface-border bg-white p-6 shadow-card">
+            <div className="sticky top-24 mb-6 rounded-2xl border border-surface-border bg-white p-6 shadow-card">
               <div className="mb-1 flex items-baseline justify-between gap-2">
                 <p className="text-h3 text-primary">
                   &#8377; {formatINR(campaign.raisedAmount)}
@@ -271,16 +271,16 @@ export default function CauseDetailPage({ params }: { params: { id: string } }) 
                 {isSaving ? "Updating..." : isSaved ? "Saved for Later" : "Save Cause"}
               </button>
 
-              <div className="mt-5 space-y-3 border-t border-surface-border pt-5">
+              <div className="mt-4 space-y-2 border-t border-surface-border pt-4">
                 <div className="flex items-start gap-3">
                   <CheckCircleIcon className="mt-0.5 size-5 shrink-0 text-accent" />
-                  <Text variant="secondary">
+                  <Text variant="secondary" className="leading-snug">
                     Funds are securely processed and sent directly to the partnered medical facility.
                   </Text>
                 </div>
                 <div className="flex items-start gap-3">
                   <CheckCircleIcon className="mt-0.5 size-5 shrink-0 text-accent" />
-                  <Text variant="secondary">
+                  <Text variant="secondary" className="leading-snug">
                     All cases are 100% verified by our expert medical board.
                   </Text>
                 </div>
@@ -290,7 +290,7 @@ export default function CauseDetailPage({ params }: { params: { id: string } }) 
                   in sync via the SIDEBAR_PAYMENT_METHODS constant below.
                   Visible on all viewports so donors see the accepted
                   methods before tapping Donate. */}
-              <div className="mt-5 border-t border-surface-border pt-5">
+              <div className="mt-4 border-t border-surface-border pt-4">
                 <Text variant="muted" size="label" className="mb-2 tracking-[1.28px]">
                   We Accept
                 </Text>
