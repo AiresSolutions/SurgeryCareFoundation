@@ -7,6 +7,7 @@ import { Heading } from "@/components/ui/heading";
 import { Text } from "@/components/ui/text";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { UrgencyBadge } from "@/components/campaign/urgency-badge";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { buttonVariants } from "@/components/ui/button";
 import { formatINR } from "@/lib/format";
@@ -49,6 +50,12 @@ function CauseCard({ cause }: { cause: Campaign }) {
           className="object-contain"
           sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
         />
+
+        {/* Urgency badge — top-right so it's the first thing the eye
+            catches even before the cover finishes loading. */}
+        <div className="absolute right-3 top-3 z-10">
+          <UrgencyBadge level={cause.urgencyLevel} className="shadow-sm" />
+        </div>
 
         {/* Name & category overlay */}
         <div className="absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-black/60 to-transparent p-4 pt-12">

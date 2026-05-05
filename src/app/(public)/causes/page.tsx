@@ -8,6 +8,7 @@ import { formatINR } from "@/lib/format";
 import { useApi } from "@/hooks/use-api";
 import { campaignService } from "@/services/campaign.service";
 import { CAMPAIGN_CATEGORIES, categoryLabel } from "@/lib/categories";
+import { UrgencyBadge } from "@/components/campaign/urgency-badge";
 import type { CampaignFilters } from "@/types/campaign";
 import { Container } from "@/components/ui/container";
 import { Heading } from "@/components/ui/heading";
@@ -225,10 +226,11 @@ export default function CausesPage() {
                         className="relative object-contain"
                         sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
                       />
-                      <div className="absolute left-3 top-3 z-10">
+                      <div className="absolute left-3 right-3 top-3 z-10 flex items-center justify-between gap-2">
                         <Badge variant="accent" className="text-caption shadow-sm">
                           {categoryLabel(campaign.category)}
                         </Badge>
+                        <UrgencyBadge level={campaign.urgencyLevel} className="shadow-sm" />
                       </div>
                     </div>
                     <CardContent className="flex flex-1 flex-col p-5">

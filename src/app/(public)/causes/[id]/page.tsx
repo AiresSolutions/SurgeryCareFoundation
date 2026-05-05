@@ -18,6 +18,7 @@ import { useAuth } from "@/context/auth-context";
 import { useToast } from "@/components/ui/toast";
 import { formatINR } from "@/lib/format";
 import { categoryLabel } from "@/lib/categories";
+import { UrgencyBadge } from "@/components/campaign/urgency-badge";
 import { CoverSlideshow } from "@/components/campaign/cover-slideshow";
 import { QuickDonateBar } from "@/components/campaign/quick-donate-bar";
 import { DonationPrompt } from "@/components/campaign/donation-prompt";
@@ -193,6 +194,7 @@ export default function CauseDetailPage({ params }: { params: { id: string } }) 
 
             <div className="mb-6 flex flex-wrap items-center gap-3">
               <Badge variant="accent">{categoryLabel(campaign.category)}</Badge>
+              <UrgencyBadge level={campaign.urgencyLevel} />
               {campaign.condition && (
                 <Text variant="secondary" className="font-bold">
                   {campaign.condition}
