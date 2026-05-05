@@ -71,7 +71,7 @@ export function HeroSection() {
               className="mb-10 max-w-md text-white/90"
             >
               We connect patients to top hospitals across India for high-quality
-              treatment &mdash; and raise funds so that no family has to delay
+              treatment, and raise funds so that no family has to delay
               life-saving surgery for cost.
             </Text>
 

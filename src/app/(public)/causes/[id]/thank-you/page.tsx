@@ -20,7 +20,7 @@ export default function ThankYouPage() {
   async function handleShare() {
     const shareUrl =
       typeof window !== "undefined" ? `${window.location.origin}/causes` : "/causes";
-    const shareText = "I just donated to a life-saving surgery on Surgery Care Foundation. Join me — every contribution helps a patient get the care they need.";
+    const shareText = "I just donated to a life-saving surgery on Surgery Care Foundation. Join me. Every contribution helps a patient get the care they need.";
     try {
       if (typeof navigator !== "undefined" && typeof navigator.share === "function") {
         await navigator.share({

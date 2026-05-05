@@ -50,7 +50,7 @@ export function MissionSection() {
               Surgery Care partners with top hospitals across India to bring
               high-quality treatment to every class of patient. For families
               who cannot afford care, we raise the funds needed and complete
-              the treatment at no cost &mdash; staying with the patient end to end.
+              the treatment at no cost, staying with the patient end to end.
             </Text>
 
             {/* Callout */}
@@ -59,7 +59,7 @@ export function MissionSection() {
                 <CheckCircleIcon className="size-6 text-accent" />
               </span>
               <p className="text-btn-lg font-bold text-primary">
-                The patient always comes first &mdash; from first consult to full recovery.
+                The patient always comes first, from first consult to full recovery.
               </p>
             </div>
 

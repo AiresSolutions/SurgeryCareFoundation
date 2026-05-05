@@ -22,7 +22,7 @@ const VISION_POINTS = [
   "Working with top hospitals across India to ensure good-quality treatment.",
   "Providing the best quality of healthcare to every class of patient.",
   "Operating as a team that puts patient benefit above individual contribution.",
-  "Enhancing community health in cooperation with other organisations &mdash; locally and globally.",
+  "Enhancing community health in cooperation with other organisations, locally and globally.",
 ] as const;
 
 const HOW_WE_WORK = [
@@ -115,7 +115,7 @@ const HOSPITAL_BENEFITS = [
   "Generate additional revenue and patient volume.",
   "Add to the existing patient count without extra acquisition cost.",
   "Reach an exclusive crowd of patients across India.",
-  "Contribute to social cause &mdash; quality treatment for non-affordable patients.",
+  "Contribute to social cause: quality treatment for non-affordable patients.",
   "A win-win partnership for both hospitals and patients.",
   "Grow economically alongside Surgery Care.",
 ] as const;
@@ -126,7 +126,7 @@ export default function AboutPage() {
       <PageHero
         title="More Care."
         highlight="Less Cost."
-        subtitle="Surgery Care connects patients to top hospitals across India and ensures every patient — affordable or not — receives high-quality surgical treatment."
+        subtitle="Surgery Care connects patients to top hospitals across India and ensures every patient, affordable or not, receives high-quality surgical treatment."
       />
 
       <ImpactStats />
@@ -163,7 +163,7 @@ export default function AboutPage() {
               <Text variant="secondary" size="body-lg" className="mb-10">
                 As a healthcare-focused organisation, our main focus is to improve the
                 health of every patient by consulting and treating them at top hospitals
-                with strong team coordination &mdash; for both affordable and
+                with strong team coordination, for both affordable and
                 non-affordable patients alike.
               </Text>
 
@@ -295,7 +295,7 @@ export default function AboutPage() {
             </Heading>
             <Text variant="secondary" size="body-lg">
               Surgery Care drives additional patient volume, reaches new
-              segments and supports a strong social mission &mdash; while our
+              segments and supports a strong social mission, while our
               partner hospitals deliver the clinical care.
             </Text>
           </div>
@@ -357,7 +357,7 @@ export default function AboutPage() {
                 Integrity
               </Heading>
               <Text variant="secondary">
-                Fairness and self-scrutiny in everything we do &mdash; the ideal
+                Fairness and self-scrutiny in everything we do. The ideal
                 way to protect patient safety, confidentiality and privacy.
               </Text>
             </div>

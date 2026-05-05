@@ -89,8 +89,8 @@ export function ImpactStats() {
             </Heading>
 
             <Text variant="default" className="text-[18px] leading-[29.25px]">
-              Every donation funds a verified surgical case at a partnered hospital
-              &mdash; from paediatric cleft and burn repairs to spina bifida,
+              Every donation funds a verified surgical case at a partnered hospital,
+              from paediatric cleft and burn repairs to spina bifida,
               hydrocephalus, and oncology. We stay with each patient from
               counselling through recovery.
             </Text>

@@ -17,7 +17,7 @@ const FAQ_ITEMS: FaqItem[] = [
   {
     question: "What does Surgery Care actually do?",
     answer:
-      "We connect patients to top hospitals across India for high-quality surgical care. For patients who can afford treatment, we offer curated packages and on-call coordination. For patients who cannot, we raise the required funds and complete the treatment at no cost — staying with each patient from counselling through recovery.",
+      "We connect patients to top hospitals across India for high-quality surgical care. For patients who can afford treatment, we offer curated packages and on-call coordination. For patients who cannot, we raise the required funds and complete the treatment at no cost, staying with each patient from counselling through recovery.",
   },
   {
     question: "How do you choose the hospitals you work with?",
@@ -27,7 +27,7 @@ const FAQ_ITEMS: FaqItem[] = [
   {
     question: "What kinds of cases do you support?",
     answer:
-      "We support a wide range of paediatric and adult surgical conditions — including burns, cleft lip and palate, cystic hygroma, meningomyelocele, encephalocele, hydrocephalus, omphalocele, bladder exstrophy, neuroblastoma, neurofibromatosis, and visible oncology cases.",
+      "We support a wide range of paediatric and adult surgical conditions, including burns, cleft lip and palate, cystic hygroma, meningomyelocele, encephalocele, hydrocephalus, omphalocele, bladder exstrophy, neuroblastoma, neurofibromatosis, and visible oncology cases.",
   },
   {
     question: "How are donations used and tracked?",
@@ -37,7 +37,7 @@ const FAQ_ITEMS: FaqItem[] = [
   {
     question: "Are insurance and cash patients welcome too?",
     answer:
-      "Yes. Affordable patients receive exclusive package pricing for insurance holders and cash payers, plus on-call assistance for hospital coordination — the same end-to-end support we extend to every patient.",
+      "Yes. Affordable patients receive exclusive package pricing for insurance holders and cash payers, plus on-call assistance for hospital coordination, the same end-to-end support we extend to every patient.",
   },
 ];
 
