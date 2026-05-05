@@ -8,7 +8,7 @@ import { Text } from "@/components/ui/text";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { MailIcon, PhoneIcon, MapPinIcon, SendIcon } from "@/components/ui/icons";
+import { PhoneIcon, MapPinIcon, SendIcon } from "@/components/ui/icons";
 import { useToast } from "@/components/ui/toast";
 import { contactService } from "@/services/contact.service";
 
@@ -110,67 +110,6 @@ export default function ContactPage() {
 
             {/* Contact Info */}
             <div className="space-y-6 lg:w-[400px]">
-              {/* General Email */}
-              <div className="flex items-start gap-6 rounded-[32px] border border-surface-subtle bg-white p-8 shadow-[0px_10px_40px_0px_rgba(0,0,0,0.04)]">
-                <span className="flex size-16 shrink-0 items-center justify-center rounded-full bg-surface-green">
-                  <MailIcon className="size-7 text-accent" />
-                </span>
-                <div>
-                  <Heading level="h4" as="h3" className="mb-1 text-[20px]">
-                    Email Us
-                  </Heading>
-                  <Text variant="secondary" className="mb-3 text-[15px]">
-                    We&apos;ll respond within 24 hours.
-                  </Text>
-                  <ul className="space-y-2 text-[15px] font-bold">
-                    <li>
-                      <Text as="span" size="label" variant="muted" className="mr-2 uppercase tracking-[1px]">
-                        General
-                      </Text>
-                      <a
-                        href="mailto:info@surgerycarefoundation.com"
-                        className="text-accent transition-colors hover:text-accent-green"
-                      >
-                        info@surgerycarefoundation.com
-                      </a>
-                    </li>
-                    <li>
-                      <Text as="span" size="label" variant="muted" className="mr-2 uppercase tracking-[1px]">
-                        HR
-                      </Text>
-                      <a
-                        href="mailto:hr@surgerycarefoundation.com"
-                        className="text-accent transition-colors hover:text-accent-green"
-                      >
-                        hr@surgerycarefoundation.com
-                      </a>
-                    </li>
-                    <li>
-                      <Text as="span" size="label" variant="muted" className="mr-2 uppercase tracking-[1px]">
-                        Director
-                      </Text>
-                      <a
-                        href="mailto:naim.diwan@surgerycarefoundation.com"
-                        className="text-accent transition-colors hover:text-accent-green"
-                      >
-                        naim.diwan@surgerycarefoundation.com
-                      </a>
-                    </li>
-                    <li>
-                      <Text as="span" size="label" variant="muted" className="mr-2 uppercase tracking-[1px]">
-                        Director
-                      </Text>
-                      <a
-                        href="mailto:vinay.jawle@surgerycarefoundation.com"
-                        className="text-accent transition-colors hover:text-accent-green"
-                      >
-                        vinay.jawle@surgerycarefoundation.com
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-
               {/* Phone */}
               <div className="flex items-start gap-6 rounded-[32px] border border-surface-subtle bg-white p-8 shadow-[0px_10px_40px_0px_rgba(0,0,0,0.04)]">
                 <span className="flex size-16 shrink-0 items-center justify-center rounded-full bg-surface-green">
