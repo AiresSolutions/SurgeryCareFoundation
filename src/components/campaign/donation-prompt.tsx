@@ -106,22 +106,34 @@ export function DonationPrompt({
           </svg>
         </button>
 
-        <div className="relative h-56 w-full bg-surface-page">
+        <div className="relative h-56 w-full overflow-hidden bg-surface-page">
           {coverImageUrl ? (
-            <Image
-              src={coverImageUrl}
-              alt={patientName}
-              fill
-              className="object-cover"
-              sizes="(min-width: 640px) 28rem, 100vw"
-              priority={false}
-            />
+            <>
+              {/* Blurred backdrop fills the dead space around portrait
+                  shots so the actual image can stay object-contain
+                  (never clipped) — same trick the cause cards use. */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={coverImageUrl}
+                alt=""
+                aria-hidden
+                className="absolute inset-0 size-full scale-110 object-cover blur-2xl"
+              />
+              <Image
+                src={coverImageUrl}
+                alt={patientName}
+                fill
+                className="object-contain"
+                sizes="(min-width: 640px) 28rem, 100vw"
+                priority={false}
+              />
+            </>
           ) : (
             <div className="flex size-full items-center justify-center text-slate-light">
               No image
             </div>
           )}
-          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-4">
+          <div className="absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-black/80 to-transparent p-4">
             <p className="text-h4 font-black text-white">
               Your donation can save {patientName}&apos;s life
             </p>
