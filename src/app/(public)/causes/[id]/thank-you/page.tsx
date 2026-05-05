@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { formatINR } from "@/lib/format";
@@ -16,6 +17,17 @@ export default function ThankYouPage() {
   const status = searchParams.get("status");
   const amount = amountParam ? parseInt(amountParam, 10) : null;
   const { toast } = useToast();
+
+  useEffect(() => {
+    if (status !== "success") return;
+    const fbq = (window as unknown as { fbq?: (...args: unknown[]) => void }).fbq;
+    if (typeof fbq !== "function") return;
+    if (amount && amount > 0) {
+      fbq("track", "Purchase", { value: amount, currency: "INR" });
+    } else {
+      fbq("track", "Purchase");
+    }
+  }, [status, amount]);
 
   async function handleShare() {
     const shareUrl =
