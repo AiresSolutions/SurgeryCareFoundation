@@ -209,7 +209,7 @@ export default function CauseDetailPage({ params }: { params: { id: string } }) 
             {/* Sticky card. max-h + internal overflow guards against
                 short viewports where the trust + payments sections
                 would otherwise clip below the fold. */}
-            <div className="sticky top-28 max-h-[calc(100vh-9rem)] overflow-y-auto rounded-2xl border border-surface-border bg-white p-6 shadow-card [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <div className="hide-scrollbar sticky top-28 max-h-[calc(100vh-12rem)] overflow-y-auto rounded-2xl border border-surface-border bg-white p-6 shadow-card">
               <div className="mb-1 flex items-baseline justify-between gap-2">
                 <p className="text-h3 text-primary">
                   &#8377; {formatINR(campaign.raisedAmount)}

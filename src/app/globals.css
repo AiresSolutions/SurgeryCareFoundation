@@ -2,6 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer utilities {
+  /* Hide native scrollbar across browsers while keeping the element
+     scrollable. Used by sticky cards where a visible scrollbar would
+     clutter the layout. */
+  .hide-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 @layer base {
   body {
     @apply font-sans text-body text-slate antialiased bg-white;
