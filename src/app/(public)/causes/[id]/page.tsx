@@ -18,6 +18,8 @@ import { useToast } from "@/components/ui/toast";
 import { formatINR } from "@/lib/format";
 import { categoryLabel } from "@/lib/categories";
 import { CoverSlideshow } from "@/components/campaign/cover-slideshow";
+import { QuickDonateBar } from "@/components/campaign/quick-donate-bar";
+import { DonationPrompt } from "@/components/campaign/donation-prompt";
 import {
   CampaignStory,
   descriptionHasInlineMedia,
@@ -154,7 +156,7 @@ export default function CauseDetailPage({ params }: { params: { id: string } }) 
   }
 
   return (
-    <section className="py-8 md:py-12">
+    <section className="py-8 pb-40 md:py-12 lg:pb-12">
       <Container>
         {/* Back link */}
         <Link
@@ -418,6 +420,16 @@ export default function CauseDetailPage({ params }: { params: { id: string } }) 
           </div>
         </div>
       </Container>
+      <QuickDonateBar slug={slug} />
+      <DonationPrompt
+        slug={slug}
+        patientName={campaign.medicalDetails?.patientName || campaign.title}
+        coverImageUrl={campaign.coverImageUrl}
+        onShare={handleShare}
+        onSave={handleSaveCause}
+        isSaved={isSaved}
+        isSaving={isSaving}
+      />
     </section>
   );
 }

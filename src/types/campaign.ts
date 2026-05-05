@@ -36,6 +36,8 @@ export interface Campaign {
   updatedAt: string;
   creator?: { id: string; firstName: string; lastName: string };
   documents?: CampaignDocument[];
+  medicalDetails?: MedicalDetails | null;
+  hospitalDetails?: HospitalDetails | null;
   _count?: { donations: number };
 }
 
