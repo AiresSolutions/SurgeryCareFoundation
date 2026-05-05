@@ -11,7 +11,11 @@ export function ProgressBar({
   className,
   ...props
 }: ProgressBarProps) {
-  const percentage = Math.min(Math.max((value / max) * 100, 0), 100);
+  const rawPct = Math.min(Math.max((value / max) * 100, 0), 100);
+  // When something has been raised but the ratio is so small it would
+  // be sub-pixel (e.g. ₹20 of a ₹15,00,000 goal), force a small visible
+  // sliver. Keeps the bar honest: 0 raised = empty, anything > 0 shows.
+  const displayPct = value > 0 && rawPct < 1.5 ? 1.5 : rawPct;
 
   return (
     <div
@@ -24,7 +28,7 @@ export function ProgressBar({
     >
       <div
         className="h-full rounded-full bg-cta-gradient transition-all duration-500 ease-out"
-        style={{ width: `${percentage}%` }}
+        style={{ width: `${displayPct}%` }}
       />
     </div>
   );

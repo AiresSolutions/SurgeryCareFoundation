@@ -15,9 +15,14 @@ import { campaignService } from "@/services/campaign.service";
 import type { Campaign } from "@/types/campaign";
 
 function CauseCard({ cause }: { cause: Campaign }) {
-  const percentage = cause.goalAmount > 0
-    ? Math.round((cause.raisedAmount / cause.goalAmount) * 100)
-    : 0;
+  // "<1%" instead of "0%" when something has been raised but rounding
+  // hides it (e.g. ₹20 of a ₹15L goal). Matches the cause listing card.
+  const percentageLabel = (() => {
+    if (cause.goalAmount <= 0) return "0%";
+    const raw = (cause.raisedAmount / cause.goalAmount) * 100;
+    if (cause.raisedAmount > 0 && raw < 1) return "<1%";
+    return `${Math.min(100, Math.round(raw))}%`;
+  })();
 
   return (
     <Link
@@ -78,7 +83,7 @@ function CauseCard({ cause }: { cause: Campaign }) {
           <Text as="span" variant="muted" size="label">
             Goal: &#8377; {formatINR(cause.goalAmount)}
           </Text>
-          <Text as="span" variant="muted" size="label">{percentage}%</Text>
+          <Text as="span" variant="muted" size="label">{percentageLabel}</Text>
         </div>
         <ProgressBar value={cause.raisedAmount} max={cause.goalAmount} className="mb-4" />
 

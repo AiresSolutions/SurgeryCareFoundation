@@ -220,10 +220,16 @@ export default function CauseDetailPage({ params }: { params: { id: string } }) 
                   &#8377; {formatINR(campaign.raisedAmount)}
                 </p>
                 <p className="text-btn font-black text-accent">
-                  {campaign.goalAmount > 0
-                    ? Math.round((campaign.raisedAmount / campaign.goalAmount) * 100)
-                    : 0}
-                  % funded
+                  {(() => {
+                    if (campaign.goalAmount <= 0) return "0% funded";
+                    const pct = (campaign.raisedAmount / campaign.goalAmount) * 100;
+                    // Avoid showing "0% funded" when something has been
+                    // raised but rounding hides it. Anything below 1
+                    // becomes "<1%" so donors see their contribution
+                    // registered even on huge goals.
+                    if (campaign.raisedAmount > 0 && pct < 1) return "<1% funded";
+                    return `${Math.round(pct)}% funded`;
+                  })()}
                 </p>
               </div>
               <Text variant="muted" size="label" className="mb-3">

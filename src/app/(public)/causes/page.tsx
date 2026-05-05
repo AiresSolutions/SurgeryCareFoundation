@@ -189,9 +189,15 @@ export default function CausesPage() {
           <>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {campaigns.map((campaign) => {
-                const pct = campaign.goalAmount > 0
-                  ? Math.min(100, Math.round((campaign.raisedAmount / campaign.goalAmount) * 100))
-                  : 0;
+                // pctLabel surfaces "<1%" for tiny ratios so a ₹20
+                // donation against a ₹15L goal still reads as funded
+                // rather than a misleading "0%".
+                const pctLabel = (() => {
+                  if (campaign.goalAmount <= 0) return "0%";
+                  const raw = (campaign.raisedAmount / campaign.goalAmount) * 100;
+                  if (campaign.raisedAmount > 0 && raw < 1) return "<1%";
+                  return `${Math.min(100, Math.round(raw))}%`;
+                })();
                 const backers = campaign._count?.donations || 0;
                 return (
                   <Link
@@ -247,7 +253,7 @@ export default function CausesPage() {
                             &#8377;&nbsp;{formatINR(campaign.raisedAmount)}
                           </p>
                           <p className="text-btn font-black text-accent">
-                            {pct}% funded
+                            {pctLabel} funded
                           </p>
                         </div>
                         <ProgressBar
