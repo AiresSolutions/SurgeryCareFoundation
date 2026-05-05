@@ -37,8 +37,10 @@ export function QuickDonateBar({ slug }: QuickDonateBarProps) {
     <div className="fixed inset-x-0 bottom-0 z-40 border-t border-surface-border bg-primary shadow-[0_-8px_24px_rgba(0,0,0,0.18)] lg:hidden">
       <div className="mx-auto max-w-screen-md px-4 py-3">
         {/* Preset chips — scrollable so we can offer more options without
-            wrapping or shrinking too small to tap. */}
-        <div className="mb-3 flex gap-2 overflow-x-auto pb-1">
+            wrapping or shrinking too small to tap. pb-2 leaves room for
+            the native scrollbar (when shown on iOS Safari etc) so it
+            doesn't crowd the chips. */}
+        <div className="mb-3 flex gap-2 overflow-x-auto pb-2">
           {PRESETS.map((amt) => {
             const isActive = !hasValidCustom && selected === amt;
             return (
@@ -64,7 +66,7 @@ export function QuickDonateBar({ slug }: QuickDonateBarProps) {
         {/* Amount input + Donate, side by side. */}
         <div className="flex items-stretch gap-2">
           <div className="flex flex-1 items-center gap-2 rounded-full border border-white/30 bg-white/5 px-4 focus-within:border-accent">
-            <span className="text-btn font-bold text-white">&#8377; INR</span>
+            <span className="text-btn-lg font-bold text-white">&#8377;</span>
             <span className="h-5 w-px bg-white/30" aria-hidden />
             <input
               type="number"

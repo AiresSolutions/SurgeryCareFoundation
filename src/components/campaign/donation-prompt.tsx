@@ -17,8 +17,8 @@ interface DonationPromptProps {
   isSaving: boolean;
 }
 
-const SHOW_AFTER_MS = 25_000;
-const THROTTLE_MS = 24 * 60 * 60 * 1000;
+const SHOW_AFTER_MS = 20_000;
+const THROTTLE_MS = 6 * 60 * 60 * 1000;
 const STORAGE_KEY_PREFIX = "donation_prompt_dismissed:";
 
 function readDismissedAt(slug: string): number {
