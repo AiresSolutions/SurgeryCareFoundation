@@ -22,6 +22,10 @@ import {
   CampaignStory,
   descriptionHasInlineMedia,
 } from "@/components/campaign/campaign-story";
+import {
+  YouTubeEmbed,
+  extractYouTubeId,
+} from "@/components/campaign/youtube-embed";
 import type { CampaignDocument, CampaignUpdate } from "@/types/campaign";
 
 export default function CauseDetailPage({ params }: { params: { id: string } }) {
@@ -259,6 +263,15 @@ export default function CauseDetailPage({ params }: { params: { id: string } }) 
 
           {/* Body — story, media, updates */}
           <div className="lg:col-span-3 lg:col-start-1 lg:row-start-2">
+            {campaign.videoUrl && extractYouTubeId(campaign.videoUrl) && (
+              <div className="mb-6">
+                <Heading level="h4" as="h2" className="mb-3">
+                  Watch the Story
+                </Heading>
+                <YouTubeEmbed url={campaign.videoUrl} title={campaign.title} />
+              </div>
+            )}
+
             <div className="space-y-4">
               {campaign.summary && <Text>{campaign.summary}</Text>}
               {campaign.description && (
