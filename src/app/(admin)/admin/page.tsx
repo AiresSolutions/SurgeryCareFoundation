@@ -12,7 +12,6 @@ import {
   YAxis,
   Tooltip,
   CartesianGrid,
-  Legend,
   Cell,
 } from "recharts";
 import { useAuth } from "@/context/auth-context";
