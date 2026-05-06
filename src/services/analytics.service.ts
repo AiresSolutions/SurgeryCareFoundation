@@ -38,6 +38,51 @@ interface AnalyticsFilters {
   groupBy?: "day" | "week" | "month";
 }
 
+export interface AnalyticsOverview {
+  kpis: {
+    totalRaised: number;
+    totalDonations: number;
+    totalDonors: number;
+    activeCampaigns: number;
+    urgentCampaigns: number;
+    totalCampaigns: number;
+    pendingWithdrawals: number;
+    conversionRate30d: number;
+  };
+  deltas: {
+    raisedToday: number;
+    donationsToday: number;
+    raisedYesterday: number;
+    donationsYesterday: number;
+    raisedThisWeek: number;
+    donationsThisWeek: number;
+    raisedLastWeek: number;
+    donationsLastWeek: number;
+  };
+  statusBreakdown30d: Array<{ status: string; count: number; total: number }>;
+  timeseries30d: Array<{ day: string; raised: number; donations: number }>;
+  topCampaigns: Array<{
+    id: string;
+    slug: string;
+    title: string;
+    status: string;
+    urgencyLevel: string | null;
+    goalAmount: number;
+    raisedAmount: number;
+    pct: number;
+  }>;
+  recentDonations: Array<{
+    id: string;
+    amount: number;
+    currency: string;
+    status: string;
+    donorName: string | null;
+    isAnonymous: boolean;
+    createdAt: string;
+    campaign: { id: string; slug: string; title: string };
+  }>;
+}
+
 export const analyticsService = {
   getDashboard(filters?: Pick<AnalyticsFilters, "startDate" | "endDate">) {
     return apiClient.get<DashboardAnalytics>("/analytics/dashboard", {
@@ -55,5 +100,9 @@ export const analyticsService = {
     return apiClient.get<CampaignAnalytics>("/analytics/campaigns", {
       params: filters as Record<string, string | number | boolean | undefined>,
     });
+  },
+
+  getOverview() {
+    return apiClient.get<AnalyticsOverview>("/analytics/overview");
   },
 };
