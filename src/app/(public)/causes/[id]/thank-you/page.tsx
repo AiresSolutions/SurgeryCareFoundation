@@ -15,6 +15,7 @@ export default function ThankYouPage() {
   const searchParams = useSearchParams();
   const amountParam = searchParams.get("amount");
   const status = searchParams.get("status");
+  const donationId = searchParams.get("donationId");
   const amount = amountParam ? parseInt(amountParam, 10) : null;
   const { toast } = useToast();
 
@@ -22,12 +23,13 @@ export default function ThankYouPage() {
     if (status !== "success") return;
     const fbq = (window as unknown as { fbq?: (...args: unknown[]) => void }).fbq;
     if (typeof fbq !== "function") return;
+    const opts = donationId ? { eventID: donationId } : undefined;
     if (amount && amount > 0) {
-      fbq("track", "Purchase", { value: amount, currency: "INR" });
+      fbq("track", "Purchase", { value: amount, currency: "INR" }, opts);
     } else {
-      fbq("track", "Purchase");
+      fbq("track", "Purchase", {}, opts);
     }
-  }, [status, amount]);
+  }, [status, amount, donationId]);
 
   async function handleShare() {
     const shareUrl =
