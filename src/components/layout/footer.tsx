@@ -3,7 +3,7 @@ import Image from "next/image";
 import { Container } from "@/components/ui/container";
 import { Heading } from "@/components/ui/heading";
 import { Text } from "@/components/ui/text";
-import { MailIcon, PhoneIcon, MapPinIcon, ArrowRightIcon } from "@/components/ui/icons";
+import { MailIcon, PhoneIcon, MapPinIcon, ArrowRightIcon, ShieldCheckIcon } from "@/components/ui/icons";
 
 const QUICK_LINKS = [
   { href: "/about", label: "About Us" },
@@ -77,6 +77,18 @@ export function Footer() {
               transparently to support life-saving treatment with compassion
               and trust.
             </Text>
+
+            <div className="mb-6 flex flex-wrap gap-x-3 gap-y-2">
+              {["Registered NGO", "12A", "80G"].map((label) => (
+                <span
+                  key={label}
+                  className="inline-flex items-center gap-1.5 rounded-full bg-surface-green px-3 py-1 text-caption font-bold uppercase tracking-[1px] text-accent"
+                >
+                  <ShieldCheckIcon className="size-3.5" />
+                  {label}
+                </span>
+              ))}
+            </div>
 
             <Link
               href="/about"
