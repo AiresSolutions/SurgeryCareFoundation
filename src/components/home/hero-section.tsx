@@ -5,6 +5,7 @@ import { Heading } from "@/components/ui/heading";
 import { Text } from "@/components/ui/text";
 import { buttonVariants } from "@/components/ui/button";
 import { ArrowRightIcon } from "@/components/ui/icons";
+import { RotatingTagline } from "./rotating-tagline";
 
 const HERO_IMAGES = [
   {
@@ -48,11 +49,11 @@ export function HeroSection() {
         <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
           {/* ── Left Column: Text Content ──────────────── */}
           <div>
-            {/* Pill badge */}
-            <div className="mb-8 inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-5 py-2 shadow-pill">
-              <span className="size-2 rounded-full bg-accent-mint" />
+            {/* Pill badge — rotating tagline */}
+            <div className="mb-8 inline-flex max-w-full items-center gap-3 rounded-full border border-white/10 bg-white/5 px-5 py-2 shadow-pill">
+              <span className="size-2 shrink-0 rounded-full bg-accent-mint" />
               <span className="text-label uppercase text-white">
-                More Care. Less Cost.
+                <RotatingTagline />
               </span>
             </div>
 
