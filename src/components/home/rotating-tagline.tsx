@@ -26,7 +26,7 @@ export function RotatingTagline() {
 
   return (
     <span
-      className="grid"
+      className="grid items-center"
       aria-live="polite"
       aria-atomic="true"
     >
