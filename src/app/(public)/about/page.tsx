@@ -49,13 +49,21 @@ const CONDITIONS = [
   },
 ] as const;
 
-const VISION_POINTS = [
-  "Dedicated to advancing the health and transforming the lives of the people we serve.",
-  "Working with top hospitals across India to ensure good-quality treatment.",
-  "Providing the best quality of healthcare to every class of patient.",
-  "Operating as a team that puts patient benefit above individual contribution.",
-  "Enhancing community health in cooperation with other organisations, locally and globally.",
+const VISION_STATEMENT =
+  "To create an inclusive healthcare support network where no patient is denied treatment because of financial hardship, lack of awareness, or limited access to medical resources.";
+
+const MISSION_POINTS = [
+  "Support financially vulnerable patients requiring surgeries.",
+  "Build a community-powered healthcare assistance system.",
+  "Connect patients with hospitals, doctors and healthcare experts.",
+  "Promote healthcare awareness and preventive care education.",
+  "Encourage public participation in humanitarian healthcare initiatives.",
+  "Create transparent and trustworthy healthcare support processes.",
+  "Empower families with guidance during medical emergencies.",
 ] as const;
+
+const CLOSING_TAGLINE =
+  "To stand beside every patient when they need humanity the most.";
 
 const HOW_WE_WORK = [
   {
@@ -300,34 +308,60 @@ export default function AboutPage() {
         </Container>
       </section>
 
-      {/* Vision */}
+      {/* Vision + Mission */}
       <section className="bg-surface-page py-16 md:py-24">
         <Container>
-          <div className="mx-auto mb-12 max-w-3xl text-center">
+          {/* Vision */}
+          <div className="mx-auto mb-16 max-w-4xl text-center">
             <Text size="label" className="mb-3 tracking-[1.4px] font-black text-accent">
               OUR VISION
             </Text>
+            <Heading level="h2" className="mb-6">
+              An inclusive{" "}
+              <span className="bg-gradient-to-b from-accent-green to-accent-mint bg-clip-text text-transparent">
+                healthcare support network
+              </span>
+            </Heading>
+            <Text variant="secondary" size="body-lg" className="leading-relaxed">
+              {VISION_STATEMENT}
+            </Text>
+          </div>
+
+          {/* Mission */}
+          <div className="mx-auto mb-10 max-w-2xl text-center">
+            <Text size="label" className="mb-3 tracking-[1.4px] font-black text-accent">
+              OUR MISSION
+            </Text>
             <Heading level="h2" className="mb-4">
-              Transforming lives through{" "}
-              <span className="text-accent">quality care</span>
+              Seven commitments,{" "}
+              <span className="text-accent">one promise</span>
             </Heading>
           </div>
 
           <div className="mx-auto grid max-w-5xl gap-4 md:grid-cols-2">
-            {VISION_POINTS.map((point) => (
+            {MISSION_POINTS.map((point, i) => (
               <div
                 key={point}
-                className="flex items-start gap-4 rounded-2xl border border-surface-border bg-white p-6 shadow-card"
+                className={
+                  "flex items-start gap-4 rounded-2xl border border-surface-border bg-white p-6 shadow-card" +
+                  (i === MISSION_POINTS.length - 1 ? " md:col-span-2" : "")
+                }
               >
                 <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-surface-green">
                   <CheckCircleIcon className="size-5 text-accent" />
                 </span>
-                <p
-                  className="text-[16px] leading-relaxed text-slate"
-                  dangerouslySetInnerHTML={{ __html: point }}
-                />
+                <p className="text-[16px] leading-relaxed text-slate">{point}</p>
               </div>
             ))}
+          </div>
+
+          {/* Closing tagline */}
+          <div className="mx-auto mt-14 max-w-3xl text-center">
+            <p className="text-[22px] font-black leading-snug text-primary md:text-[28px]">
+              <span className="text-accent">&ldquo;</span>
+              {CLOSING_TAGLINE}
+              <span className="text-accent">&rdquo;</span>
+            </p>
           </div>
         </Container>
       </section>
