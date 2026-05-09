@@ -18,7 +18,7 @@ export function StatsBar() {
     : "\u2014";
 
   const items = [
-    { value: "400+", label: "Volunteers" },
+    { value: "85", label: "Volunteers" },
     { value: raisedValue, label: "Raised" },
     { value: donationsValue, label: "Donations" },
     { value: activeCausesValue, label: "Active Causes" },
