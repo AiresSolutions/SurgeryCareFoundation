@@ -51,15 +51,10 @@ export function HeroSection() {
           {/* ── Left Column: Text Content ──────────────── */}
           <div>
             {/* Eyebrow — rotating tagline */}
-            <div className="relative mb-4 inline-flex max-w-full">
-              <span
-                aria-hidden="true"
-                className="pointer-events-none absolute -inset-px rounded-full bg-gradient-to-r from-accent-mint/60 via-accent-green/60 to-accent-mint/60 opacity-80 blur-[6px]"
-              />
-              <span className="relative inline-flex rounded-full bg-primary-deep/70 px-5 py-2 ring-1 ring-inset ring-accent-mint/50 backdrop-blur-md">
-                <span className="bg-gradient-to-r from-accent-mint via-accent-green to-accent-mint bg-clip-text text-label font-black uppercase tracking-[1.4px] text-transparent">
-                  <RotatingTagline />
-                </span>
+            <div className="mb-4 inline-flex max-w-full items-center gap-3">
+              <span className="h-[3px] w-8 shrink-0 rounded-full bg-gradient-to-r from-accent-mint to-accent-green" />
+              <span className="text-label font-black uppercase tracking-[1.4px] text-accent-mint">
+                <RotatingTagline />
               </span>
             </div>
 

@@ -15,27 +15,6 @@
   }
 }
 
-@keyframes tagline-slide-up {
-  0% {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-tagline-in {
-  animation: tagline-slide-up 450ms cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .animate-tagline-in {
-    animation: none;
-  }
-}
-
 @layer base {
   body {
     @apply font-sans text-body text-slate antialiased bg-white;

@@ -8,7 +8,7 @@ const TAGLINES = [
   "Healing should never depend on a bank balance.",
 ] as const;
 
-const ROTATE_MS = 7_000;
+const ROTATE_MS = 10_000;
 
 export function RotatingTagline() {
   const [index, setIndex] = useState(0);
@@ -25,10 +25,22 @@ export function RotatingTagline() {
   }, []);
 
   return (
-    <span aria-live="polite" aria-atomic="true" className="block">
-      <span key={index} className="block animate-tagline-in">
-        {TAGLINES[index]}
-      </span>
+    <span
+      className="grid items-center"
+      aria-live="polite"
+      aria-atomic="true"
+    >
+      {TAGLINES.map((t, i) => (
+        <span
+          key={t}
+          aria-hidden={i === index ? undefined : true}
+          className={`col-start-1 row-start-1 transition-opacity duration-700 ease-out ${
+            i === index ? "opacity-100" : "opacity-0"
+          }`}
+        >
+          {t}
+        </span>
+      ))}
     </span>
   );
 }
