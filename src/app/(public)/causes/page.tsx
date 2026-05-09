@@ -47,7 +47,7 @@ export default function CausesPage() {
   }
 
   return (
-    <section className="bg-surface-page py-16 md:py-24">
+    <section className="bg-surface-page pb-16 pt-8 md:pb-24 md:pt-10">
       <Container>
         <div className="mb-10 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-3xl">

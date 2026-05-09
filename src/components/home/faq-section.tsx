@@ -15,9 +15,9 @@ interface FaqItem {
 
 const FAQ_ITEMS: FaqItem[] = [
   {
-    question: "What does Surgery Care actually do?",
+    question: "How do I know my donation actually reaches the patient?",
     answer:
-      "We connect patients to top hospitals across India for high-quality surgical care. For patients who can afford treatment, we offer curated packages and on-call coordination. For patients who cannot, we raise the required funds and complete the treatment at no cost, staying with each patient from counselling through recovery.",
+      "Donations are sent directly to the hospital that performs the surgery, never to a patient or family bank account. Every case is medically verified before it goes live, and our team coordinates the admission and stays with the family through recovery so every rupee is accounted for.",
   },
   {
     question: "How do you choose the hospitals you work with?",
@@ -27,17 +27,12 @@ const FAQ_ITEMS: FaqItem[] = [
   {
     question: "What kinds of cases do you support?",
     answer:
-      "We support a wide range of paediatric and adult surgical conditions, including burns, cleft lip and palate, cystic hygroma, meningomyelocele, encephalocele, hydrocephalus, omphalocele, bladder exstrophy, neuroblastoma, neurofibromatosis, and visible oncology cases.",
+      "We support patients of all ages who need surgical care they cannot afford, including children with congenital conditions, cancer patients, burn-injury cases, and other critical surgical needs. Every case is medically reviewed and verified before it goes live.",
   },
   {
     question: "How are donations used and tracked?",
     answer:
-      "Funds raised for a non-affordable patient are transferred directly to the partnered hospital that performs the surgery. Our team verifies every case, coordinates the admission, and accompanies the family through the treatment so every rupee goes to care.",
-  },
-  {
-    question: "Are insurance and cash patients welcome too?",
-    answer:
-      "Yes. Affordable patients receive exclusive package pricing for insurance holders and cash payers, plus on-call assistance for hospital coordination, the same end-to-end support we extend to every patient.",
+      "Funds raised for a patient are transferred directly to the hospital that performs the surgery. Our team verifies every case, coordinates the admission, and accompanies the family through the treatment so every rupee goes to care. T&C applied.",
   },
 ];
 
