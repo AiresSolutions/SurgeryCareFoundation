@@ -117,11 +117,11 @@ export default function CausesPage() {
         </div>
 
         <div className="mb-10 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-          <div className="max-w-2xl">
+          <div className="max-w-3xl">
             <Text size="label" className="mb-3 text-accent">
               PUBLIC FUNDRAISERS
             </Text>
-            <Heading level="h1" as="h1" className="mb-4">
+            <Heading level="h1" as="h1" className="mb-4 lg:!text-[56px] lg:!leading-[60px] lg:!tracking-[-1.4px]">
               All campaigns on Surgery Care Foundation
             </Heading>
             <Text variant="secondary" size="body-lg">

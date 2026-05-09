@@ -73,7 +73,9 @@ export function HeroSection() {
             >
               We connect patients to top hospitals across India for high-quality
               treatment, and raise funds so that no family has to delay
-              life-saving surgery for cost.
+              life-saving surgery for cost. Every case is medically verified
+              before it goes live, and your contribution is sent directly to
+              the hospital — never to a personal account.
             </Text>
 
             {/* CTA Button */}
