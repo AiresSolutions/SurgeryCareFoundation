@@ -41,9 +41,6 @@ const UPDATE_KIND_STYLE: Record<CampaignUpdateKind, { label: string; pill: strin
   BILL_POSTED: { label: "Bill Posted", pill: "bg-slate-200 text-slate", dot: "bg-slate" },
 };
 
-// Mirror of footer's PAYMENT_METHODS. Duplicated rather than shared
-// because the footer block isn't exported and we want this card to
-// keep working if someone restructures the footer later.
 const SIDEBAR_PAYMENT_METHODS = [
   { src: "/images/pay-amex.png", alt: "American Express", width: 56 },
   { src: "/images/pay-upi.png", alt: "UPI", width: 32 },

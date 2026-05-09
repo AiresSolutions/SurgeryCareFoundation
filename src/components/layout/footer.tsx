@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import { Container } from "@/components/ui/container";
 import { Heading } from "@/components/ui/heading";
 import { Text } from "@/components/ui/text";
@@ -51,11 +50,11 @@ const SOCIAL_LINKS = [
   },
 ] as const;
 
-const PAYMENT_METHODS = [
-  { src: "/images/pay-amex.png", alt: "American Express", width: 68 },
-  { src: "/images/pay-upi.png", alt: "UPI", width: 40 },
-  { src: "/images/pay-paytm.png", alt: "Paytm", width: 48 },
-  { src: "/images/pay-visa.png", alt: "Visa", width: 50 },
+const COMPLIANCE_BADGES = [
+  { label: "80G", sub: "Donor Tax Benefit" },
+  { label: "12A", sub: "Income Tax Exempt" },
+  { label: "Section 8", sub: "Registered NGO" },
+  { label: "NGO Darpan", sub: "Govt of India" },
 ] as const;
 
 export function Footer() {
@@ -193,21 +192,21 @@ export function Footer() {
 
           <div>
             <Text variant="muted" size="label" className="mb-3 tracking-[1.28px]">
-              We Accept
+              Registrations & Compliance
             </Text>
             <div className="flex flex-wrap gap-3">
-              {PAYMENT_METHODS.map(({ src, alt, width }) => (
+              {COMPLIANCE_BADGES.map(({ label, sub }) => (
                 <span
-                  key={alt}
-                  className="inline-flex h-10 items-center justify-center rounded-[10px] border border-surface-subtle bg-white px-3 opacity-80 shadow-card"
+                  key={label}
+                  className="inline-flex h-12 items-center gap-2 rounded-[10px] border border-surface-subtle bg-white px-3 shadow-card"
                 >
-                  <Image
-                    src={src}
-                    alt={alt}
-                    width={width}
-                    height={24}
-                    className="object-contain"
-                  />
+                  <ShieldCheckIcon className="size-4 text-accent" />
+                  <span className="flex flex-col leading-tight">
+                    <span className="text-[13px] font-bold text-primary">{label}</span>
+                    <span className="text-[10px] uppercase tracking-[0.5px] text-slate-light">
+                      {sub}
+                    </span>
+                  </span>
                 </span>
               ))}
             </div>
