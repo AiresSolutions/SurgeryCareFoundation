@@ -9,15 +9,15 @@ const TRUST_BADGES = [
 
 export function TrustStrip() {
   return (
-    <section className="border-y border-surface-border bg-white py-4">
+    <section className="border-y border-surface-border bg-white py-5">
       <Container>
         <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3 sm:gap-x-10">
           {TRUST_BADGES.map((label) => (
             <span
               key={label}
-              className="inline-flex items-center gap-2 text-caption font-bold uppercase tracking-[1.2px] text-primary"
+              className="inline-flex items-center gap-2 text-btn font-bold uppercase tracking-[1px] text-primary"
             >
-              <ShieldCheckIcon className="size-4 text-accent" />
+              <ShieldCheckIcon className="size-5 text-accent" />
               {label}
             </span>
           ))}
@@ -27,7 +27,7 @@ export function TrustStrip() {
           >
             ·
           </span>
-          <span className="text-caption font-bold uppercase tracking-[1.2px] text-slate-light">
+          <span className="text-btn font-bold uppercase tracking-[1px] text-slate-light">
             Documents available on request
           </span>
         </div>

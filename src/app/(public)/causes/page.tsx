@@ -17,6 +17,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { buttonVariants } from "@/components/ui/button";
+import { TrustStrip } from "@/components/ui/trust-strip";
 
 const FILTER_CHIPS = [
   { value: "", label: "All Causes" },
@@ -47,7 +48,9 @@ export default function CausesPage() {
   }
 
   return (
-    <section className="bg-surface-page pb-16 pt-8 md:pb-24 md:pt-10">
+    <>
+      <TrustStrip />
+      <section className="bg-surface-page pb-16 pt-8 md:pb-24 md:pt-10">
       <Container>
         <div className="mb-10 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-3xl">
@@ -275,5 +278,6 @@ export default function CausesPage() {
         )}
       </Container>
     </section>
+    </>
   );
 }
