@@ -92,7 +92,7 @@ export function ImpactStats() {
           <div className="border-t border-surface-border pt-6 md:border-t-0 md:pl-10 md:pt-0">
             <div className="mb-3 flex gap-3">
               <span className="rounded-full bg-primary px-3 py-1 text-[11.2px] font-bold uppercase tracking-[0.56px] text-white">
-                Year 2026
+                Year 2025
               </span>
               <span className="rounded-full bg-surface-green px-3 py-1 text-[11.2px] font-bold uppercase tracking-[0.56px] text-accent">
                 Healthcare
