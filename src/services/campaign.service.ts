@@ -25,9 +25,10 @@ export const campaignService = {
     return apiClient.get<CampaignUpdate[]>(`/public/campaigns/${slug}/updates`);
   },
 
-  // Admin
+  // Admin (mounted under /admin/campaigns to avoid clashing with the
+  // existing creator-only POST /campaigns/:id/updates JSON endpoint).
   listUpdatesAdmin(campaignId: string) {
-    return apiClient.get<CampaignUpdate[]>(`/campaigns/${campaignId}/updates`);
+    return apiClient.get<CampaignUpdate[]>(`/admin/campaigns/${campaignId}/updates`);
   },
 
   postUpdate(
@@ -39,7 +40,7 @@ export const campaignService = {
     fd.append("title", data.title);
     fd.append("content", data.content);
     if (data.attachment) fd.append("attachment", data.attachment);
-    return apiClient.post<CampaignUpdate>(`/campaigns/${campaignId}/updates`, fd);
+    return apiClient.post<CampaignUpdate>(`/admin/campaigns/${campaignId}/updates`, fd);
   },
 
   patchUpdate(
@@ -58,11 +59,11 @@ export const campaignService = {
     if (data.content !== undefined) fd.append("content", data.content);
     if (data.removeAttachment) fd.append("removeAttachment", "true");
     if (data.attachment) fd.append("attachment", data.attachment);
-    return apiClient.patch<CampaignUpdate>(`/campaigns/updates/${updateId}`, fd);
+    return apiClient.patch<CampaignUpdate>(`/admin/campaigns/updates/${updateId}`, fd);
   },
 
   deleteUpdate(updateId: string) {
-    return apiClient.delete<void>(`/campaigns/updates/${updateId}`);
+    return apiClient.delete<void>(`/admin/campaigns/updates/${updateId}`);
   },
 
   getPublicDocuments(slug: string) {
