@@ -10,7 +10,15 @@ const QUICK_LINKS = [
   { href: "/causes", label: "Services" },
   { href: "/blog", label: "Blog" },
   { href: "/contact", label: "Contact us" },
+] as const;
+
+const LEGAL_LINKS = [
   { href: "/privacy-policy", label: "Privacy Policy" },
+  { href: "/terms-of-use", label: "Terms of Use" },
+  { href: "/refund-policy", label: "Refund Policy" },
+  { href: "/donation-policy", label: "Donation Policy" },
+  { href: "/disclaimer", label: "Disclaimer" },
+  { href: "/aml-policy", label: "AML Policy" },
 ] as const;
 
 const SOCIAL_LINKS = [
@@ -207,15 +215,23 @@ export function Footer() {
         </div>
       </Container>
 
-      {/* Bottom bar — copyright right-aligned */}
+      {/* Bottom bar — legal links + copyright */}
       <div className="relative border-t border-surface-border">
-        <Container className="flex items-center justify-between py-5 md:py-8">
-          <Link
-            href="/privacy-policy"
-            className="text-label uppercase tracking-[1.2px] text-slate-light transition-colors hover:text-accent"
+        <Container className="flex flex-col items-center justify-between gap-4 py-5 md:flex-row md:py-8">
+          <nav
+            aria-label="Legal"
+            className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2"
           >
-            Privacy Policy
-          </Link>
+            {LEGAL_LINKS.map(({ href, label }) => (
+              <Link
+                key={href}
+                href={href}
+                className="text-label uppercase tracking-[1.2px] text-slate-light transition-colors hover:text-accent"
+              >
+                {label}
+              </Link>
+            ))}
+          </nav>
           <Text variant="muted" size="label" className="tracking-[1.2px] uppercase">
             &copy; 2025 Surgery Care Foundation. All Rights Reserved.
           </Text>

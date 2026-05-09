@@ -1,31 +1,14 @@
 import { PageHero } from "@/components/shared/page-hero";
 import { TrustStrip } from "@/components/ui/trust-strip";
 import { Container } from "@/components/ui/container";
-import { Heading } from "@/components/ui/heading";
 import { Text } from "@/components/ui/text";
+import { PolicySection, PolicyList, PolicyContact } from "@/components/legal/policy-section";
 
 export const metadata = {
   title: "Privacy Policy | Surgery Care Foundation",
   description:
-    "Learn how Surgery Care Foundation collects, uses, and protects your personal information.",
+    "How Surgery Care Foundation collects, uses, stores and shares personal and medical information of donors and patients.",
 };
-
-function PolicySection({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <section className="mb-10">
-      <Heading level="h4" as="h2" className="mb-4">
-        {title}
-      </Heading>
-      <div className="space-y-4">{children}</div>
-    </section>
-  );
-}
 
 export default function PrivacyPolicyPage() {
   return (
@@ -33,191 +16,183 @@ export default function PrivacyPolicyPage() {
       <PageHero
         title="Privacy"
         highlight="Policy"
-        subtitle="Your privacy matters to us. This policy explains how we handle your personal information."
+        subtitle="How we collect, use and protect personal and medical information across donors and patients."
       />
       <TrustStrip />
 
       <div className="py-16 md:py-24">
         <Container className="max-w-3xl">
           <Text variant="muted" className="mb-10">
-            Last updated: March 18, 2026
+            Effective date: 9 May 2025
           </Text>
 
-          <PolicySection title="1. Information We Collect">
+          <PolicySection title="1. Who this policy applies to">
             <Text variant="secondary">
-              We collect information you provide directly when you make a
-              donation, create an account, contact us, or sign up for our
-              newsletter. This may include your name, email address, phone
-              number, postal address, and payment information.
-            </Text>
-            <Text variant="secondary">
-              We also automatically collect certain technical information when
-              you visit our website, such as your IP address, browser type,
-              device information, and pages visited, through cookies and similar
-              technologies.
-            </Text>
-          </PolicySection>
-
-          <PolicySection title="2. How We Use Your Information">
-            <Text variant="secondary">
-              We use the information we collect to:
-            </Text>
-            <ul className="list-disc space-y-2 pl-6">
-              <li>
-                <Text variant="secondary" as="span">
-                  Process your donations and send receipts
-                </Text>
-              </li>
-              <li>
-                <Text variant="secondary" as="span">
-                  Create and manage your account
-                </Text>
-              </li>
-              <li>
-                <Text variant="secondary" as="span">
-                  Send you updates about campaigns you have supported
-                </Text>
-              </li>
-              <li>
-                <Text variant="secondary" as="span">
-                  Respond to your enquiries and provide support
-                </Text>
-              </li>
-              <li>
-                <Text variant="secondary" as="span">
-                  Improve our website and services
-                </Text>
-              </li>
-              <li>
-                <Text variant="secondary" as="span">
-                  Comply with legal obligations
-                </Text>
-              </li>
-            </ul>
-          </PolicySection>
-
-          <PolicySection title="3. Payment Security">
-            <Text variant="secondary">
-              All payment transactions are processed through secure,
-              PCI-compliant payment gateways. We do not store your full credit
-              card or bank account details on our servers. Your financial data is
-              encrypted during transmission using industry-standard SSL/TLS
-              protocols.
+              This Privacy Policy governs information handled by Surgery Care
+              Foundation (&ldquo;the Foundation&rdquo;, &ldquo;we&rdquo;,
+              &ldquo;us&rdquo;) when you visit surgerycarefoundation.com,
+              donate to a campaign, register as a campaigner on behalf of a
+              patient, or otherwise interact with us. Two distinct sets of
+              personal information are involved: information about
+              <strong> donors and visitors</strong> on one hand, and
+              <strong> patients and their families</strong> on the other.
+              Different rules apply to each, set out below.
             </Text>
           </PolicySection>
 
-          <PolicySection title="4. Information Sharing">
+          <PolicySection title="2. Donor and visitor information">
             <Text variant="secondary">
-              We do not sell, trade, or rent your personal information to third
-              parties. We may share your information only in the following
-              circumstances:
+              When you donate or contact us we may collect:
             </Text>
-            <ul className="list-disc space-y-2 pl-6">
-              <li>
-                <Text variant="secondary" as="span">
-                  With trusted service providers who assist us in operating our
-                  website and processing donations
-                </Text>
-              </li>
-              <li>
-                <Text variant="secondary" as="span">
-                  When required by law, regulation, or legal process
-                </Text>
-              </li>
-              <li>
-                <Text variant="secondary" as="span">
-                  To protect the rights, safety, or property of Surgery Care
-                  Foundation, our users, or the public
-                </Text>
-              </li>
-            </ul>
+            <PolicyList
+              items={[
+                "Identity information: full name, email address, phone number, postal address.",
+                "PAN (Permanent Account Number) — collected only when you wish to claim 80G tax benefit. PAN is not stored beyond the period required by the Income Tax Act.",
+                "Payment information: handled directly by our payment gateway (Razorpay). We do not store full card numbers, CVV, UPI PINs or net-banking credentials on our servers.",
+                "Account information: hashed password and verification status, if you create a donor account.",
+                "Device and usage information: IP address, browser type, device type, pages visited, referring URL, and cookie identifiers.",
+              ]}
+            />
           </PolicySection>
 
-          <PolicySection title="5. Cookies">
+          <PolicySection title="3. Patient and family information">
             <Text variant="secondary">
-              Our website uses cookies to enhance your browsing experience,
-              analyse site traffic, and understand where our visitors come from.
-              You can control cookies through your browser settings. Disabling
-              cookies may affect certain features of the website.
+              For every published campaign, the patient or an authorised family
+              member must provide and consent in writing to the public use of
+              certain personal and medical information, including: name, age,
+              city, photographs, the medical condition, treating hospital,
+              treating doctor (where consented), cost estimate and supporting
+              medical documents. Sensitive medical records used internally for
+              verification (diagnosis reports, hospital estimates, government
+              ID) are stored in restricted-access storage and are
+              <strong> not publicly displayed without explicit consent.</strong>
+            </Text>
+            <Text variant="secondary">
+              For minors, written consent must be provided by a parent or
+              legal guardian.
             </Text>
           </PolicySection>
 
-          <PolicySection title="6. Data Retention">
+          <PolicySection title="4. How we use the information">
+            <PolicyList
+              items={[
+                "Process donations, issue payment receipts and generate 80G tax certificates.",
+                "Verify campaigns, coordinate hospital admission and disburse funds directly to the treating hospital.",
+                "Send transactional updates (donation receipts, campaign progress, surgery and recovery updates).",
+                "Respond to donor enquiries, patient help requests and grievances.",
+                "Comply with statutory obligations under the Income Tax Act, Companies Act / Societies / Trust Act (as applicable to our entity type), the Prevention of Money Laundering Act, 2002, and the Digital Personal Data Protection Act, 2023.",
+                "Detect, prevent and investigate fraud or misuse of donations.",
+              ]}
+            />
+          </PolicySection>
+
+          <PolicySection title="5. With whom we share information">
+            <PolicyList
+              items={[
+                "Treating hospital — patient and treatment information is shared only with the partnered hospital that performs the surgery, strictly to the extent needed for admission, billing and disbursement.",
+                "Payment service providers — donor payment information is shared with Razorpay (or any successor processor) under their PCI-DSS-compliant terms.",
+                "Tax and statutory authorities — when required to comply with the Income Tax Act, the Prevention of Money Laundering Act, the Foreign Contribution (Regulation) Act (where applicable) or any lawful order.",
+                "Auditors and professional advisors — under written confidentiality obligations, for statutory audit and compliance review.",
+                "We do not sell, rent, lease or trade donor or patient information to any third party for marketing.",
+              ]}
+            />
+          </PolicySection>
+
+          <PolicySection title="6. Payment and data security">
             <Text variant="secondary">
-              We retain your personal information for as long as necessary to
-              fulfil the purposes outlined in this policy, or as required by
-              law. Donation records are retained as required under applicable tax
-              and charitable regulations.
+              Card, UPI and net-banking details are entered directly on the
+              Razorpay-hosted payment surface. They are encrypted in transit
+              over TLS, processed under PCI-DSS Level 1 controls, and never
+              stored in our application database. Application-side data is
+              encrypted at rest, access is restricted to authorised personnel,
+              and authentication is enforced via hashed passwords and JSON Web
+              Token sessions.
             </Text>
           </PolicySection>
 
-          <PolicySection title="7. Your Rights">
+          <PolicySection title="7. Cookies and analytics">
             <Text variant="secondary">
-              You have the right to access, correct, or delete your personal
-              information. You may also opt out of receiving promotional
-              communications at any time. To exercise these rights, contact us
-              at{" "}
+              We use first-party cookies for authentication and to remember
+              your preferences. We use Meta (Facebook) Pixel and similar
+              measurement tools to attribute donations to the campaigns and
+              channels that drove them. You can disable cookies in your browser
+              settings; doing so may break login and donation flows.
+            </Text>
+          </PolicySection>
+
+          <PolicySection title="8. Data retention">
+            <PolicyList
+              items={[
+                "Donation records, 80G receipts and KYC information are retained for at least 8 years from the end of the relevant financial year, as required by the Income Tax Act and audit norms.",
+                "Patient medical records used for verification are retained for the life of the campaign plus 3 years, then archived or deleted.",
+                "Site analytics and cookie identifiers are retained for up to 24 months.",
+                "Records may be retained longer where required by law, court order, or for the establishment, exercise or defence of legal claims.",
+              ]}
+            />
+          </PolicySection>
+
+          <PolicySection title="9. Your rights">
+            <Text variant="secondary">
+              Subject to the Digital Personal Data Protection Act, 2023, you
+              have the right to access the personal data we hold about you,
+              request correction or completion, request erasure (where
+              statutory retention does not apply), withdraw consent that you
+              have previously given, and to nominate another individual to
+              exercise these rights in the event of your death or incapacity.
+              Requests are typically processed within 30 days. Reach us at the
+              contact details below.
+            </Text>
+          </PolicySection>
+
+          <PolicySection title="10. Children">
+            <Text variant="secondary">
+              Donor accounts are intended for individuals 18 years and older.
+              For patient campaigns involving minors, all personal information,
+              photographs and medical details are provided and consented to by
+              a parent or legal guardian.
+            </Text>
+          </PolicySection>
+
+          <PolicySection title="11. International transfers">
+            <Text variant="secondary">
+              Our primary servers are located in India. Some technology
+              vendors (such as our hosting provider, error-monitoring and
+              email-delivery services) may process limited operational data
+              outside India under contractual safeguards equivalent to Indian
+              law.
+            </Text>
+          </PolicySection>
+
+          <PolicySection title="12. Grievance officer">
+            <Text variant="secondary">
+              In line with the Information Technology Act, 2000 and the Digital
+              Personal Data Protection Act, 2023, the grievance officer for
+              data-protection enquiries is reachable at{" "}
               <a
                 href="mailto:info@surgerycarefoundation.com"
                 className="font-medium text-accent underline underline-offset-2 hover:text-primary"
               >
                 info@surgerycarefoundation.com
               </a>
-              .
+              . We acknowledge complaints within 72 hours and aim to resolve
+              them within 30 days.
             </Text>
           </PolicySection>
 
-          <PolicySection title="8. Children&rsquo;s Privacy">
+          <PolicySection title="13. Changes to this policy">
             <Text variant="secondary">
-              Our website is not intended for children under the age of 18. We
-              do not knowingly collect personal information from children. If you
-              believe we have inadvertently collected such information, please
-              contact us so we can promptly remove it.
+              We may revise this policy from time to time. The effective date
+              at the top of this page reflects the most recent revision.
+              Material changes will be communicated by email to registered
+              donors at least 14 days before they take effect.
             </Text>
           </PolicySection>
 
-          <PolicySection title="9. Changes to This Policy">
+          <PolicySection title="14. Contact">
             <Text variant="secondary">
-              We may update this privacy policy from time to time. Any changes
-              will be posted on this page with an updated revision date. We
-              encourage you to review this policy periodically.
+              For any privacy-related question or to exercise your rights:
             </Text>
-          </PolicySection>
-
-          <PolicySection title="10. Contact Us">
-            <Text variant="secondary">
-              If you have any questions or concerns about this privacy policy,
-              please contact us:
-            </Text>
-            <div className="rounded-2xl border border-surface-subtle bg-surface-bg p-6">
-              <Text variant="secondary">
-                <strong className="text-primary">
-                  Surgery Care Foundation
-                </strong>
-                <br />
-                1st Floor, Plot No. 06, Katol Road,
-                <br />
-                Falke Layout, Kolbaswami Nagar,
-                <br />
-                Akar Nagar, Nagpur, Maharashtra 440013
-                <br />
-                Email:{" "}
-                <a
-                  href="mailto:info@surgerycarefoundation.com"
-                  className="font-medium text-accent underline underline-offset-2 hover:text-primary"
-                >
-                  info@surgerycarefoundation.com
-                </a>
-                <br />
-                Phone:{" "}
-                <a
-                  href="tel:+919960513453"
-                  className="font-medium text-accent underline underline-offset-2 hover:text-primary"
-                >
-                  +91 9960513453
-                </a>
-              </Text>
-            </div>
+            <PolicyContact />
           </PolicySection>
         </Container>
       </div>
