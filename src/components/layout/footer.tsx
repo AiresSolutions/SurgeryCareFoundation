@@ -73,10 +73,9 @@ export function Footer() {
             </div>
 
             <Text variant="secondary" className="mb-6 max-w-[391px]">
-              At Surgery Care Foundation, we provide timely and ethical surgical
-              care to underprivileged patients, using every donation
-              transparently to support life-saving treatment with compassion and
-              trust.
+              At Surgery Care Foundation, we provide every donation
+              transparently to support life-saving treatment with compassion
+              and trust.
             </Text>
 
             <Link
@@ -206,7 +205,7 @@ export function Footer() {
             Privacy Policy
           </Link>
           <Text variant="muted" size="label" className="tracking-[1.2px] uppercase">
-            &copy; 2026 Surgery Care Foundation. All Rights Reserved.
+            &copy; 2025 Surgery Care Foundation. All Rights Reserved.
           </Text>
         </Container>
       </div>

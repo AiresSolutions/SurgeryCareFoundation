@@ -121,9 +121,11 @@ export function CausesPreview() {
   return (
     <section className="bg-surface-page py-16 md:py-24">
       <Container>
-        <div className="mb-12 max-w-lg">
+        <div className="mb-12 max-w-3xl">
           <Heading level="h2" className="mb-4">
-            Help and donate to them when they are in need.
+            Help and donate to them{" "}
+            <br className="hidden md:block" />
+            when they are in need.
           </Heading>
         </div>
 
