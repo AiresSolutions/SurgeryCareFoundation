@@ -6,11 +6,13 @@ import { VolunteerTeam } from "@/components/home/volunteer-team";
 import { StatsBar } from "@/components/home/stats-bar";
 import { Testimonials } from "@/components/home/testimonials";
 import { FaqSection } from "@/components/home/faq-section";
+import { TrustStrip } from "@/components/ui/trust-strip";
 
 export default function Home() {
   return (
     <>
       <HeroSection />
+      <TrustStrip />
       <ImpactStats />
       <CausesPreview />
       <MissionSection />
