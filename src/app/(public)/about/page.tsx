@@ -494,7 +494,7 @@ export default function AboutPage() {
                 <p className="mb-2 text-caption font-bold uppercase tracking-[1px] text-accent-green">
                   {status}
                 </p>
-                <Text variant="secondary" size="caption">{description}</Text>
+                <p className="text-caption leading-relaxed text-slate-light">{description}</p>
               </div>
             ))}
           </div>
