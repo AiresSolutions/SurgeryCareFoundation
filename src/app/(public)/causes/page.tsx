@@ -122,7 +122,11 @@ export default function CausesPage() {
               PUBLIC FUNDRAISERS
             </Text>
             <Heading level="h1" as="h1" className="mb-4 lg:!text-[56px] lg:!leading-[60px] lg:!tracking-[-1.4px]">
-              All campaigns on Surgery Care Foundation
+              All campaigns on{" "}
+              <br />
+              <span className="bg-gradient-to-b from-accent-mint to-accent-green bg-clip-text text-transparent">
+                Surgery Care Foundation
+              </span>
             </Heading>
             <Text variant="secondary" size="body-lg">
               Browse every live fundraiser, track progress, and open a campaign to donate directly.
