@@ -50,7 +50,7 @@ export function HeroSection() {
           {/* ── Left Column: Text Content ──────────────── */}
           <div>
             {/* Pill badge — rotating tagline */}
-            <div className="mb-6 inline-flex max-w-full items-center gap-3 rounded-full border border-white/10 bg-white/5 px-5 py-2 shadow-pill">
+            <div className="mb-4 inline-flex max-w-full items-center gap-3 rounded-full border border-white/10 bg-white/5 px-5 py-2 shadow-pill">
               <span className="size-2 shrink-0 rounded-full bg-accent-mint" />
               <span className="text-label uppercase text-white">
                 <RotatingTagline />
@@ -58,7 +58,7 @@ export function HeroSection() {
             </div>
 
             {/* Heading */}
-            <Heading level="h1" className="mb-6 text-white">
+            <Heading level="h1" className="mb-4 text-white lg:!text-[64px] lg:!leading-[68px] lg:!tracking-[-1.6px]">
               Quality Surgery for{" "}
               <span className="bg-gradient-to-b from-accent-mint to-accent-green bg-clip-text text-transparent">
                 Every Patient
@@ -69,7 +69,7 @@ export function HeroSection() {
             <Text
               variant="on-dark"
               size="body-lg"
-              className="mb-8 max-w-md text-white/90"
+              className="mb-6 max-w-md text-white/90"
             >
               We connect patients to top hospitals across India for high-quality
               treatment, and raise funds so that no family has to delay
