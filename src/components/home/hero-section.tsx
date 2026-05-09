@@ -6,6 +6,7 @@ import { Text } from "@/components/ui/text";
 import { buttonVariants } from "@/components/ui/button";
 import { ArrowRightIcon } from "@/components/ui/icons";
 import { RotatingTagline } from "./rotating-tagline";
+import { MobileHeroSlideshow } from "./mobile-hero-slideshow";
 
 const HERO_IMAGES = [
   {
@@ -49,10 +50,10 @@ export function HeroSection() {
         <div className="grid items-start gap-12 lg:grid-cols-2 lg:gap-16">
           {/* ── Left Column: Text Content ──────────────── */}
           <div>
-            {/* Pill badge — rotating tagline */}
-            <div className="mb-4 inline-flex max-w-full items-center gap-3 rounded-full border border-white/10 bg-white/5 px-5 py-2 shadow-pill">
-              <span className="size-2 shrink-0 rounded-full bg-accent-mint" />
-              <span className="text-label uppercase text-white">
+            {/* Eyebrow — rotating tagline */}
+            <div className="mb-4 inline-flex max-w-full items-center gap-3">
+              <span className="h-[3px] w-8 shrink-0 rounded-full bg-gradient-to-r from-accent-mint to-accent-green" />
+              <span className="text-label font-black uppercase tracking-[1.4px] text-accent-mint">
                 <RotatingTagline />
               </span>
             </div>
@@ -114,17 +115,8 @@ export function HeroSection() {
             </div>
           </div>
 
-          {/* Mobile: single hero image */}
-          <div className="relative mx-auto h-[300px] w-full max-w-sm overflow-hidden rounded-image lg:hidden">
-            <Image
-              src="/images/hero-1.jpg"
-              alt="Children smiling together"
-              fill
-              className="object-cover"
-              sizes="(max-width: 1023px) 384px, 0px"
-              priority
-            />
-          </div>
+          {/* Mobile: rotating hero slideshow */}
+          <MobileHeroSlideshow />
         </div>
       </Container>
     </section>
