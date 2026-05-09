@@ -51,8 +51,7 @@ export function HeroSection() {
           {/* ── Left Column: Text Content ──────────────── */}
           <div>
             {/* Eyebrow — rotating tagline */}
-            <div className="mb-4 inline-flex max-w-full items-center gap-3">
-              <span className="h-[3px] w-8 shrink-0 rounded-full bg-gradient-to-r from-accent-mint to-accent-green" />
+            <div className="mb-4 inline-flex max-w-full rounded-full bg-accent-mint/10 px-4 py-1.5 ring-1 ring-inset ring-accent-mint/30 backdrop-blur-sm">
               <span className="text-label font-black uppercase tracking-[1.4px] text-accent-mint">
                 <RotatingTagline />
               </span>
