@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { PageHero } from "@/components/shared/page-hero";
+import { TrustStrip } from "@/components/ui/trust-strip";
 import { Container } from "@/components/ui/container";
 import { Heading } from "@/components/ui/heading";
 import { Text } from "@/components/ui/text";
@@ -26,6 +27,7 @@ export default function BlogPage() {
         highlight="News & Updates"
         subtitle="Read about recent impact, medical insights, and inspiring patient stories."
       />
+      <TrustStrip />
 
       <section className="py-16 md:py-24">
         <Container>

@@ -1,4 +1,5 @@
 import { PageHero } from "@/components/shared/page-hero";
+import { TrustStrip } from "@/components/ui/trust-strip";
 import { Container } from "@/components/ui/container";
 import { Heading } from "@/components/ui/heading";
 import { Text } from "@/components/ui/text";
@@ -34,6 +35,7 @@ export default function PrivacyPolicyPage() {
         highlight="Policy"
         subtitle="Your privacy matters to us. This policy explains how we handle your personal information."
       />
+      <TrustStrip />
 
       <div className="py-16 md:py-24">
         <Container className="max-w-3xl">

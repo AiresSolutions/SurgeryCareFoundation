@@ -5,6 +5,7 @@ import { Heading } from "@/components/ui/heading";
 import { Text } from "@/components/ui/text";
 import { ImpactStats } from "@/components/home/impact-stats";
 import { VolunteerTeam } from "@/components/home/volunteer-team";
+import { TrustStrip } from "@/components/ui/trust-strip";
 import {
   TargetIcon,
   ShieldIcon,
@@ -203,6 +204,7 @@ export default function AboutPage() {
       />
 
       <ImpactStats />
+      <TrustStrip />
 
       {/* About the Company */}
       <section className="py-16 md:py-24">

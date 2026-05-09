@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { PageHero } from "@/components/shared/page-hero";
+import { TrustStrip } from "@/components/ui/trust-strip";
 import { Container } from "@/components/ui/container";
 import { Text } from "@/components/ui/text";
 import { Badge } from "@/components/ui/badge";
@@ -39,6 +40,7 @@ export default function BlogDetailPage({ params }: { params: { slug: string } })
   return (
     <>
       <PageHero title={post.title} subtitle={post.excerpt} />
+      <TrustStrip />
 
       <article className="py-16 md:py-24">
         <Container className="max-w-3xl">

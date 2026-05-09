@@ -12,8 +12,8 @@ export default function Home() {
   return (
     <>
       <HeroSection />
-      <TrustStrip />
       <ImpactStats />
+      <TrustStrip />
       <CausesPreview />
       <MissionSection />
       <VolunteerTeam />
