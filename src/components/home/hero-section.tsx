@@ -46,7 +46,7 @@ export function HeroSection() {
       </div>
 
       <Container className="relative pb-16 pt-8 md:pb-20 md:pt-10 lg:pb-24 lg:pt-12">
-        <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
+        <div className="grid items-start gap-12 lg:grid-cols-2 lg:gap-16">
           {/* ── Left Column: Text Content ──────────────── */}
           <div>
             {/* Pill badge — rotating tagline */}
@@ -58,7 +58,7 @@ export function HeroSection() {
             </div>
 
             {/* Heading */}
-            <Heading level="h1" className="mb-4 text-white lg:!text-[64px] lg:!leading-[68px] lg:!tracking-[-1.6px]">
+            <Heading level="h1" className="mb-6 text-white lg:!text-[72px] lg:!leading-[76px] lg:!tracking-[-1.8px]">
               Quality Surgery for{" "}
               <span className="bg-gradient-to-b from-accent-mint to-accent-green bg-clip-text text-transparent">
                 Every Patient
