@@ -490,11 +490,11 @@ export default function AboutPage() {
                 <span className="mb-4 inline-flex size-10 items-center justify-center rounded-full bg-surface-green">
                   <ShieldCheckIcon className="size-5 text-accent" />
                 </span>
-                <p className="mb-1 text-btn font-black text-primary">{label}</p>
-                <p className="mb-2 text-caption font-bold uppercase tracking-[1px] text-accent-green">
+                <p className="mb-1 text-btn-lg font-black text-primary">{label}</p>
+                <p className="mb-3 text-label font-bold uppercase tracking-[1.2px] text-accent-green">
                   {status}
                 </p>
-                <p className="text-caption leading-relaxed text-slate-light">{description}</p>
+                <Text variant="secondary">{description}</Text>
               </div>
             ))}
           </div>
