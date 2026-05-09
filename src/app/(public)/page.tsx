@@ -12,8 +12,8 @@ export default function Home() {
     <>
       <HeroSection />
       <ImpactStats />
-      <MissionSection />
       <CausesPreview />
+      <MissionSection />
       <VolunteerTeam />
       <StatsBar />
       <Testimonials />
