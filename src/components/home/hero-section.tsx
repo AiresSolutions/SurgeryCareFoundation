@@ -45,12 +45,12 @@ export function HeroSection() {
         </svg>
       </div>
 
-      <Container className="relative py-16 md:py-20 lg:py-28">
+      <Container className="relative pb-16 pt-8 md:pb-20 md:pt-10 lg:pb-24 lg:pt-12">
         <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
           {/* ── Left Column: Text Content ──────────────── */}
           <div>
             {/* Pill badge — rotating tagline */}
-            <div className="mb-8 inline-flex max-w-full items-center gap-3 rounded-full border border-white/10 bg-white/5 px-5 py-2 shadow-pill">
+            <div className="mb-6 inline-flex max-w-full items-center gap-3 rounded-full border border-white/10 bg-white/5 px-5 py-2 shadow-pill">
               <span className="size-2 shrink-0 rounded-full bg-accent-mint" />
               <span className="text-label uppercase text-white">
                 <RotatingTagline />
@@ -69,7 +69,7 @@ export function HeroSection() {
             <Text
               variant="on-dark"
               size="body-lg"
-              className="mb-10 max-w-md text-white/90"
+              className="mb-8 max-w-md text-white/90"
             >
               We connect patients to top hospitals across India for high-quality
               treatment, and raise funds so that no family has to delay
