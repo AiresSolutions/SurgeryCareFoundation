@@ -60,7 +60,7 @@ export interface CampaignUpdate {
   attachmentUrl?: string | null;
   attachmentMimeType?: string | null;
   hasAttachment?: boolean;
-  author?: { id: string; name: string | null; email: string | null };
+  author?: { id: string; firstName: string | null; lastName: string | null; email: string | null };
   createdAt: string;
   updatedAt?: string;
 }
