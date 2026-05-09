@@ -41,12 +41,28 @@ export interface Campaign {
   _count?: { donations: number };
 }
 
+export type CampaignUpdateKind =
+  | "ANNOUNCEMENT"
+  | "PRE_SURGERY"
+  | "SURGERY_DONE"
+  | "RECOVERY"
+  | "DISCHARGE"
+  | "BILL_POSTED";
+
 export interface CampaignUpdate {
   id: string;
   campaignId: string;
+  authorId: string;
+  kind: CampaignUpdateKind;
   title: string;
   content: string;
+  imageUrl?: string | null;
+  attachmentUrl?: string | null;
+  attachmentMimeType?: string | null;
+  hasAttachment?: boolean;
+  author?: { id: string; name: string | null; email: string | null };
   createdAt: string;
+  updatedAt?: string;
 }
 
 export interface CampaignDocument {

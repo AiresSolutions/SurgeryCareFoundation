@@ -5,6 +5,7 @@ import type {
   CampaignDocument,
   CampaignDocumentUploadType,
   CampaignUpdate,
+  CampaignUpdateKind,
   CreateCampaignRequest,
   CampaignFilters,
 } from "@/types/campaign";
@@ -20,10 +21,48 @@ export const campaignService = {
     return apiClient.get<Campaign>(`/public/campaigns/${slug}`);
   },
 
-  getUpdates(slug: string, params?: { page?: number; limit?: number }) {
-    return apiClient.get<PaginatedData<CampaignUpdate>>(`/public/campaigns/${slug}/updates`, {
-      params: params as Record<string, string | number | boolean | undefined>,
-    });
+  getUpdates(slug: string) {
+    return apiClient.get<CampaignUpdate[]>(`/public/campaigns/${slug}/updates`);
+  },
+
+  // Admin
+  listUpdatesAdmin(campaignId: string) {
+    return apiClient.get<CampaignUpdate[]>(`/campaigns/${campaignId}/updates`);
+  },
+
+  postUpdate(
+    campaignId: string,
+    data: { kind: CampaignUpdateKind; title: string; content: string; attachment?: File },
+  ) {
+    const fd = new FormData();
+    fd.append("kind", data.kind);
+    fd.append("title", data.title);
+    fd.append("content", data.content);
+    if (data.attachment) fd.append("attachment", data.attachment);
+    return apiClient.post<CampaignUpdate>(`/campaigns/${campaignId}/updates`, fd);
+  },
+
+  patchUpdate(
+    updateId: string,
+    data: {
+      kind?: CampaignUpdateKind;
+      title?: string;
+      content?: string;
+      attachment?: File;
+      removeAttachment?: boolean;
+    },
+  ) {
+    const fd = new FormData();
+    if (data.kind) fd.append("kind", data.kind);
+    if (data.title !== undefined) fd.append("title", data.title);
+    if (data.content !== undefined) fd.append("content", data.content);
+    if (data.removeAttachment) fd.append("removeAttachment", "true");
+    if (data.attachment) fd.append("attachment", data.attachment);
+    return apiClient.patch<CampaignUpdate>(`/campaigns/updates/${updateId}`, fd);
+  },
+
+  deleteUpdate(updateId: string) {
+    return apiClient.delete<void>(`/campaigns/updates/${updateId}`);
   },
 
   getPublicDocuments(slug: string) {
@@ -65,10 +104,6 @@ export const campaignService = {
 
   getDocuments(id: string) {
     return apiClient.get<CampaignDocument[]>(`/campaigns/${id}/documents`);
-  },
-
-  addUpdate(id: string, data: { title: string; content: string }) {
-    return apiClient.post<CampaignUpdate>(`/campaigns/${id}/updates`, data);
   },
 
   requestWithdrawal(data: { campaignId: string; amount: number; reason?: string }) {

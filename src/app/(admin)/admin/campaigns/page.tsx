@@ -198,12 +198,13 @@ export default function AdminCampaignsPage() {
                     : "Unknown";
 
                   return (
-                    <div
+                    <Link
                       key={campaign.id}
-                      className="grid items-center gap-2 px-6 py-4 lg:grid-cols-6 lg:gap-4"
+                      href={`/admin/campaigns/${campaign.id}`}
+                      className="grid items-center gap-2 px-6 py-4 hover:bg-surface-page lg:grid-cols-6 lg:gap-4"
                     >
                       <div className="col-span-2">
-                        <p className="text-btn font-black text-primary truncate">
+                        <p className="text-btn font-black text-primary truncate hover:text-accent">
                           {campaign.title}
                         </p>
                         <Text
@@ -244,7 +245,7 @@ export default function AdminCampaignsPage() {
                       >
                         {new Date(campaign.createdAt).toLocaleDateString()}
                       </Text>
-                    </div>
+                    </Link>
                   );
                 })}
               </div>

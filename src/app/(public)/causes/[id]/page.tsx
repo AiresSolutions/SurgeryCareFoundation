@@ -30,7 +30,16 @@ import {
   YouTubeEmbed,
   extractYouTubeId,
 } from "@/components/campaign/youtube-embed";
-import type { CampaignDocument, CampaignUpdate } from "@/types/campaign";
+import type { CampaignDocument, CampaignUpdate, CampaignUpdateKind } from "@/types/campaign";
+
+const UPDATE_KIND_STYLE: Record<CampaignUpdateKind, { label: string; pill: string; dot: string }> = {
+  ANNOUNCEMENT: { label: "Announcement", pill: "bg-surface-green text-accent", dot: "bg-accent" },
+  PRE_SURGERY: { label: "Pre-Surgery", pill: "bg-amber-100 text-amber-700", dot: "bg-amber-500" },
+  SURGERY_DONE: { label: "Surgery Done", pill: "bg-emerald-100 text-emerald-700", dot: "bg-emerald-600" },
+  RECOVERY: { label: "Recovery", pill: "bg-sky-100 text-sky-700", dot: "bg-sky-500" },
+  DISCHARGE: { label: "Discharge", pill: "bg-violet-100 text-violet-700", dot: "bg-violet-500" },
+  BILL_POSTED: { label: "Bill Posted", pill: "bg-slate-200 text-slate", dot: "bg-slate" },
+};
 
 // Mirror of footer's PAYMENT_METHODS. Duplicated rather than shared
 // because the footer block isn't exported and we want this card to
@@ -142,7 +151,7 @@ export default function CauseDetailPage({ params }: { params: { id: string } }) 
     );
   }
 
-  const updates = updatesData?.items ?? [];
+  const updates = updatesData ?? [];
   const backers = campaign._count?.donations || 0;
 
   async function handleSaveCause() {
@@ -449,26 +458,72 @@ export default function CauseDetailPage({ params }: { params: { id: string } }) 
 
             {/* Campaign Updates */}
             {!updatesLoading && !updatesError && updates.length > 0 && (
-              <div className="mt-8 space-y-4">
-                <Heading level="h4" as="h2">Updates</Heading>
-                {updates.map((update: CampaignUpdate) => (
-                  <div
-                    key={update.id}
-                    className="rounded-xl border border-surface-border bg-white p-4"
-                  >
-                    <div className="mb-1 flex items-baseline justify-between gap-4">
-                      <Text className="font-semibold">{update.title}</Text>
-                      <Text variant="muted" size="label" className="shrink-0">
-                        {new Date(update.createdAt).toLocaleDateString("en-IN", {
-                          day: "numeric",
-                          month: "short",
-                          year: "numeric",
-                        })}
-                      </Text>
-                    </div>
-                    <Text variant="secondary">{update.content}</Text>
-                  </div>
-                ))}
+              <div className="mt-10">
+                <Heading level="h4" as="h2" className="mb-4">
+                  Updates from the team
+                </Heading>
+                <ol className="relative space-y-5 border-l-2 border-surface-border pl-6">
+                  {updates.map((update: CampaignUpdate) => {
+                    const kindStyle = UPDATE_KIND_STYLE[update.kind] ?? UPDATE_KIND_STYLE.ANNOUNCEMENT;
+                    const isImage = update.attachmentMimeType?.startsWith("image/");
+                    return (
+                      <li key={update.id} className="relative">
+                        <span
+                          aria-hidden="true"
+                          className={`absolute -left-[34px] top-1 size-4 rounded-full border-4 border-white ${kindStyle.dot}`}
+                        />
+                        <div className="rounded-xl border border-surface-border bg-white p-5">
+                          <div className="mb-2 flex flex-wrap items-center gap-2">
+                            <span
+                              className={`inline-flex items-center rounded-full px-2.5 py-1 text-caption font-bold uppercase tracking-[1px] ${kindStyle.pill}`}
+                            >
+                              {kindStyle.label}
+                            </span>
+                            <Text variant="muted" size="label" className="ml-auto">
+                              {new Date(update.createdAt).toLocaleDateString("en-IN", {
+                                day: "numeric",
+                                month: "short",
+                                year: "numeric",
+                              })}
+                            </Text>
+                          </div>
+                          <p className="mb-1 text-btn-lg font-black text-primary">{update.title}</p>
+                          <Text variant="secondary" className="whitespace-pre-line">
+                            {update.content}
+                          </Text>
+                          {update.attachmentUrl && (
+                            <div className="mt-3">
+                              {isImage ? (
+                                <a
+                                  href={update.attachmentUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-block overflow-hidden rounded-lg border border-surface-border"
+                                >
+                                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                                  <img
+                                    src={update.attachmentUrl}
+                                    alt={`Attachment for ${update.title}`}
+                                    className="max-h-72 w-auto object-contain"
+                                  />
+                                </a>
+                              ) : (
+                                <a
+                                  href={update.attachmentUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-2 rounded-full bg-surface-green px-4 py-2 text-btn font-bold text-accent hover:bg-accent hover:text-white"
+                                >
+                                  View attached document
+                                </a>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ol>
               </div>
             )}
           </div>
