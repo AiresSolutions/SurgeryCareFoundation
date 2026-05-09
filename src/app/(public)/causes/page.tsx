@@ -23,37 +23,6 @@ const FILTER_CHIPS = [
   ...CAMPAIGN_CATEGORIES.map((c) => ({ value: c.value, label: c.label })),
 ] as const;
 
-const CONDITIONS = [
-  {
-    group: "Paediatric Surgery",
-    items: [
-      "Burns (children & adults)",
-      "Cleft lip & palate",
-      "Cystic hygroma (lymphangioma)",
-      "Spina bifida & meningomyelocele",
-      "Encephalocele",
-      "Hydrocephalus",
-      "Omphalocele",
-      "Bladder exstrophy",
-      "Ectopia cordis",
-      "Conjoined twins",
-      "Torticollis & neck abnormalities",
-      "Achalasia",
-    ],
-  },
-  {
-    group: "Oncology & Tumors",
-    items: [
-      "Neuroblastoma",
-      "Neuroectodermal tumour",
-      "Visible oncology cases",
-      "Visible tumours",
-      "Huge abdominal tumours",
-      "Von Recklinghausen’s disease (Neurofibromatosis 1)",
-    ],
-  },
-] as const;
-
 export default function CausesPage() {
   const [activeFilter, setActiveFilter] = useState<string>(""); // "" = All Causes
   const [page, setPage] = useState(1);
@@ -80,42 +49,6 @@ export default function CausesPage() {
   return (
     <section className="bg-surface-page py-16 md:py-24">
       <Container>
-        {/* Conditions We Treat */}
-        <div className="mb-12 rounded-[32px] border border-surface-border bg-white p-8 shadow-card md:p-10">
-          <div className="mb-6 max-w-2xl">
-            <Text size="label" className="mb-3 text-accent">
-              CONDITIONS WE TREAT
-            </Text>
-            <Heading level="h2" as="h2" className="mb-3">
-              Surgical care across paediatric, oncology and complex cases
-            </Heading>
-            <Text variant="secondary">
-              Surgery Care supports patients with a wide range of surgical needs.
-              Below are the conditions our network of partner hospitals regularly treats.
-            </Text>
-          </div>
-
-          <div className="grid gap-8 md:grid-cols-2">
-            {CONDITIONS.map((group) => (
-              <div key={group.group}>
-                <p className="mb-3 text-btn font-black uppercase tracking-[0.7px] text-primary">
-                  {group.group}
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {group.items.map((item) => (
-                    <span
-                      key={item}
-                      className="rounded-full bg-surface-green px-4 py-2 text-caption font-bold text-accent"
-                    >
-                      {item}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
         <div className="mb-10 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-3xl">
             <Text size="label" className="mb-3 text-accent">
