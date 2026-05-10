@@ -263,7 +263,8 @@ export default function FinanceDonationsPage() {
                       {donation.campaign ? (
                         <Link
                           href={`/causes/${donation.campaign.slug}`}
-                          className="truncate text-btn font-bold text-primary hover:text-accent transition-colors"
+                          title={donation.campaign.title}
+                          className="block truncate text-btn font-bold text-primary hover:text-accent transition-colors"
                         >
                           {donation.campaign.title}
                         </Link>
