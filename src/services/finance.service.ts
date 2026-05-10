@@ -96,6 +96,27 @@ export const financeService = {
     });
   },
 
+  async exportDonations(filters?: { startDate?: string; endDate?: string; status?: string }) {
+    const params: Record<string, string | number | boolean | undefined> = {};
+    if (filters?.startDate) params.startDate = filters.startDate;
+    if (filters?.endDate) params.endDate = filters.endDate;
+    if (filters?.status) params.status = filters.status;
+
+    const { blob, filename } = await apiClient.download(
+      "/finance/donations/export",
+      { params },
+    );
+
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename ?? "donations.xlsx";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  },
+
   listWithdrawals(filters?: WithdrawalFilters) {
     return apiClient.get<PaginatedData<Withdrawal>>("/finance/withdrawals", {
       params: filters as Record<string, string | number | boolean | undefined>,

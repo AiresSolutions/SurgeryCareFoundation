@@ -15,6 +15,7 @@ import { financeService } from "@/services/finance.service";
 import { formatINR } from "@/lib/format";
 import type { PaginatedData } from "@/types/api";
 import type { Donation } from "@/services/finance.service";
+import { ApiError } from "@/lib/api-error";
 
 const FILTERS = ["All", "Succeeded", "Pending", "Failed"] as const;
 
@@ -37,7 +38,41 @@ function getDonorDisplayName(donation: Donation): string {
 export default function FinanceDonationsPage() {
   const [activeFilter, setActiveFilter] = useState<string>("All");
   const [page, setPage] = useState(1);
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
+  const [isExporting, setIsExporting] = useState(false);
+  const [exportError, setExportError] = useState<string | null>(null);
   const limit = 20;
+
+  async function runExport(filters?: { startDate?: string; endDate?: string }) {
+    setIsExporting(true);
+    setExportError(null);
+    try {
+      await financeService.exportDonations(filters);
+    } catch (err) {
+      const message =
+        err instanceof ApiError ? err.message : "Failed to download export.";
+      setExportError(message);
+    } finally {
+      setIsExporting(false);
+    }
+  }
+
+  function handleExportAll() {
+    void runExport();
+  }
+
+  function handleExportRange() {
+    if (!fromDate || !toDate) {
+      setExportError("Pick both a from date and a to date.");
+      return;
+    }
+    if (fromDate > toDate) {
+      setExportError("From date must be before to date.");
+      return;
+    }
+    void runExport({ startDate: fromDate, endDate: toDate });
+  }
 
   const params: Record<string, string | number | boolean | undefined> = {
     page,
@@ -74,6 +109,70 @@ export default function FinanceDonationsPage() {
         <Text variant="secondary" className="mb-8">
           View and manage all donations across every campaign.
         </Text>
+
+        {/* Export panel */}
+        <div className="mb-6 rounded-2xl border border-surface-border bg-white p-5 shadow-card">
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <Heading level="h4" as="h2">Export to Excel</Heading>
+            <Button
+              variant="primary"
+              onClick={handleExportAll}
+              disabled={isExporting}
+            >
+              {isExporting ? "Preparing..." : "Export All Donations"}
+            </Button>
+          </div>
+          <Text variant="secondary" size="body-lg" className="mb-4">
+            Download an .xlsx with every donor&rsquo;s name, email, phone,
+            campaign and amount. Use the range below to limit by date.
+          </Text>
+
+          <div className="flex flex-wrap items-end gap-3">
+            <div className="flex flex-col gap-1">
+              <label
+                htmlFor="export-from"
+                className="text-label uppercase tracking-[1.2px] text-slate-light"
+              >
+                From
+              </label>
+              <input
+                id="export-from"
+                type="date"
+                value={fromDate}
+                onChange={(e) => setFromDate(e.target.value)}
+                className="rounded-[14px] border border-surface-border bg-surface-bg px-4 py-[10px] text-body text-slate focus:outline-none focus:ring-2 focus:ring-accent"
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label
+                htmlFor="export-to"
+                className="text-label uppercase tracking-[1.2px] text-slate-light"
+              >
+                To
+              </label>
+              <input
+                id="export-to"
+                type="date"
+                value={toDate}
+                onChange={(e) => setToDate(e.target.value)}
+                className="rounded-[14px] border border-surface-border bg-surface-bg px-4 py-[10px] text-body text-slate focus:outline-none focus:ring-2 focus:ring-accent"
+              />
+            </div>
+            <Button
+              variant="outline"
+              onClick={handleExportRange}
+              disabled={isExporting}
+            >
+              {isExporting ? "Preparing..." : "Export Range"}
+            </Button>
+          </div>
+
+          {exportError && (
+            <p className="mt-3 text-label text-red-600 normal-case tracking-normal">
+              {exportError}
+            </p>
+          )}
+        </div>
 
         {/* Filter tabs */}
         <div className="mb-4 flex flex-wrap gap-2">

@@ -133,6 +133,55 @@ async function request<T>(
   return json.data;
 }
 
+async function downloadBinary(
+  path: string,
+  opts?: RequestOptions,
+): Promise<{ blob: Blob; filename: string | null }> {
+  const url = buildUrl(path, opts?.params);
+
+  const doFetch = () =>
+    fetch(url, {
+      method: "GET",
+      headers: buildHeaders(),
+      credentials: "include",
+      signal: opts?.signal,
+    });
+
+  let res = await doFetch();
+
+  if (res.status === 401 && accessToken) {
+    if (!refreshPromise) {
+      refreshPromise = refreshAccessToken().finally(() => {
+        refreshPromise = null;
+      });
+    }
+    const newToken = await refreshPromise;
+    if (newToken) {
+      res = await doFetch();
+    } else {
+      throw new ApiError(401, "UNAUTHORIZED", "Session expired. Please log in again.");
+    }
+  }
+
+  if (!res.ok) {
+    let message = `Download failed (${res.status})`;
+    let code = "DOWNLOAD_FAILED";
+    try {
+      const json = await res.json();
+      if (json?.error?.message) message = json.error.message;
+      if (json?.error?.code) code = json.error.code;
+    } catch {
+      // Non-JSON error body — keep the generic message.
+    }
+    throw new ApiError(res.status, code, message);
+  }
+
+  const blob = await res.blob();
+  const cd = res.headers.get("Content-Disposition");
+  const match = cd?.match(/filename="?([^";]+)"?/);
+  return { blob, filename: match?.[1] ?? null };
+}
+
 export const apiClient = {
   get<T>(path: string, opts?: RequestOptions) {
     return request<T>("GET", path, undefined, opts);
@@ -145,5 +194,8 @@ export const apiClient = {
   },
   delete<T>(path: string, opts?: RequestOptions) {
     return request<T>("DELETE", path, undefined, opts);
+  },
+  download(path: string, opts?: RequestOptions) {
+    return downloadBinary(path, opts);
   },
 };
