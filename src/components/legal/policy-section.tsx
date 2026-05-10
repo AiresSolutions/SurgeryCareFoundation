@@ -55,10 +55,10 @@ export function PolicyContact() {
         <br />
         Phone:{" "}
         <a
-          href="tel:+919960513453"
+          href="tel:+918815935091"
           className="font-medium text-accent underline underline-offset-2 hover:text-primary"
         >
-          +91 9960513453
+          +91 8815935091
         </a>
       </Text>
     </div>

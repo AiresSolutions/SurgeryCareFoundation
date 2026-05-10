@@ -125,10 +125,10 @@ export default function ContactPage() {
                     Mon-Fri from 9am to 6pm.
                   </Text>
                   <a
-                    href="tel:+919960513453"
+                    href="tel:+918815935091"
                     className="text-[18px] font-bold text-accent transition-colors hover:text-accent-green"
                   >
-                    +91 99605 13453
+                    +91 88159 35091
                   </a>
                 </div>
               </div>

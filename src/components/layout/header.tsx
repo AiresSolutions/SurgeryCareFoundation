@@ -70,11 +70,11 @@ export function Header() {
                 Need Help
               </span>
               <a
-                href="tel:+919960513453"
+                href="tel:+918815935091"
                 className="inline-flex items-center gap-1.5 font-black text-btn text-primary"
               >
                 <PhoneIcon className="size-3.5 text-accent" />
-                +91 9960513453
+                +91 8815935091
               </a>
             </div>
 
@@ -163,11 +163,11 @@ export function Header() {
 
             <div className="mt-4 flex flex-col gap-3 border-t border-surface-border pt-4">
               <a
-                href="tel:+919960513453"
+                href="tel:+918815935091"
                 className="inline-flex items-center gap-2 px-4 text-btn font-black text-primary"
               >
                 <PhoneIcon className="size-4 text-accent" />
-                +91 9960513453
+                +91 8815935091
               </a>
               <div className="flex gap-3 px-4">
                 <Link

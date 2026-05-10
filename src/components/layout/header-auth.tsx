@@ -60,9 +60,9 @@ export function HeaderAuth() {
           </ul>
 
           <div className="hidden items-center gap-6 lg:flex">
-            <a href="tel:+919960513453" className="inline-flex items-center gap-1.5 font-black text-btn text-primary">
+            <a href="tel:+918815935091" className="inline-flex items-center gap-1.5 font-black text-btn text-primary">
               <PhoneIcon className="size-3.5 text-accent" />
-              +91 9960513453
+              +91 8815935091
             </a>
 
             <Link href="/causes" className={buttonVariants({ variant: "secondary", size: "default" })}>

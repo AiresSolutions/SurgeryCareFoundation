@@ -144,13 +144,13 @@ export function Footer() {
               </li>
               <li>
                 <a
-                  href="tel:+919960513453"
+                  href="tel:+918815935091"
                   className="inline-flex items-center gap-3 text-body-sm text-slate-medium transition-colors hover:text-accent"
                 >
                   <span className="flex size-10 items-center justify-center rounded-full border border-surface-subtle bg-white shadow-card">
                     <PhoneIcon className="size-4 text-slate-light" />
                   </span>
-                  +91 9960513453
+                  +91 8815935091
                 </a>
               </li>
               <li className="flex items-start gap-3 text-body-sm text-slate-medium">
