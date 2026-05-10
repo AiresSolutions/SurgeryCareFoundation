@@ -12,10 +12,6 @@ import {
   HeartHandshakeIcon,
   CheckCircleIcon,
   ShieldCheckIcon,
-  HeartIcon,
-  ClipboardCheckIcon,
-  DollarSignIcon,
-  PhoneIcon,
 } from "@/components/ui/icons";
 
 const CONDITIONS = [
@@ -65,33 +61,6 @@ const MISSION_POINTS = [
 const CLOSING_TAGLINE =
   "To stand beside every patient when they need humanity the most.";
 
-const HOW_WE_WORK = [
-  {
-    step: "01",
-    title: "Pan-India hospital network",
-    description:
-      "We operate in almost every state of India through partnerships with top hospitals.",
-  },
-  {
-    step: "02",
-    title: "End-to-end patient care",
-    description:
-      "We connect each patient to the right hospital and stay with them through every stage of treatment until full recovery.",
-  },
-  {
-    step: "03",
-    title: "Funded care for non-affordable patients",
-    description:
-      "Where families cannot afford treatment, we raise the required funds and complete high-quality surgery at no cost to them.",
-  },
-  {
-    step: "04",
-    title: "Packages for affordable patients",
-    description:
-      "For insurance holders and cash payers we offer curated treatment packages and on-call hospital coordination.",
-  },
-] as const;
-
 const VALUES = [
   {
     icon: TargetIcon,
@@ -110,44 +79,6 @@ const VALUES = [
     title: "End-to-End Support",
     description:
       "From counselling and admission to post-operative recovery, our team stays with every patient.",
-  },
-] as const;
-
-const PATIENT_BENEFITS = [
-  {
-    icon: HeartIcon,
-    title: "High-quality healthcare",
-    description: "Treated by expert surgeons with advanced medical facilities.",
-  },
-  {
-    icon: HeartHandshakeIcon,
-    title: "Counselling & end-to-end support",
-    description:
-      "Proper counselling and complete handholding from our team through every step.",
-  },
-  {
-    icon: PhoneIcon,
-    title: "On-call hospital coordination",
-    description:
-      "Dedicated assistance for internal hospital coordination whenever you need it.",
-  },
-  {
-    icon: DollarSignIcon,
-    title: "Free treatment for non-affordable patients",
-    description:
-      "We raise the required funds and complete the entire treatment at no cost.",
-  },
-  {
-    icon: ClipboardCheckIcon,
-    title: "Exclusive packages",
-    description:
-      "Curated packages for insurance holders and cash-paying patients.",
-  },
-  {
-    icon: ShieldCheckIcon,
-    title: "Safety & confidentiality",
-    description:
-      "Honest, open communication with strict confidentiality and privacy throughout.",
   },
 ] as const;
 
@@ -362,71 +293,6 @@ export default function AboutPage() {
               {CLOSING_TAGLINE}
               <span className="text-accent">&rdquo;</span>
             </p>
-          </div>
-        </Container>
-      </section>
-
-      {/* How We Work */}
-      <section className="py-16 md:py-24">
-        <Container>
-          <div className="mx-auto mb-14 max-w-2xl text-center">
-            <Text size="label" className="mb-3 tracking-[1.4px] font-black text-accent">
-              HOW WE WORK
-            </Text>
-            <Heading level="h2" className="mb-4">
-              Care that follows the patient,{" "}
-              <span className="text-accent">end to end</span>
-            </Heading>
-            <Text variant="secondary" size="body-lg">
-              Whether a patient can afford treatment or not, our work is to bring
-              them to the right hospital and stay with them until their treatment
-              is complete.
-            </Text>
-          </div>
-
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {HOW_WE_WORK.map(({ step, title, description }) => (
-              <div
-                key={step}
-                className="rounded-3xl border border-surface-border bg-white p-8 shadow-card"
-              >
-                <span className="mb-6 inline-flex h-10 items-center rounded-full bg-cta-gradient px-4 text-[14px] font-black text-white">
-                  {step}
-                </span>
-                <p className="mb-2 text-btn-lg font-black text-primary">{title}</p>
-                <Text variant="secondary">{description}</Text>
-              </div>
-            ))}
-          </div>
-        </Container>
-      </section>
-
-      {/* Benefits to Patients */}
-      <section className="bg-surface-page py-16 md:py-24">
-        <Container>
-          <div className="mx-auto mb-14 max-w-2xl text-center">
-            <Text size="label" className="mb-3 tracking-[1.4px] font-black text-accent">
-              BENEFITS TO PATIENTS
-            </Text>
-            <Heading level="h2">
-              What every patient gets with{" "}
-              <span className="text-accent">Surgery Care</span>
-            </Heading>
-          </div>
-
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {PATIENT_BENEFITS.map(({ icon: Icon, title, description }) => (
-              <div
-                key={title}
-                className="rounded-3xl border border-surface-border bg-white p-7 shadow-card"
-              >
-                <span className="mb-5 inline-flex size-12 items-center justify-center rounded-2xl bg-surface-green">
-                  <Icon className="size-6 text-accent" />
-                </span>
-                <p className="mb-2 text-btn-lg font-black text-primary">{title}</p>
-                <Text variant="secondary">{description}</Text>
-              </div>
-            ))}
           </div>
         </Container>
       </section>
