@@ -137,8 +137,8 @@ export default function AboutPage() {
   return (
     <>
       <PageHero
-        title="More Care."
-        highlight="Less Cost."
+        title="No family should choose between"
+        highlight="treatment and survival."
         subtitle="Surgery Care connects patients to top hospitals across India and ensures every patient, affordable or not, receives high-quality surgical treatment."
       />
 
