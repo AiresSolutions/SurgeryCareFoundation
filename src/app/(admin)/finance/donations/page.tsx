@@ -123,8 +123,9 @@ export default function FinanceDonationsPage() {
             </Button>
           </div>
           <Text variant="secondary" size="body-lg" className="mb-4">
-            Download an .xlsx with every donor&rsquo;s name, email, phone,
-            campaign and amount. Use the range below to limit by date.
+            Download an .xlsx of <strong>successful donations only</strong> with
+            each donor&rsquo;s name, email, phone, campaign and amount. Use the
+            range below to limit by date.
           </Text>
 
           <div className="flex flex-wrap items-end gap-3">
